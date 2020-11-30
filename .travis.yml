@@ -1,0 +1,16 @@
+language: java
+jdk:
+  - openjdk8
+cache:
+  directories:
+    - $HOME/.m2
+install: mvn install -DskipTests=true -Dmaven.javadoc.skip=true
+deploy:
+  provider: releases
+  skip_cleanup: true
+  file: "$TRAVIS_BUILD_DIR/**/target/*.jar"
+  api_key:
+    secure: $github_token
+  on:
+    tags: true #发布  tag版 时才进行发包
+    draft: false # 不发表drafs
