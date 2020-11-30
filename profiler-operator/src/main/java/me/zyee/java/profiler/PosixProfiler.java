@@ -10,6 +10,7 @@ import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.StringJoiner;
 
 /**
  * @author yee
@@ -32,24 +33,14 @@ public class PosixProfiler implements Profiler {
     private String exclude;
 
     public PosixProfiler() {
-//        ClassPathResource resource = null;
-//        if (OS.isLinux()) {
-//            resource = new ClassPathResource("async-profiler/libasyncProfiler-linux-x64.so");
-//        } else if (OS.isMacintosh()) {
-//            resource = new ClassPathResource("async-profiler/libasyncProfiler-mac-x64.so");
-//        } else {
-//            throw new UnsupportedOperationException();
-//        }
-
-        try (final InputStream is = Class.class.getResourceAsStream("async-profiler/libasyncProfiler-linux-x64.so")) {
-            final Path tmp = Files.createTempDirectory("me.zyee.frameworks");
+        try (final InputStream is = Class.class.getResourceAsStream(getLibPath())) {
+            final Path tmp = Files.createTempDirectory("me.zyee.java.profiler");
             final Path resolve = tmp.resolve("libasyncProfiler.so");
             Files.copy(is, resolve);
             profiler = AsyncProfiler.getInstance(resolve.toString());
         } catch (IOException e) {
             throw new UnsupportedOperationException(e);
         }
-
     }
 
     @Override
@@ -191,6 +182,32 @@ public class PosixProfiler implements Profiler {
     }
 
     private enum Action {
-        start, stop
+        /**
+         * 启动
+         */
+        start,
+        /**
+         * 停止
+         */
+        stop
     }
+
+    private String getLibPath() {
+        OS.OSType osType = OS.getOSType();
+        StringJoiner join = new StringJoiner("-");
+        switch (osType) {
+            case Linux:
+            case Macintosh:
+                String property = System.getProperty("os.arch");
+                if ("x86_64".equals(property) || "amd64".equals(property)) {
+                    property = "x64";
+                }
+                return join.add("/async-profiler/libasyncProfiler")
+                        .add(osType.simpleName)
+                        .add(String.format("%s.so", property)).toString();
+            default:
+                throw new UnsupportedOperationException("Unsupported OS " + osType.name());
+        }
+    }
+
 }

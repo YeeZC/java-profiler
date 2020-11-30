@@ -17,6 +17,12 @@
             <groupId>com.googlecode.aviator</groupId>
             <artifactId>aviator</artifactId>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <version>29.0-jre</version>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>
