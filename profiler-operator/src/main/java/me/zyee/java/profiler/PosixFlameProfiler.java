@@ -17,8 +17,8 @@ import java.util.StringJoiner;
  * @version 1.0
  * created by yee on 2020/11/30
  */
-public class PosixProfiler implements Profiler {
-    private final Logger logger = LoggerFactory.getLogger(PosixProfiler.class);
+public class PosixFlameProfiler implements FlameProfiler {
+    private final Logger logger = LoggerFactory.getLogger(PosixFlameProfiler.class);
     private final AsyncProfiler profiler;
     private static final String DEFAULT_EVENT = "cpu";
     private static final String DEFAULT_INTERVAL = "10ms";
@@ -32,7 +32,7 @@ public class PosixProfiler implements Profiler {
     private String include;
     private String exclude;
 
-    public PosixProfiler() {
+    public PosixFlameProfiler() {
         try (final InputStream is = Class.class.getResourceAsStream(getLibPath())) {
             final Path tmp = Files.createTempDirectory("me.zyee.java.profiler");
             final Path resolve = tmp.resolve("libasyncProfiler.so");

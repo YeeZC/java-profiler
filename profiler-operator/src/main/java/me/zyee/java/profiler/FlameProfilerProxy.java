@@ -7,16 +7,16 @@ import java.nio.file.Path;
  * @version 1.0
  * created by yee on 2020/11/30
  */
-public class ProfilerProxy implements Profiler {
+public class FlameProfilerProxy implements FlameProfiler {
 
-    private final Profiler delegate;
+    private final FlameProfiler delegate;
 
-    public ProfilerProxy() {
-        Profiler profiler;
+    public FlameProfilerProxy() {
+        FlameProfiler profiler;
         if (OS.getOSType() == OS.OSType.Windows) {
             throw new UnsupportedOperationException("Unsupported OS windows");
         }
-        profiler = new PosixProfiler();
+        profiler = new PosixFlameProfiler();
         this.delegate = profiler;
     }
 
