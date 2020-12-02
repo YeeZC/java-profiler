@@ -24,7 +24,7 @@ public class DefaultFunctionRegistryTest {
 
     @Test
     public void register() {
-        final Function mock = mock(Function.class);
+        final Function<String> mock = mock(Function.class);
         when(mock.getName()).thenReturn("abc");
         when(mock.getParameterCount()).thenReturn(1);
         when(mock.eval(eq("hello"))).thenReturn("Hello world");

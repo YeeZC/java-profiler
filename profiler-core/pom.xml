@@ -27,6 +27,11 @@
             <artifactId>profiler-theoretical</artifactId>
             <version>1.0-SNAPSHOT</version>
         </dependency>
+        <dependency>
+            <groupId>com.google.guava</groupId>
+            <artifactId>guava</artifactId>
+            <scope>provided</scope>
+        </dependency>
     </dependencies>
 
 </project>

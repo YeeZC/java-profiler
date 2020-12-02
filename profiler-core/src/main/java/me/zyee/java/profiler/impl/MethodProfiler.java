@@ -2,8 +2,7 @@ package me.zyee.java.profiler.impl;
 
 import me.zyee.java.profiler.BaseProfiler;
 import me.zyee.java.profiler.Granularity;
-
-import java.util.concurrent.Future;
+import me.zyee.java.profiler.Result;
 
 /**
  * @author yee
@@ -16,7 +15,7 @@ public class MethodProfiler extends BaseProfiler {
     }
 
     @Override
-    public Future<?> profile(Class<?>... testCases) {
+    protected Result doProfile(Class<?>... testCases) {
         return null;
     }
 }
