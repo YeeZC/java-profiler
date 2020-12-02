@@ -11,17 +11,12 @@ import java.util.concurrent.Future;
  * created by yee on 2020/12/1
  */
 public abstract class BaseProfiler implements Profiler {
-    private final Granularity granularity;
     protected List<ProfilerListener> prepared;
     protected List<ProfilerListener> before;
     protected List<ProfilerListener> after;
     protected List<ProfilerListener> clean;
     protected List<ProfilerListener> failed;
     protected List<ProfilerListener> finish;
-
-    public BaseProfiler(Granularity granularity) {
-        this.granularity = granularity;
-    }
 
     public void setPrepared(List<ProfilerListener> prepared) {
         this.prepared = ImmutableList.copyOf(prepared);

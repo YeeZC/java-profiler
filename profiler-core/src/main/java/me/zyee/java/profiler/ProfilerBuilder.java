@@ -30,14 +30,25 @@ public class ProfilerBuilder implements LifeCycle {
     }
 
     public Profiler build() {
+        BaseProfiler profiler;
         switch (granularity) {
             case SUITE:
-                return new SuiteProfiler();
+                profiler = new SuiteProfiler();
+                break;
             case TEST_CASE_METHOD:
-                return new MethodProfiler();
+                profiler = new MethodProfiler();
+                break;
             default:
-                return new ClassProfiler();
+                profiler = new ClassProfiler();
+                break;
         }
+        profiler.setPrepared(prepared);
+        profiler.setBefore(before);
+        profiler.setAfter(after);
+        profiler.setClean(clean);
+        profiler.setFailed(failed);
+        profiler.setFinish(finish);
+        return profiler;
     }
 
     @Override
