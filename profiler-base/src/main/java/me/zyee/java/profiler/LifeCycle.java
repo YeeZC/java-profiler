@@ -9,14 +9,6 @@ package me.zyee.java.profiler;
  */
 public interface LifeCycle {
     /**
-     * 数据准备
-     *
-     * @param listener
-     * @return
-     */
-    LifeCycle onPrepare(ProfilerListener listener);
-
-    /**
      * Profiler之前的处理
      *
      * @param listener
@@ -31,14 +23,6 @@ public interface LifeCycle {
      * @return
      */
     LifeCycle onAfter(ProfilerListener listener);
-
-    /**
-     * Profiler后清理数据
-     *
-     * @param listener
-     * @return
-     */
-    LifeCycle onClean(ProfilerListener listener);
 
     /**
      * 失败后的处理

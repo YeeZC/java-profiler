@@ -11,16 +11,11 @@ import java.util.concurrent.Future;
  * created by yee on 2020/12/1
  */
 public abstract class BaseProfiler implements Profiler {
-    protected List<ProfilerListener> prepared;
     protected List<ProfilerListener> before;
     protected List<ProfilerListener> after;
-    protected List<ProfilerListener> clean;
     protected List<ProfilerListener> failed;
     protected List<ProfilerListener> finish;
 
-    public void setPrepared(List<ProfilerListener> prepared) {
-        this.prepared = ImmutableList.copyOf(prepared);
-    }
 
     public void setBefore(List<ProfilerListener> before) {
         this.before = ImmutableList.copyOf(before);
@@ -28,10 +23,6 @@ public abstract class BaseProfiler implements Profiler {
 
     public void setAfter(List<ProfilerListener> after) {
         this.after = ImmutableList.copyOf(after);
-    }
-
-    public void setClean(List<ProfilerListener> clean) {
-        this.clean = ImmutableList.copyOf(clean);
     }
 
     public void setFailed(List<ProfilerListener> failed) {
@@ -45,21 +36,18 @@ public abstract class BaseProfiler implements Profiler {
     @Override
     public Future<?> profile(Class<?>... testCases) {
         Context context = null;
-        Result handle = handle(context, prepared);
-        if (!handle.isOk()) {
-            throw new IllegalStateException();
-        }
-        handle = handle(context, before);
+        Result handle = handle(context, before);
         if (!handle.isOk()) {
             throw new IllegalStateException();
         }
         handle = doProfile(testCases);
         if (!handle.isOk()) {
-            handle(context, clean);
+            handle(context, after);
+            handle(context, failed);
             return null;
         }
         handle(context, after);
-        handle(context, clean);
+        handle(context, finish);
         return null;
     }
 

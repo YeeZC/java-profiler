@@ -14,10 +14,8 @@ import java.util.List;
  */
 public class ProfilerBuilder implements LifeCycle {
     private Granularity granularity = Granularity.TEST_CASE;
-    private final List<ProfilerListener> prepared = new ArrayList<>();
     private final List<ProfilerListener> before = new ArrayList<>();
     private final List<ProfilerListener> after = new ArrayList<>();
-    private final List<ProfilerListener> clean = new ArrayList<>();
     private final List<ProfilerListener> failed = new ArrayList<>();
     private final List<ProfilerListener> finish = new ArrayList<>();
 
@@ -42,19 +40,11 @@ public class ProfilerBuilder implements LifeCycle {
                 profiler = new ClassProfiler();
                 break;
         }
-        profiler.setPrepared(prepared);
         profiler.setBefore(before);
         profiler.setAfter(after);
-        profiler.setClean(clean);
         profiler.setFailed(failed);
         profiler.setFinish(finish);
         return profiler;
-    }
-
-    @Override
-    public ProfilerBuilder onPrepare(ProfilerListener listener) {
-        prepared.add(listener);
-        return this;
     }
 
     @Override
@@ -66,12 +56,6 @@ public class ProfilerBuilder implements LifeCycle {
     @Override
     public ProfilerBuilder onAfter(ProfilerListener listener) {
         after.add(listener);
-        return this;
-    }
-
-    @Override
-    public ProfilerBuilder onClean(ProfilerListener listener) {
-        clean.add(listener);
         return this;
     }
 
