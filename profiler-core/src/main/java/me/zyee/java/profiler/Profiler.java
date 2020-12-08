@@ -11,17 +11,8 @@ public interface Profiler {
     /**
      * 执行Profile
      *
-     * @param testCases
+     * @param runner
      * @return
      */
-    Future<?> profile(Class<?>... testCases);
-
-    /**
-     * 创建Builder
-     *
-     * @return
-     */
-    default ProfilerBuilder builder() {
-        return new ProfilerBuilder();
-    }
+    Future<?> profile(Runner runner);
 }

@@ -7,5 +7,5 @@ import java.util.function.Function;
  * @version 1.0
  * created by yee on 2020/11/30
  */
-public interface ProfilerListener extends Function<Context, Result> {
+public interface Task extends Function<Context, Result> {
 }

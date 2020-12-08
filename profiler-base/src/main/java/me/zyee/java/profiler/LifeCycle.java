@@ -11,32 +11,32 @@ public interface LifeCycle {
     /**
      * Profiler之前的处理
      *
-     * @param listener
+     * @param task
      * @return
      */
-    LifeCycle onBefore(ProfilerListener listener);
+    LifeCycle onBefore(Task task);
 
     /**
      * Profiler之后的数据处理
      *
-     * @param listener
+     * @param task
      * @return
      */
-    LifeCycle onAfter(ProfilerListener listener);
+    LifeCycle onAfter(Task task);
 
     /**
      * 失败后的处理
      *
-     * @param listener
+     * @param task
      * @return
      */
-    LifeCycle onFailed(ProfilerListener listener);
+    LifeCycle onFailed(Task task);
 
     /**
      * 结束后的处理
      *
-     * @param listener
+     * @param task
      * @return
      */
-    LifeCycle onFinished(ProfilerListener listener);
+    LifeCycle onFinished(Task task);
 }

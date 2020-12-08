@@ -11,13 +11,17 @@ public class FlameProfilerProxy implements FlameProfiler {
 
     private final FlameProfiler delegate;
 
-    public FlameProfilerProxy() {
+    private FlameProfilerProxy() {
         FlameProfiler profiler;
         if (OS.getOSType() == OS.OSType.Windows) {
             throw new UnsupportedOperationException("Unsupported OS windows");
         }
         profiler = new PosixFlameProfiler();
         this.delegate = profiler;
+    }
+
+    private static class SingletonHolder {
+        private static final FlameProfiler PROFILER = new FlameProfilerProxy();
     }
 
     @Override
@@ -48,5 +52,9 @@ public class FlameProfilerProxy implements FlameProfiler {
     @Override
     public void reset() {
         this.delegate.reset();
+    }
+
+    public static FlameProfiler getProfiler() {
+        return SingletonHolder.PROFILER;
     }
 }
