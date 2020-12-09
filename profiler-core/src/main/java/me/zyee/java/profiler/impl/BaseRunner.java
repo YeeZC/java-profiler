@@ -1,7 +1,6 @@
 package me.zyee.java.profiler.impl;
 
 import me.zyee.java.profiler.Context;
-import me.zyee.java.profiler.ContextHelper;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Result;
 import me.zyee.java.profiler.Runner;

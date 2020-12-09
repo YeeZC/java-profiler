@@ -1,8 +1,8 @@
 package me.zyee.java.profiler.agent;
 
 import me.zyee.java.profiler.Context;
-import me.zyee.java.profiler.ContextHelper;
 import me.zyee.java.profiler.ProfileItem;
+import me.zyee.java.profiler.impl.ContextHelper;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
@@ -20,7 +20,8 @@ public class AgentInterceptor {
     @RuntimeType
     public static Object intercept(@Origin Method method,
                                    @SuperCall Callable<Object> callable) throws Exception {
-        Context context = ContextHelper.getContext();
+        Context context = ContextHelper.getContext().resolve(method.getName()
+                + System.currentTimeMillis());
         final ProfileItem item = new ProfileItem(method.toGenericString());
         try {
             final Object result = Optional.ofNullable(context.getProfiler()).map(profiler -> {

@@ -1,6 +1,7 @@
-package me.zyee.java.profiler;
+package me.zyee.java.profiler.impl;
 
-import me.zyee.java.profiler.impl.ContextImpl;
+import me.zyee.java.profiler.Context;
+import me.zyee.java.profiler.OS;
 
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -31,9 +32,21 @@ public class ContextHelper {
         CONTEXT_ATOMIC_REFERENCE.compareAndSet(context, null);
     }
 
-    public static Context newContext() {
-        Context context = new ContextImpl();
-        setContext(context);
-        return context;
+    public static Context newContext(String name) {
+        switch (OS.getOSType()) {
+            case Linux:
+            case Macintosh: {
+                final PosixContext context = new PosixContext(name);
+                setContext(context);
+                return context;
+            }
+            case Windows: {
+                final WindowsContext context = new WindowsContext(name);
+                setContext(context);
+                return context;
+            }
+            default:
+                return null;
+        }
     }
 }

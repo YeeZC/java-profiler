@@ -1,8 +1,9 @@
 package me.zyee.java.profiler.posix;
 
-import me.zyee.java.profiler.FlameProfiler;
 import me.zyee.java.profiler.OS;
+import me.zyee.java.profiler.Profiler;
 import one.profiler.AsyncProfiler;
+import one.profiler.Events;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -20,11 +21,10 @@ import java.util.StringJoiner;
  * @version 1.0
  * created by yee on 2020/11/30
  */
-public class PosixFlameProfiler implements FlameProfiler {
-    private static final String DEFAULT_EVENT = "cpu";
+public class PosixProfiler implements Profiler {
     private static final String DEFAULT_INTERVAL = "10ms";
-    private static final Path TMP;
     private static final Path LIB_FILE;
+    public static final Path TMP;
 
     static {
         try (final InputStream is = Class.class.getResourceAsStream(getLibPath())) {
@@ -39,13 +39,13 @@ public class PosixFlameProfiler implements FlameProfiler {
     }
 
 
-    private static final Logger logger = LoggerFactory.getLogger(PosixFlameProfiler.class);
+    private static final Logger logger = LoggerFactory.getLogger(PosixProfiler.class);
     private final AsyncProfiler profiler;
 
     private final String args;
     private final String output;
 
-    private PosixFlameProfiler(Builder builder) {
+    private PosixProfiler(Builder builder) {
         this.profiler = AsyncProfiler.getInstance(LIB_FILE.toString());
         this.output = builder.output;
         this.args = builder.args();
@@ -113,7 +113,7 @@ public class PosixFlameProfiler implements FlameProfiler {
     }
 
     public static class Builder {
-        private String event;
+        private Events event;
         private String interval;
         private Format format;
         private String output;
@@ -124,7 +124,7 @@ public class PosixFlameProfiler implements FlameProfiler {
         private Builder() {
         }
 
-        public Builder setEvent(String event) {
+        public Builder setEvent(Events event) {
             this.event = event;
             return this;
         }
@@ -161,9 +161,9 @@ public class PosixFlameProfiler implements FlameProfiler {
 
         private String args() {
             StringJoiner joiner = new StringJoiner(",");
-            joiner.add("event=" + Optional.ofNullable(event).orElse(DEFAULT_EVENT));
+            joiner.add("event=" + Optional.ofNullable(event).map(e -> e.name).orElse(Events.CPU.name));
             if (StringUtils.isNotBlank(output)) {
-                joiner.add("file=" + output);
+                joiner.add("file=" + TMP.resolve(output));
             }
             if (this.threads) {
                 joiner.add("threads");
@@ -212,8 +212,8 @@ public class PosixFlameProfiler implements FlameProfiler {
             }).orElse("");
         }
 
-        public PosixFlameProfiler build() {
-            return new PosixFlameProfiler(this);
+        public PosixProfiler build() {
+            return new PosixProfiler(this);
         }
     }
 }

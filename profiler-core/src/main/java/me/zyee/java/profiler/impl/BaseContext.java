@@ -1,8 +1,6 @@
 package me.zyee.java.profiler.impl;
 
 import me.zyee.java.profiler.Context;
-import me.zyee.java.profiler.FlameProfiler;
-import me.zyee.java.profiler.FlameProfilerProxy;
 import me.zyee.java.profiler.ProfileItem;
 
 import java.util.Queue;
@@ -13,16 +11,22 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  * @version 1.0
  * created by yee on 2020/12/9
  */
-public class ContextImpl implements Context {
+abstract class BaseContext implements Context {
+    protected String name;
+
     private final Queue<ProfileItem> queue = new ConcurrentLinkedQueue<>();
 
-    @Override
-    public FlameProfiler getProfiler() {
-        return FlameProfilerProxy.getProfiler();
+    public BaseContext(String name) {
+        this.name = name;
     }
 
     @Override
     public Queue<ProfileItem> getProfileItems() {
         return queue;
+    }
+
+    @Override
+    public Context resolve(String name) {
+        return this;
     }
 }

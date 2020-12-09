@@ -7,7 +7,7 @@ import java.util.concurrent.Future;
  * @version 1.0
  * created by yee on 2020/12/1
  */
-public abstract class BaseProfiler implements Profiler {
+public abstract class BaseProfilerCore implements ProfilerCore {
 
     @Override
     public Future<?> profile(Runner testCases) {

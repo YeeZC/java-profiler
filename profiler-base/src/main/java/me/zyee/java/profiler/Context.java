@@ -8,7 +8,9 @@ import java.util.Queue;
  * created by yee on 2020/12/1
  */
 public interface Context {
-    FlameProfiler getProfiler();
+    Profiler getProfiler();
 
     Queue<ProfileItem> getProfileItems();
+
+    Context resolve(String name);
 }

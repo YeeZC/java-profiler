@@ -7,7 +7,7 @@ import java.util.concurrent.Future;
  * @version 1.0
  * created by yee on 2020/12/1
  */
-public interface Profiler {
+public interface ProfilerCore {
     /**
      * 执行Profile
      *
