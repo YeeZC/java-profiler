@@ -7,4 +7,20 @@ package me.zyee.java.profiler;
  */
 public interface Result {
     boolean isOk();
+
+    Throwable getThrowable();
+
+    static Result failed(Throwable t) {
+        return new Result() {
+            @Override
+            public boolean isOk() {
+                return false;
+            }
+
+            @Override
+            public Throwable getThrowable() {
+                return t;
+            }
+        };
+    }
 }

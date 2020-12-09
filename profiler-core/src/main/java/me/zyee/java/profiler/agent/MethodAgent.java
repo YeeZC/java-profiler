@@ -20,8 +20,9 @@ public class MethodAgent {
     public static void agentmain(String[] args, Instrumentation inst) {
         System.out.println("Agent");
 
-        AgentBuilder.Transformer transformer = (builder, typeDescription, classLoader, javaModule) -> builder.method(ElementMatchers.isAnnotatedWith(Atoms.class))
-                .intercept(MethodDelegation.to(AgentInterceptor.class));
+        AgentBuilder.Transformer transformer = (builder, typeDescription, classLoader, javaModule) ->
+                builder.method(ElementMatchers.isAnnotatedWith(Atoms.class))
+                        .intercept(MethodDelegation.to(AgentInterceptor.class));
 
         new AgentBuilder.Default()
                 .type(ElementMatchers.any())

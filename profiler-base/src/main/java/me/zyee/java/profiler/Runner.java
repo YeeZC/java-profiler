@@ -6,5 +6,5 @@ package me.zyee.java.profiler;
  * created by yee on 2020/12/8
  */
 public interface Runner {
-    Result run();
+    Result run() throws Exception;
 }

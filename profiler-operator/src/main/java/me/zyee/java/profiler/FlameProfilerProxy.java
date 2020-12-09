@@ -1,5 +1,7 @@
 package me.zyee.java.profiler;
 
+import me.zyee.java.profiler.posix.PosixFlameProfiler;
+
 import java.nio.file.Path;
 
 /**
@@ -13,10 +15,12 @@ public class FlameProfilerProxy implements FlameProfiler {
 
     private FlameProfilerProxy() {
         FlameProfiler profiler;
+
         if (OS.getOSType() == OS.OSType.Windows) {
             throw new UnsupportedOperationException("Unsupported OS windows");
         }
-        profiler = new PosixFlameProfiler();
+
+        profiler = PosixFlameProfiler.builder().build();
         this.delegate = profiler;
     }
 
@@ -32,26 +36,6 @@ public class FlameProfilerProxy implements FlameProfiler {
     @Override
     public Path stop() {
         return this.delegate.stop();
-    }
-
-    @Override
-    public void setInclude(String include) {
-        this.delegate.setInclude(include);
-    }
-
-    @Override
-    public void setExclude(String exclude) {
-        this.delegate.setExclude(exclude);
-    }
-
-    @Override
-    public void setOutput(String exclude) {
-        this.delegate.setOutput(exclude);
-    }
-
-    @Override
-    public void reset() {
-        this.delegate.reset();
     }
 
     public static FlameProfiler getProfiler() {

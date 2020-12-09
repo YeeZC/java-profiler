@@ -12,11 +12,4 @@ public interface FlameProfiler {
 
     Path stop();
 
-    void setInclude(String include);
-
-    void setExclude(String exclude);
-
-    void setOutput(String exclude);
-
-    void reset();
 }

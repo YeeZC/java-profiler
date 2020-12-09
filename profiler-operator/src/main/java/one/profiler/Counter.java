@@ -18,8 +18,15 @@ package one.profiler;
 
 /**
  * Which metrics to use when generating profile in collapsed stack traces format.
+ *
+ * @author yee
  */
 public enum Counter {
-    SAMPLES,
-    TOTAL
+    SAMPLES("samples"),
+    TOTAL("total");
+    public String name;
+
+    Counter(String name) {
+        this.name = name;
+    }
 }

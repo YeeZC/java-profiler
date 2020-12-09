@@ -1,7 +1,7 @@
 /*
  * Copyright 2018 Andrei Pangin
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
+ * Licensed under the Apache License, Version 2.0 (the "License")),
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
  *
@@ -19,10 +19,16 @@ package one.profiler;
 /**
  * Predefined event names to use in {@link AsyncProfiler#start(String, long)}
  */
-public class Events {
-    public static final String CPU    = "cpu";
-    public static final String ALLOC  = "alloc";
-    public static final String LOCK   = "lock";
-    public static final String WALL   = "wall";
-    public static final String ITIMER = "itimer";
+public enum Events {
+    CPU("cpu"),
+    ALLOC("alloc"),
+    LOCK("lock"),
+    WALL("wall"),
+    I_TIMER("itimer");
+
+    public String name;
+
+    Events(String name) {
+        this.name = name;
+    }
 }
