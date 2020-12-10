@@ -55,4 +55,9 @@ public abstract class BaseRunner implements Runner, Task {
             ContextHelper.removeContext(context);
         }
     }
+
+    @Override
+    public String name() {
+        return targetClass.getName();
+    }
 }
