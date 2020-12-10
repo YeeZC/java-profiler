@@ -22,7 +22,15 @@ package one.profiler;
  * @author yee
  */
 public enum Counter {
+    /**
+     * async-profiler format counter
+     * samples
+     */
     SAMPLES("samples"),
+    /**
+     * async-profiler format counter
+     * total
+     */
     TOTAL("total");
     public String name;
 

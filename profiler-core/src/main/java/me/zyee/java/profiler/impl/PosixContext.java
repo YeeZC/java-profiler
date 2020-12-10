@@ -20,14 +20,14 @@ import java.util.Queue;
  * created by yee on 2020/12/9
  */
 class PosixContext extends BaseContext {
-    private final Profiler profiler;
+    private final Profiler cpu;
 
-    PosixContext(String name) {
+    PosixContext(String name, Events event) {
         super(name);
-        this.profiler = init(name);
+        this.cpu = init(name, event);
     }
 
-    private Profiler init(String name) {
+    private Profiler init(String name, Events event) {
         final Path profilerPath = PosixProfiler.TMP.resolve(name);
         if (!Files.exists(profilerPath)) {
             try {
@@ -36,49 +36,28 @@ class PosixContext extends BaseContext {
                 e.printStackTrace();
             }
         }
-        Profiler flameProfiler = PosixProfiler.builder()
-                .setEvent(Events.CPU)
-                .setOutput(profilerPath.resolve("cpu.html").toString())
+        return PosixProfiler.builder()
+                .setEvent(event)
+                .setOutput(profilerPath.resolve(event.name).toString())
                 .setThreads(true)
                 .setFormat(Format.builder()
                         .setTree(Counter.TOTAL).build())
                 .build();
-        Profiler memoryProfiler = PosixProfiler.builder()
-                .setEvent(Events.ALLOC)
-                .setOutput(profilerPath.resolve("alloc.html").toString())
-                .setThreads(true)
-                .setFormat(Format.builder()
-                        .setTree(Counter.TOTAL).build())
-                .build();
-        return new Profiler() {
-            @Override
-            public void start() {
-                flameProfiler.start();
-                memoryProfiler.start();
-            }
-
-            @Override
-            public Path stop() {
-                flameProfiler.stop();
-                memoryProfiler.stop();
-                return profilerPath;
-            }
-        };
     }
 
     @Override
     public Profiler getProfiler() {
-        return profiler;
+        return cpu;
     }
 
     @Override
     public Context resolve(String name) {
         Context ctx = this;
-        final Profiler profiler = init(this.name + File.separator + name);
+        final Profiler cpu = init(this.name + File.separator + name, Events.CPU);
         return new Context() {
             @Override
             public Profiler getProfiler() {
-                return profiler;
+                return cpu;
             }
 
             @Override

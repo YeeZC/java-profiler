@@ -18,12 +18,34 @@ package one.profiler;
 
 /**
  * Predefined event names to use in {@link AsyncProfiler#start(String, long)}
+ *
+ * @author yee
  */
 public enum Events {
+    /**
+     * async-profiler event: cpu
+     * CPU Profiler
+     */
     CPU("cpu"),
+    /**
+     * async-profiler event: alloc
+     * Memory Profiler
+     */
     ALLOC("alloc"),
+    /**
+     * async-profiler event: lock
+     * Lock Profiler
+     */
     LOCK("lock"),
+    /**
+     * async-profiler event: wall
+     * Wall Profiler
+     */
     WALL("wall"),
+    /**
+     * async-profiler event: itimer
+     * I_Timer Profiler
+     */
     I_TIMER("itimer");
 
     public String name;
