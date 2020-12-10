@@ -20,11 +20,11 @@ import java.util.Queue;
  * created by yee on 2020/12/9
  */
 class PosixContext extends BaseContext {
-    private final Profiler cpu;
+    private final Profiler profiler;
 
     PosixContext(String name, Events event) {
         super(name);
-        this.cpu = init(name, event);
+        this.profiler = init(name, event);
     }
 
     private Profiler init(String name, Events event) {
@@ -47,7 +47,7 @@ class PosixContext extends BaseContext {
 
     @Override
     public Profiler getProfiler() {
-        return cpu;
+        return profiler;
     }
 
     @Override
