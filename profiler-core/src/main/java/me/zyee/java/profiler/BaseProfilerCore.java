@@ -5,6 +5,7 @@ import io.reactivex.rxjava3.annotations.NonNull;
 import io.reactivex.rxjava3.core.Observable;
 import io.reactivex.rxjava3.core.ObservableEmitter;
 import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import io.reactivex.rxjava3.functions.Consumer;
 import me.zyee.java.profiler.impl.ContextHelper;
 import one.profiler.Events;
 
@@ -39,14 +40,7 @@ public abstract class BaseProfilerCore implements ProfilerCore {
             } else {
                 emitter.onError(new UnsupportedOperationException());
             }
-        }).subscribe(context -> Observable.merge(
-                Observable.concat(Observable.create(new TaskObservable(before, context)),
-                        Observable.create(new TaskObservable(Lists.newArrayList(runner), context))),
-                Observable.create(new TaskObservable(after, context)))
-                .subscribe(ctx -> {
-                }, error -> {
-                }, () -> {
-                }), Throwable::printStackTrace);
+        }).blockingSubscribe(new SubscribeConsumer(runner), Throwable::printStackTrace);
 
     }
 
@@ -60,7 +54,7 @@ public abstract class BaseProfilerCore implements ProfilerCore {
         }
 
         @Override
-        public void subscribe(@NonNull ObservableEmitter<Context> emitter) throws Throwable {
+        public void subscribe(@NonNull ObservableEmitter<Context> emitter) {
             for (Task task : tasks) {
                 final Result apply = task.apply(context);
                 if (apply.isOk()) {
@@ -69,6 +63,26 @@ public abstract class BaseProfilerCore implements ProfilerCore {
                     emitter.onError(apply.getThrowable());
                 }
             }
+        }
+    }
+
+    private class SubscribeConsumer implements Consumer<Context> {
+        private final Task runner;
+
+        public SubscribeConsumer(Task runner) {
+            this.runner = runner;
+        }
+
+        @Override
+        public void accept(Context context) throws Throwable {
+            Observable.merge(
+                    Observable.concat(Observable.create(new TaskObservable(before, context)),
+                            Observable.create(new TaskObservable(Lists.newArrayList(runner), context))),
+                    Observable.create(new TaskObservable(after, context)))
+                    .subscribe(ctx -> {
+                            },
+                            error -> Observable.fromIterable(failed).subscribe(task -> task.apply(context)),
+                            () -> Observable.fromIterable(finished).subscribe(task -> task.apply(context)));
         }
     }
 }
