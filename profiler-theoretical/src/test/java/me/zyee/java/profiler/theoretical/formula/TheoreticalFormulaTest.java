@@ -60,6 +60,8 @@ public class TheoreticalFormulaTest {
             }
         }, e -> {
             e.printStackTrace();
+        }, () -> {
+            System.out.println("OnComplete");
         });
     }
 }

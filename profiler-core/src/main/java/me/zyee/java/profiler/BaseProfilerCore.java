@@ -1,8 +1,15 @@
 package me.zyee.java.profiler;
 
+import com.google.common.collect.Lists;
+import io.reactivex.rxjava3.annotations.NonNull;
+import io.reactivex.rxjava3.core.Observable;
+import io.reactivex.rxjava3.core.ObservableEmitter;
+import io.reactivex.rxjava3.core.ObservableOnSubscribe;
+import me.zyee.java.profiler.impl.ContextHelper;
+import one.profiler.Events;
+
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.Future;
 
 /**
  * @author yee
@@ -10,15 +17,58 @@ import java.util.concurrent.Future;
  * created by yee on 2020/12/1
  */
 public abstract class BaseProfilerCore implements ProfilerCore {
-    private List<Task> before = new ArrayList<>();
-    private List<Task> after = new ArrayList<>();
-    private List<Task> failed = new ArrayList<>();
-    private List<Task> finished = new ArrayList<>();
+    private final List<Task> before = new ArrayList<>();
+    private final List<Task> after = new ArrayList<>();
+    private final List<Task> failed = new ArrayList<>();
+    private final List<Task> finished = new ArrayList<>();
 
     @Override
-    public Future<?> profile(Runner runner) {
+    public void profile(Runner runner) {
 
+        Observable.create((ObservableOnSubscribe<Context>) emitter -> {
+            Context context = ContextHelper.newContext(runner.name(), Events.CPU);
+            if (null != context) {
+                emitter.onNext(context);
+            } else {
+                emitter.onError(new UnsupportedOperationException());
+            }
 
-        return null;
+            context = ContextHelper.newContext(runner.name(), Events.ALLOC);
+            if (null != context) {
+                emitter.onNext(context);
+            } else {
+                emitter.onError(new UnsupportedOperationException());
+            }
+        }).subscribe(context -> Observable.merge(
+                Observable.concat(Observable.create(new TaskObservable(before, context)),
+                        Observable.create(new TaskObservable(Lists.newArrayList(runner), context))),
+                Observable.create(new TaskObservable(after, context)))
+                .subscribe(ctx -> {
+                }, error -> {
+                }, () -> {
+                }), Throwable::printStackTrace);
+
+    }
+
+    private static class TaskObservable implements ObservableOnSubscribe<Context> {
+        private final List<Task> tasks;
+        private final Context context;
+
+        public TaskObservable(List<Task> tasks, Context context) {
+            this.tasks = tasks;
+            this.context = context;
+        }
+
+        @Override
+        public void subscribe(@NonNull ObservableEmitter<Context> emitter) throws Throwable {
+            for (Task task : tasks) {
+                final Result apply = task.apply(context);
+                if (apply.isOk()) {
+                    emitter.onNext(context);
+                } else {
+                    emitter.onError(apply.getThrowable());
+                }
+            }
+        }
     }
 }

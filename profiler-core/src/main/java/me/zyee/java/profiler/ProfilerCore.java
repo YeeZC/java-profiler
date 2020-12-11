@@ -1,7 +1,5 @@
 package me.zyee.java.profiler;
 
-import java.util.concurrent.Future;
-
 /**
  * @author yee
  * @version 1.0
@@ -12,7 +10,6 @@ public interface ProfilerCore {
      * 执行Profile
      *
      * @param runner
-     * @return
      */
-    Future<?> profile(Runner runner);
+    void profile(Runner runner);
 }
