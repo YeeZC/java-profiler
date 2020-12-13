@@ -1,16 +1,11 @@
 package me.zyee.java.profiler;
 
-import com.google.common.collect.Lists;
-import io.reactivex.rxjava3.annotations.NonNull;
-import io.reactivex.rxjava3.core.Observable;
-import io.reactivex.rxjava3.core.ObservableEmitter;
-import io.reactivex.rxjava3.core.ObservableOnSubscribe;
-import io.reactivex.rxjava3.functions.Consumer;
 import me.zyee.java.profiler.impl.ContextHelper;
 import one.profiler.Events;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Queue;
 
 /**
  * @author yee
@@ -25,64 +20,29 @@ public abstract class BaseProfilerCore implements ProfilerCore {
 
     @Override
     public void profile(Runner runner) {
-
-        Observable.create((ObservableOnSubscribe<Context>) emitter -> {
-            Context context = ContextHelper.newContext(runner.name(), Events.CPU);
-            if (null != context) {
-                emitter.onNext(context);
-            } else {
-                emitter.onError(new UnsupportedOperationException());
-            }
-
-            context = ContextHelper.newContext(runner.name(), Events.ALLOC);
-            if (null != context) {
-                emitter.onNext(context);
-            } else {
-                emitter.onError(new UnsupportedOperationException());
-            }
-        }).blockingSubscribe(new SubscribeConsumer(runner), Throwable::printStackTrace);
-
-    }
-
-    private static class TaskObservable implements ObservableOnSubscribe<Context> {
-        private final List<Task> tasks;
-        private final Context context;
-
-        public TaskObservable(List<Task> tasks, Context context) {
-            this.tasks = tasks;
-            this.context = context;
-        }
-
-        @Override
-        public void subscribe(@NonNull ObservableEmitter<Context> emitter) {
-            for (Task task : tasks) {
-                final Result apply = task.apply(context);
-                if (apply.isOk()) {
-                    emitter.onNext(context);
-                } else {
-                    emitter.onError(apply.getThrowable());
-                }
+        Context context = ContextHelper.newContext(runner.name(), Events.CPU);
+        for (Task task : before) {
+            final Result result = task.apply(context);
+            if (!result.isOk()) {
+                throw new RuntimeException(result.getThrowable());
             }
         }
-    }
-
-    private class SubscribeConsumer implements Consumer<Context> {
-        private final Task runner;
-
-        public SubscribeConsumer(Task runner) {
-            this.runner = runner;
+        final Result result = runner.apply(context);
+        if (result.isOk()) {
+            for (Task task : after) {
+                task.apply(context);
+            }
+            for (Task task : finished) {
+                task.apply(context);
+            }
+        } else {
+            for (Task task : failed) {
+                task.apply(context);
+            }
         }
 
-        @Override
-        public void accept(Context context) throws Throwable {
-            Observable.merge(
-                    Observable.concat(Observable.create(new TaskObservable(before, context)),
-                            Observable.create(new TaskObservable(Lists.newArrayList(runner), context))),
-                    Observable.create(new TaskObservable(after, context)))
-                    .subscribe(ctx -> {
-                            },
-                            error -> Observable.fromIterable(failed).subscribe(task -> task.apply(context)),
-                            () -> Observable.fromIterable(finished).subscribe(task -> task.apply(context)));
-        }
+        final Queue<ProfileItem> profileItems = context.getProfileItems();
+        // TODO 实现报告
     }
+
 }

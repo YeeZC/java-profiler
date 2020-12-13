@@ -1,11 +1,9 @@
 package me.zyee.java.profiler.agent;
 
-import me.zyee.java.profiler.Context;
-import me.zyee.java.profiler.impl.ContextHelper;
+import me.zyee.java.profiler.BaseProfilerCore;
+import me.zyee.java.profiler.impl.ProfileJUnitRunner;
 import net.bytebuddy.agent.ByteBuddyAgent;
-import one.profiler.Events;
 import org.junit.Test;
-import org.junit.runner.JUnitCore;
 
 import java.lang.instrument.Instrumentation;
 
@@ -19,8 +17,8 @@ public class MethodAgentTest {
     public void test() {
         final Instrumentation install = ByteBuddyAgent.install();
         MethodAgent.agentmain(new String[]{}, install);
-        final Context context = ContextHelper.newContext("", Events.CPU);
-        JUnitCore.runClasses(TestClass.class);
-        System.out.println(context);
+        final BaseProfilerCore core = new BaseProfilerCore() {
+        };
+        core.profile(new ProfileJUnitRunner(TestClass.class));
     }
 }

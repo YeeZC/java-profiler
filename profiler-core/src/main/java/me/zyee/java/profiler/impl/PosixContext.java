@@ -39,7 +39,7 @@ class PosixContext extends BaseContext {
         return PosixProfiler.builder()
                 .setEvent(event)
                 .setOutput(profilerPath.resolve(event.name).toString())
-                .setThreads(true)
+                .setThreads(false)
                 .setFormat(Format.builder()
                         .setTree(Counter.TOTAL).build())
                 .build();
