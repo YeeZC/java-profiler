@@ -5,6 +5,7 @@ import me.zyee.java.profiler.impl.ProfileJUnitRunner;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import org.junit.Test;
 
+import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 
 /**
@@ -14,7 +15,7 @@ import java.lang.instrument.Instrumentation;
  */
 public class MethodAgentTest {
     @Test
-    public void test() {
+    public void test() throws IOException {
         final Instrumentation install = ByteBuddyAgent.install();
         MethodAgent.agentmain(new String[]{}, install);
         final BaseProfilerCore core = new BaseProfilerCore() {
