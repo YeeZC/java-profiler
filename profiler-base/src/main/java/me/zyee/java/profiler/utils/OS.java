@@ -1,4 +1,4 @@
-package me.zyee.java.profiler;
+package me.zyee.java.profiler.utils;
 
 /**
  * @author yee

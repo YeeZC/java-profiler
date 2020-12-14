@@ -1,0 +1,92 @@
+package me.zyee.java.profiler.flame;
+
+import java.util.List;
+import java.util.Objects;
+import java.util.stream.Collectors;
+import me.zyee.java.profiler.Operation;
+
+/**
+ * @author yee
+ * @version 1.0
+ * Create by yee on 2020/8/24
+ */
+public class ProfileNode implements Operation {
+    private String pattern;
+    private String name;
+    private Double atom;
+    private List<ProfileNode> children;
+    private ProfileNode parent;
+
+    @Override
+    public String getPattern() {
+        return pattern;
+    }
+
+    public void setPattern(String pattern) {
+        this.pattern = pattern;
+    }
+
+    @Override
+    public String getName() {
+        return name;
+    }
+
+    @Override
+    public long getCost() {
+        return 0;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public List<ProfileNode> getChildren() {
+        return children;
+    }
+
+    public void setChildren(List<ProfileNode> children) {
+        this.children = children.stream().peek(node -> node.parent = this).collect(Collectors.toList());
+    }
+
+    public void addChild(ProfileNode child) {
+        this.children.add(child);
+        child.parent = this;
+    }
+
+    public ProfileNode getParent() {
+        return parent;
+    }
+
+    public void setParent(ProfileNode parent) {
+        this.parent = parent;
+    }
+
+    public Double getAtom() {
+        return atom;
+    }
+
+    public void setAtom(Double atom) {
+        this.atom = atom;
+    }
+
+    public void merge() {
+        if (null != this.children) {
+            this.children = this.children.stream().distinct().
+                    peek(ProfileNode::merge).collect(Collectors.toList());
+        }
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ProfileNode that = (ProfileNode) o;
+        return Objects.equals(pattern, that.pattern) &&
+                Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(pattern, name);
+    }
+}

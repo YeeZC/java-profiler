@@ -84,6 +84,11 @@
                 <artifactId>byte-buddy</artifactId>
                 <version>1.10.18</version>
             </dependency>
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>1.11.3</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 </project>

@@ -1,6 +1,7 @@
 package me.zyee.java.profiler;
 
 import java.nio.file.Path;
+import me.zyee.java.profiler.annotation.Atoms;
 
 /**
  * @author yee
@@ -9,6 +10,7 @@ import java.nio.file.Path;
  */
 public class ProfileItem {
     private final String profileName;
+    private Atoms atoms;
     private Path flamePath;
     private long cost;
     private Throwable throwable;
@@ -43,5 +45,13 @@ public class ProfileItem {
 
     public void setThrowable(Throwable throwable) {
         this.throwable = throwable;
+    }
+
+    public Atoms getAtoms() {
+        return atoms;
+    }
+
+    public void setAtoms(Atoms atoms) {
+        this.atoms = atoms;
     }
 }

@@ -1,15 +1,15 @@
 package me.zyee.java.profiler.agent;
 
+import java.lang.reflect.Method;
+import java.util.Optional;
+import java.util.concurrent.Callable;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileItem;
+import me.zyee.java.profiler.annotation.Atoms;
 import me.zyee.java.profiler.impl.ContextHelper;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
 import net.bytebuddy.implementation.bind.annotation.SuperCall;
-
-import java.lang.reflect.Method;
-import java.util.Optional;
-import java.util.concurrent.Callable;
 
 /**
  * @author yee
@@ -23,6 +23,8 @@ public class AgentInterceptor {
         Context context = ContextHelper.getContext().resolve(method.getName()
                 + System.currentTimeMillis());
         final ProfileItem item = new ProfileItem(method.toGenericString());
+        final Atoms annotation = method.getAnnotation(Atoms.class);
+        item.setAtoms(annotation);
         try {
             final Object result = Optional.ofNullable(context.getProfiler()).map(profiler -> {
                 profiler.start();

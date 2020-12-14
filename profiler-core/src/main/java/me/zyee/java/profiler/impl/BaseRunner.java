@@ -1,14 +1,13 @@
 package me.zyee.java.profiler.impl;
 
+import java.nio.file.Path;
+import java.util.Optional;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Result;
 import me.zyee.java.profiler.Runner;
 import me.zyee.java.profiler.Task;
 import me.zyee.java.profiler.annotation.Atoms;
-
-import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * @author yee
@@ -30,6 +29,7 @@ public abstract class BaseRunner implements Runner, Task {
                 try {
                     return Optional.ofNullable(context.getProfiler()).map(profiler -> {
                         final ProfileItem item = new ProfileItem(targetClass.getName());
+                        item.setAtoms(targetClass.getAnnotation(Atoms.class));
                         profiler.start();
                         long start = System.currentTimeMillis();
                         try {

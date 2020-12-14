@@ -1,10 +1,9 @@
 package me.zyee.java.profiler.impl;
 
-import me.zyee.java.profiler.Context;
-import me.zyee.java.profiler.OS;
-import one.profiler.Events;
-
 import java.util.concurrent.atomic.AtomicReference;
+import me.zyee.java.profiler.Context;
+import me.zyee.java.profiler.utils.OS;
+import one.profiler.Events;
 
 /**
  * @author yee

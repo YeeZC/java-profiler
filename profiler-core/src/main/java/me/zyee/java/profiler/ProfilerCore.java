@@ -1,5 +1,7 @@
 package me.zyee.java.profiler;
 
+import java.io.IOException;
+
 /**
  * @author yee
  * @version 1.0
@@ -11,5 +13,5 @@ public interface ProfilerCore {
      *
      * @param runner
      */
-    void profile(Runner runner);
+    void profile(Runner runner) throws IOException;
 }

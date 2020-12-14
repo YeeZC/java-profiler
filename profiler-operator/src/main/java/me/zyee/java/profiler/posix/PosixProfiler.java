@@ -1,13 +1,5 @@
 package me.zyee.java.profiler.posix;
 
-import me.zyee.java.profiler.OS;
-import me.zyee.java.profiler.Profiler;
-import one.profiler.AsyncProfiler;
-import one.profiler.Events;
-import org.apache.commons.lang3.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -15,6 +7,13 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Optional;
 import java.util.StringJoiner;
+import me.zyee.java.profiler.Profiler;
+import me.zyee.java.profiler.utils.OS;
+import one.profiler.AsyncProfiler;
+import one.profiler.Events;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * @author yee
