@@ -1,13 +1,5 @@
 package me.zyee.java.profiler.flame;
 
-import me.zyee.java.profiler.utils.GroupMatcher;
-import me.zyee.java.profiler.utils.OS;
-import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -17,6 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import me.zyee.java.profiler.utils.GroupMatcher;
+import me.zyee.java.profiler.utils.OS;
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
 
 /**
  * @author yee
@@ -25,7 +24,7 @@ import java.util.stream.Collectors;
  */
 public class FlameParser {
 
-    public static Map<String, Frame> parse(Path path, Map<String, GroupMatcher.Or<String>> patterns) throws IOException {
+    public static Map<String, Frame> parse(Path path) throws IOException {
         if (OS.getOSType() == OS.OSType.Windows) {
             throw new UnsupportedOperationException();
         }
@@ -34,7 +33,8 @@ public class FlameParser {
         final Elements select = parse.select("ul.tree>li");
         final Frame root = new Frame();
         final FlameNode rootNode = new FlameNode();
-        buildFlameTree(select, rootNode, patterns);
+//        buildFlameTree(select, rootNode, patterns);
+        buildFlameTree(select, rootNode);
         root.setName("Profile");
 
 //        buildFrame(rootNode, root, patterns, result);
@@ -79,19 +79,17 @@ public class FlameParser {
 
     }
 
-    private static void buildFlameTree(Elements select, FlameNode root, Map<String, GroupMatcher.Or<String>> patterns) {
+    private static void buildFlameTree(Elements select, FlameNode root) {
         for (Element element : select) {
             Optional.ofNullable(element.selectFirst("span")).ifPresent(el -> {
                 final String span = el.text().replace("/", ".");
-                final boolean match = patterns.values().stream().anyMatch(matcher -> matcher.matching(span));
-                if (match) {
-                    final FlameNode node = new FlameNode();
-                    node.setName(span);
-                    final String div = element.selectFirst("div").text();
-                    final String percent = StringUtils.substringBetween(div, "] ", "%");
-                    final String count = StringUtils.substringBetween(div, "% ", " self");
-                    final String selfPercent = StringUtils.substringBetween(div, ": ", "%");
-                    final String selfCount = StringUtils.substringAfterLast(div, "% ");
+                final FlameNode node = new FlameNode();
+                node.setName(span);
+                final String div = element.selectFirst("div").text();
+                final String percent = StringUtils.substringBetween(div, "] ", "%");
+                final String count = StringUtils.substringBetween(div, "% ", " self");
+                final String selfPercent = StringUtils.substringBetween(div, ": ", "%");
+                final String selfCount = StringUtils.substringAfterLast(div, "% ");
                     node.setPercent(Double.parseDouble(percent));
                     node.setCount(Long.parseLong(count.replace(",", "")));
                     node.setSelfPercent(Double.parseDouble(selfPercent));
@@ -99,14 +97,8 @@ public class FlameParser {
                     root.add(node);
                     final Element ul = element.selectFirst("ul");
                     if (null != ul) {
-                        buildFlameTree(ul.children(), node, patterns);
+                        buildFlameTree(ul.children(), node);
                     }
-                } else {
-                    final Element ul = element.selectFirst("ul");
-                    if (null != ul) {
-                        buildFlameTree(ul.children(), root, patterns);
-                    }
-                }
             });
 
         }
@@ -132,23 +124,4 @@ public class FlameParser {
         return node;
     }
 
-    private static ProfileNode simple(ProfileNode node) {
-        final List<ProfileNode> children = node.getChildren();
-        List<ProfileNode> result = new ArrayList<>();
-        boolean match = false;
-        for (ProfileNode child : children) {
-            if (StringUtils.equals(child.getName(), node.getName())) {
-                match = true;
-                result.addAll(child.getChildren());
-            } else {
-                result.add(simple(child));
-            }
-        }
-        result.forEach(item -> item.setParent(node));
-        node.setChildren(result);
-        if (match) {
-            return simple(node);
-        }
-        return node;
-    }
 }
