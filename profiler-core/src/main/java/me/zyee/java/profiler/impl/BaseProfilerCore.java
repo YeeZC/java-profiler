@@ -45,6 +45,7 @@ public abstract class BaseProfilerCore implements ProfilerCore {
     @Override
     public void profile(Runner runner) throws IOException {
         Context context = ContextHelper.newContext(runner.name(), Events.CPU);
+        assert context != null;
         for (Task task : before) {
             final Result result = task.apply(context);
             if (!result.isOk()) {
