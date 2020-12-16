@@ -1,9 +1,10 @@
 package me.zyee.java.profiler.flame;
 
+import me.zyee.java.profiler.Operation;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
-import me.zyee.java.profiler.Operation;
 
 /**
  * @author yee
@@ -78,8 +79,12 @@ public class ProfileNode implements Operation {
 
     @Override
     public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
         ProfileNode that = (ProfileNode) o;
         return Objects.equals(pattern, that.pattern) &&
                 Objects.equals(name, that.name);

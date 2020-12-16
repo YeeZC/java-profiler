@@ -1,5 +1,13 @@
 package me.zyee.java.profiler.flame;
 
+import me.zyee.java.profiler.utils.GroupMatcher;
+import me.zyee.java.profiler.utils.OS;
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
@@ -9,13 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import me.zyee.java.profiler.utils.GroupMatcher;
-import me.zyee.java.profiler.utils.OS;
-import org.apache.commons.lang3.StringUtils;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 /**
  * @author yee
@@ -24,7 +25,7 @@ import org.jsoup.select.Elements;
  */
 public class FlameParser {
 
-    public static Map<String, Frame> parse(Path path, ProfileNode node, Map<String, GroupMatcher.Or<String>> patterns) throws IOException {
+    public static Map<String, Frame> parse(Path path, Map<String, GroupMatcher.Or<String>> patterns) throws IOException {
         if (OS.getOSType() == OS.OSType.Windows) {
             throw new UnsupportedOperationException();
         }
@@ -38,8 +39,7 @@ public class FlameParser {
 
 //        buildFrame(rootNode, root, patterns, result);
         FlameNode simple = simple(rootNode);
-        ProfileNode simple1 = simple(node);
-        buildFrame(simple1, simple, patterns, result);
+//        buildFrame(simple1, simple, patterns, result);
         return result;
     }
 
@@ -109,41 +109,6 @@ public class FlameParser {
                 }
             });
 
-        }
-    }
-
-    private static void buildFrame(FlameNode select, Frame root, Map<String, GroupMatcher.Or<String>> patterns, Map<String, Frame> result) {
-        for (final FlameNode element : select.getChildren()) {
-            final Frame node = new Frame();
-            node.setParent(root);
-            node.setName(element.getName());
-            for (Map.Entry<String, GroupMatcher.Or<String>> entry : patterns.entrySet()) {
-                if (entry.getValue().matching(element.getName())) {
-                    result.compute(entry.getKey(), (s, kvProfile) -> {
-                        if (null == kvProfile) {
-                            node.setPercent(element.getPercent());
-                            node.setCount(element.getCount());
-                            node.setSelfPercent(element.getSelfPercent());
-                            node.setSelfCount(element.getSelfCount());
-                            return node;
-                        }
-                        Frame n = root;
-                        while (n != kvProfile && n.getParent() != null) {
-                            n = n.getParent();
-                        }
-                        if (n != kvProfile) {
-                            node.setPercent(element.getPercent() + kvProfile.getPercent());
-                            node.setCount(element.getCount() + kvProfile.getCount());
-                            node.setSelfPercent(element.getSelfPercent() + kvProfile.getSelfPercent());
-                            node.setSelfCount(element.getSelfCount() + kvProfile.getSelfCount());
-                            return node;
-                        }
-                        return kvProfile;
-
-                    });
-                }
-            }
-            buildFrame(element, node, patterns, result);
         }
     }
 

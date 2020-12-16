@@ -1,19 +1,6 @@
 package me.zyee.java.profiler.impl;
 
 import com.google.common.collect.Lists;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.stream.Collectors;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.MarkdownProfileResult;
 import me.zyee.java.profiler.ProfileItem;
@@ -30,6 +17,20 @@ import me.zyee.java.profiler.utils.GroupMatcher;
 import me.zyee.java.profiler.utils.SearchUtils;
 import one.profiler.Events;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author yee
@@ -83,19 +84,19 @@ public abstract class BaseProfilerCore implements ProfilerCore {
                                     patternMap.get(pattern).add(SearchUtils.classNameMatcher(clazz.getName() + "." + split[1]));
                                 }
                             });
-                    ProfileNode root = new ProfileNode();
-                    for (Atoms.Atom atom : atoms.value()) {
-                        final String name = atom.name();
-                        final String pattern = atom.pattern();
-                        final long cost = atom.cost();
-                        final ProfileNode node = new ProfileNode();
-                        node.setAtom((double) cost);
-                        node.setPattern(pattern);
-                        node.setName(name);
-                    }
-                    root.merge();
-                    final Map<String, Frame> parse = FlameParser.parse(flamePath, root, patternMap);
-                    MarkdownProfileResult profileResult = new MarkdownProfileResult(item.getCost(), root,
+//                    ProfileNode root = new ProfileNode();
+//                    for (Atoms.Atom atom : atoms.value()) {
+//                        final String name = atom.name();
+//                        final String pattern = atom.pattern();
+//                        final long cost = atom.cost();
+//                        final ProfileNode node = new ProfileNode();
+//                        node.setAtom((double) cost);
+//                        node.setPattern(pattern);
+//                        node.setName(name);
+//                    }
+//                    root.merge();
+                    final Map<String, Frame> parse = FlameParser.parse(flamePath, patternMap);
+                    MarkdownProfileResult profileResult = new MarkdownProfileResult(item.getCost(), new ProfileNode(),
                             Paths.get(System.getProperty("user.dir"), item.getProfileName() + ".md"));
                     profileResult.setFrames(parse);
 //                    profileResult.setTheoreticalCost(theoreticalCost);
