@@ -62,6 +62,7 @@ public abstract class BaseProfilerCore implements ProfilerCore {
                     .orElseGet(Collections::emptyList);
             while (profileItems.peek() != null) {
                 final ProfileItem item = profileItems.poll();
+                System.out.println(item.getFlamePath());
                 if (item.getThrowable() == null) {
                     final Path flamePath = item.getFlamePath();
                     final Atoms atoms = item.getAtoms();

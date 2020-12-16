@@ -38,7 +38,8 @@ class PosixContext extends BaseContext {
         return PosixProfiler.builder()
                 .setEvent(event)
                 .setOutput(profilerPath.resolve(event.name + ".html").toString())
-                .setThreads(false)
+                .setThreads(true)
+                .setExclude("*Java: C*")
                 .setFormat(Format.builder()
                         .setTree(Counter.TOTAL).build())
                 .build();

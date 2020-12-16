@@ -5,6 +5,7 @@ import java.util.Optional;
 import java.util.concurrent.Callable;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileItem;
+import me.zyee.java.profiler.Profiler;
 import me.zyee.java.profiler.annotation.Atoms;
 import me.zyee.java.profiler.impl.ContextHelper;
 import net.bytebuddy.implementation.bind.annotation.Origin;
@@ -26,28 +27,28 @@ public class AgentInterceptor {
         final Atoms annotation = method.getAnnotation(Atoms.class);
         item.setAtoms(annotation);
         try {
-            final Object result = Optional.ofNullable(context.getProfiler()).map(profiler -> {
+            final Profiler profiler = context.getProfiler();
+            Object result = null;
+            if (null != profiler) {
                 profiler.start();
                 long start = System.currentTimeMillis();
                 try {
                     // 原有函数执行
-                    return callable.call();
+                    result = callable.call();
                 } catch (Exception e) {
                     item.setThrowable(e);
-                    return null;
                 } finally {
                     item.setCost(System.currentTimeMillis() - start);
                     item.setFlamePath(profiler.stop());
                     Optional.ofNullable(context.getProfileItems()).ifPresent(queue -> queue.offer(item));
                 }
-            }).orElseGet(() -> {
+            } else {
                 try {
-                    return callable.call();
+                    result = callable.call();
                 } catch (Exception e) {
                     item.setThrowable(e);
-                    return null;
                 }
-            });
+            }
             Throwable throwable = item.getThrowable();
             if (throwable instanceof Exception) {
                 throw (Exception) throwable;
