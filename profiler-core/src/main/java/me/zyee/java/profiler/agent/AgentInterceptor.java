@@ -4,6 +4,8 @@ import java.lang.reflect.Method;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import me.zyee.java.profiler.Context;
+import me.zyee.java.profiler.ProfileHandler;
+import me.zyee.java.profiler.ProfileHandlerRegistry;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Profiler;
 import me.zyee.java.profiler.annotation.Atoms;
@@ -24,6 +26,8 @@ public class AgentInterceptor {
         Context context = ContextHelper.getContext().resolve(method.getName()
                 + System.currentTimeMillis());
         final ProfileItem item = new ProfileItem(method.toGenericString());
+        final ProfileHandler handler = ProfileHandlerRegistry.getHandler();
+        item.offer(handler.next());
         final Atoms annotation = method.getAnnotation(Atoms.class);
         item.setAtoms(annotation);
         try {

@@ -1,6 +1,4 @@
-package me.zyee.java.profiler.flame;
-
-import me.zyee.java.profiler.Operation;
+package me.zyee.java.profiler;
 
 import java.util.List;
 import java.util.Objects;

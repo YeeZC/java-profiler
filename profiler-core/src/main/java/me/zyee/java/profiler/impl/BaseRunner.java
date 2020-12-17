@@ -3,6 +3,8 @@ package me.zyee.java.profiler.impl;
 import java.nio.file.Path;
 import java.util.Optional;
 import me.zyee.java.profiler.Context;
+import me.zyee.java.profiler.ProfileHandler;
+import me.zyee.java.profiler.ProfileHandlerRegistry;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Result;
 import me.zyee.java.profiler.Runner;
@@ -29,6 +31,8 @@ public abstract class BaseRunner implements Runner, Task {
                 try {
                     return Optional.ofNullable(context.getProfiler()).map(profiler -> {
                         final ProfileItem item = new ProfileItem(targetClass.getName());
+                        final ProfileHandler handler = ProfileHandlerRegistry.getHandler();
+                        item.offer(handler.next());
                         item.setAtoms(targetClass.getAnnotation(Atoms.class));
                         profiler.start();
                         long start = System.currentTimeMillis();
@@ -52,6 +56,7 @@ public abstract class BaseRunner implements Runner, Task {
         } catch (Exception e) {
             return Result.failed(e);
         } finally {
+            ProfileHandlerRegistry.remove();
             ContextHelper.removeContext(context);
         }
     }

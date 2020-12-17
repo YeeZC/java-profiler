@@ -12,7 +12,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import me.zyee.java.profiler.flame.Frame;
-import me.zyee.java.profiler.flame.ProfileNode;
 import org.apache.commons.lang3.StringUtils;
 
 /**

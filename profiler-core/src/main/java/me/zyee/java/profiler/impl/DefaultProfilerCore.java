@@ -2,12 +2,17 @@ package me.zyee.java.profiler.impl;
 
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Queue;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileItem;
+import me.zyee.java.profiler.ProfileNode;
 import me.zyee.java.profiler.ProfilerCore;
 import me.zyee.java.profiler.Result;
 import me.zyee.java.profiler.Runner;
+import me.zyee.java.profiler.annotation.Atoms;
+import me.zyee.java.profiler.flame.FlameParser;
+import me.zyee.java.profiler.flame.Frame;
 import one.profiler.Events;
 
 /**
@@ -31,6 +36,13 @@ public class DefaultProfilerCore implements ProfilerCore {
             while (items.peek() != null) {
                 final ProfileItem item = items.poll();
                 final Path flamePath = item.getFlamePath();
+                final Atoms atoms = item.getAtoms();
+                final Atoms.Atom[] value = atoms.value();
+                final Map<String, Frame> parse = FlameParser.parse(flamePath);
+                final Queue<ProfileNode> nodes = item.getNodes();
+                ProfileNode root = new ProfileNode();
+                root.setName("Profile");
+
             }
         }
     }

@@ -3,7 +3,6 @@ package me.zyee.java.profiler;
 import java.nio.file.Path;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.function.Supplier;
 import me.zyee.java.profiler.annotation.Atoms;
 
 /**
@@ -17,7 +16,7 @@ public class ProfileItem {
     private Path flamePath;
     private long cost;
     private Throwable throwable;
-    private final Queue<Supplier<Long>> counters = new ConcurrentLinkedQueue<>();
+    private final Queue<ProfileNode> nodes = new ConcurrentLinkedQueue<>();
 
     public ProfileItem(String profileName) {
         this.profileName = profileName;
@@ -59,11 +58,11 @@ public class ProfileItem {
         this.atoms = atoms;
     }
 
-    public Queue<Supplier<Long>> getCounters() {
-        return counters;
+    public Queue<ProfileNode> getNodes() {
+        return nodes;
     }
 
-    public void offer(Supplier<Long> supplier) {
-        counters.offer(supplier);
+    public void offer(Queue<ProfileNode> nodes) {
+        this.nodes.addAll(nodes);
     }
 }
