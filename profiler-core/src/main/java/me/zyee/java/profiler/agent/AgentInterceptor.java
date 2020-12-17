@@ -8,7 +8,6 @@ import me.zyee.java.profiler.ProfileHandler;
 import me.zyee.java.profiler.ProfileHandlerRegistry;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Profiler;
-import me.zyee.java.profiler.annotation.Atoms;
 import me.zyee.java.profiler.impl.ContextHelper;
 import net.bytebuddy.implementation.bind.annotation.Origin;
 import net.bytebuddy.implementation.bind.annotation.RuntimeType;
@@ -28,8 +27,6 @@ public class AgentInterceptor {
         final ProfileItem item = new ProfileItem(method.toGenericString());
         final ProfileHandler handler = ProfileHandlerRegistry.getHandler();
         item.offer(handler.next());
-        final Atoms annotation = method.getAnnotation(Atoms.class);
-        item.setAtoms(annotation);
         try {
             final Profiler profiler = context.getProfiler();
             Object result = null;

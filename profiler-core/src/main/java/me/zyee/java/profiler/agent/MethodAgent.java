@@ -1,7 +1,7 @@
 package me.zyee.java.profiler.agent;
 
 import java.lang.instrument.Instrumentation;
-import me.zyee.java.profiler.annotation.Atoms;
+import me.zyee.java.profiler.annotation.Profile;
 import net.bytebuddy.agent.builder.AgentBuilder;
 import net.bytebuddy.implementation.MethodDelegation;
 import net.bytebuddy.matcher.ElementMatchers;
@@ -21,7 +21,7 @@ public class MethodAgent {
         System.out.println("Agent");
         MethodAgent.inst = inst;
         AgentBuilder.Transformer transformer = (builder, typeDescription, classLoader, javaModule) ->
-                builder.method(ElementMatchers.isAnnotatedWith(Atoms.class))
+                builder.method(ElementMatchers.isAnnotatedWith(Profile.class))
                         .intercept(MethodDelegation.to(AgentInterceptor.class));
 
         new AgentBuilder.Default()

@@ -1,6 +1,6 @@
 package me.zyee.java.profiler;
 
-import com.google.common.base.Preconditions;
+import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -27,7 +27,7 @@ public class ProfileHandlerRegistry {
 
     public static ProfileHandler getHandler() {
         final ProfileHandler handler = LOCAL.get();
-        Preconditions.checkNotNull(handler, "ProfileHandler Not Register");
+        Objects.requireNonNull(handler, "ProfileHandler Not Register");
         return handler;
     }
 }

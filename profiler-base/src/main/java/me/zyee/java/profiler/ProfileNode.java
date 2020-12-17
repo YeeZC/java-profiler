@@ -9,14 +9,13 @@ import java.util.stream.Collectors;
  * @version 1.0
  * Create by yee on 2020/8/24
  */
-public class ProfileNode implements Operation {
+public class ProfileNode {
     private String pattern;
     private String name;
     private Double atom;
     private List<ProfileNode> children;
     private ProfileNode parent;
 
-    @Override
     public String getPattern() {
         return pattern;
     }
@@ -25,14 +24,8 @@ public class ProfileNode implements Operation {
         this.pattern = pattern;
     }
 
-    @Override
     public String getName() {
         return name;
-    }
-
-    @Override
-    public long getCost() {
-        return 0;
     }
 
     public void setName(String name) {
