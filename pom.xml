@@ -13,7 +13,6 @@
         <module>profiler-operator</module>
         <module>profiler-core</module>
         <module>profiler-theoretical</module>
-        <module>profiler-report</module>
         <module>profiler-base</module>
     </modules>
 
@@ -41,10 +40,6 @@
             <version>3.6.28</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>io.reactivex.rxjava3</groupId>
-            <artifactId>rxjava</artifactId>
-        </dependency>
     </dependencies>
 
     <dependencyManagement>
@@ -68,11 +63,6 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>29.0-jre</version>
-            </dependency>
-            <dependency>
-                <groupId>io.reactivex.rxjava3</groupId>
-                <artifactId>rxjava</artifactId>
-                <version>3.0.8</version>
             </dependency>
             <dependency>
                 <groupId>net.bytebuddy</groupId>
