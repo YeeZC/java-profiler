@@ -1,19 +1,7 @@
 package me.zyee.java.profiler.impl;
 
 import com.google.common.collect.Lists;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.stream.Collectors;
+import me.zyee.java.profiler.AtomOperation;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.MarkdownProfileResult;
 import me.zyee.java.profiler.NormalOperation;
@@ -30,6 +18,20 @@ import me.zyee.java.profiler.utils.GroupMatcher;
 import me.zyee.java.profiler.utils.SearchUtils;
 import one.profiler.Events;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * TODO 实现
@@ -49,6 +51,7 @@ public class DefaultProfilerCore implements ProfilerCore {
         final Result apply = runner.apply(context);
         if (apply.isOk()) {
             final Queue<ProfileItem> items = context.getProfileItems();
+            Map<String, Long> theoreticalCost = new HashMap<>();
             while (items.peek() != null) {
                 final ProfileItem item = items.poll();
                 final Path flamePath = item.getFlamePath();
@@ -64,6 +67,9 @@ public class DefaultProfilerCore implements ProfilerCore {
                     child.setChildren(new ArrayList<>());
                     root.addChild(child);
                     patterns.addAll(getPatterns(node, child));
+                    if (node instanceof AtomOperation) {
+                        calculateTheoreticalCost(theoreticalCost, node);
+                    }
 //                    calculateTheoreticalCost(node, theoreticalCost, names);
                 }
                 final List<Class<?>> allLoadedClasses = Optional.ofNullable(MethodAgent.inst)
@@ -94,6 +100,21 @@ public class DefaultProfilerCore implements ProfilerCore {
 //                });
             }
         }
+    }
+
+    private void calculateTheoreticalCost(Map<String, Long> theoreticalCost, Operation node) {
+        final long cost = node.getCost();
+        final long expect = ((AtomOperation) node).getExpect();
+        final long when = ((AtomOperation) node).getWhen();
+//        final AtomOperationFormula formula = new AtomOperationFormula();
+
+        theoreticalCost.compute(node.getPattern(), (key, before) -> {
+            final long eval = expect * 10000000 * cost / when;
+            if (null != before) {
+                return before + eval;
+            }
+            return eval;
+        });
     }
 
     private Set<String> getPatterns(Operation node, ProfileNode profileNode) {
