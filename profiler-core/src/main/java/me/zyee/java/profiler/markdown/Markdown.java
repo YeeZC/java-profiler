@@ -1,6 +1,10 @@
-package me.zyee.java.profiler;
+package me.zyee.java.profiler.markdown;
 
 import com.google.common.collect.Lists;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -11,6 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
+import me.zyee.java.profiler.ProfileNode;
 import me.zyee.java.profiler.flame.Frame;
 import org.apache.commons.lang3.StringUtils;
 
@@ -19,7 +24,7 @@ import org.apache.commons.lang3.StringUtils;
  * @version 1.0
  * Create by yee on 2020/8/19
  */
-public class MarkdownProfileResult {
+public class Markdown {
     private static final String FORMAT = "| %s | %s | %s | %s | %.2f | %.2f | %.2f | %.2f | %.2f | %s |";
     private static final String ATOM_FORMAT = "| %s | %s | %.2f | %s |";
     private final double cost;
@@ -29,38 +34,39 @@ public class MarkdownProfileResult {
     private final Set<String> errors = new HashSet<>();
     private final Map<String, Set<String>> errorInfos = new HashMap<>();
     private final Map<String, Set<String>> warnInfos = new HashMap<>();
-    private Map<String, Double> theoreticalCost;
+    private Map<String, Long> theoreticalCost;
     private Map<String, Frame> frames;
 
-    public MarkdownProfileResult(double cost, ProfileNode root, Path outPath) {
+    public Markdown(double cost, ProfileNode root, Path outPath) {
         this.cost = cost;
         this.outPath = outPath;
         this.root = root;
     }
 
-    public void setTheoreticalCost(Map<String, Double> theoreticalCost) {
+    public void setTheoreticalCost(Map<String, Long> theoreticalCost) {
         this.theoreticalCost = theoreticalCost;
     }
 
-//    @Override
-//    public void output() {
-//        ClassPathResource resource = new ClassPathResource("template.md");
-//        try (InputStream is = resource.getInputStream()) {
-//            final int available = is.available();
-//            final byte[] buffer = new byte[available];
-//            is.read(buffer);
-//            final String s = new String(buffer);
-//            final String target = s.replace("$StepTable", toString())
-//                    .replace("$ProfileName", root.getName())
-//                    .replace("$AtomicTable", makeAtomTable(root).stream()
-//                            .map(data -> String.format(ATOM_FORMAT, data.toArray()))
-//                            .collect(Collectors.joining("\n")))
-//                    .replace("$Conclusion", makeConclusions());
-//            Files.write(outPath, target.getBytes(StandardCharsets.UTF_8));
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//    }
+    //    @Override
+    public void output() {
+        try (InputStream is =
+                     Markdown.class
+                             .getResourceAsStream("/template.md")) {
+            final int available = is.available();
+            final byte[] buffer = new byte[available];
+            is.read(buffer);
+            final String s = new String(buffer);
+            final String target = s.replace("$StepTable", toString())
+                    .replace("$ProfileName", root.getName())
+                    .replace("$AtomicTable", makeAtomTable(root).stream()
+                            .map(data -> String.format(ATOM_FORMAT, data.toArray()))
+                            .collect(Collectors.joining("\n")))
+                    .replace("$Conclusion", makeConclusions());
+            Files.write(outPath, target.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
     public String getName() {
         return root.getName();
@@ -193,7 +199,7 @@ public class MarkdownProfileResult {
                 if (null != frame) {
                     percent = frame.getPercent();
                 }
-                final Double theoretical = theoreticalCost.get(node.getPattern());
+                final Long theoretical = theoreticalCost.get(node.getPattern());
                 if (null != theoretical) {
                     atomicCost = theoretical;
                     atomicName = node.getName();

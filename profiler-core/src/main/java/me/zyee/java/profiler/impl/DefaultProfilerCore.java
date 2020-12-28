@@ -1,24 +1,6 @@
 package me.zyee.java.profiler.impl;
 
 import com.google.common.collect.Lists;
-import me.zyee.java.profiler.AtomOperation;
-import me.zyee.java.profiler.Context;
-import me.zyee.java.profiler.MarkdownProfileResult;
-import me.zyee.java.profiler.NormalOperation;
-import me.zyee.java.profiler.Operation;
-import me.zyee.java.profiler.ProfileItem;
-import me.zyee.java.profiler.ProfileNode;
-import me.zyee.java.profiler.ProfilerCore;
-import me.zyee.java.profiler.Result;
-import me.zyee.java.profiler.Runner;
-import me.zyee.java.profiler.agent.MethodAgent;
-import me.zyee.java.profiler.flame.FlameParser;
-import me.zyee.java.profiler.flame.Frame;
-import me.zyee.java.profiler.utils.GroupMatcher;
-import me.zyee.java.profiler.utils.SearchUtils;
-import one.profiler.Events;
-import org.apache.commons.lang3.StringUtils;
-
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -32,6 +14,23 @@ import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.stream.Collectors;
+import me.zyee.java.profiler.AtomOperation;
+import me.zyee.java.profiler.Context;
+import me.zyee.java.profiler.NormalOperation;
+import me.zyee.java.profiler.Operation;
+import me.zyee.java.profiler.ProfileItem;
+import me.zyee.java.profiler.ProfileNode;
+import me.zyee.java.profiler.ProfilerCore;
+import me.zyee.java.profiler.Result;
+import me.zyee.java.profiler.Runner;
+import me.zyee.java.profiler.agent.MethodAgent;
+import me.zyee.java.profiler.flame.FlameParser;
+import me.zyee.java.profiler.flame.Frame;
+import me.zyee.java.profiler.markdown.Markdown;
+import me.zyee.java.profiler.utils.GroupMatcher;
+import me.zyee.java.profiler.utils.SearchUtils;
+import one.profiler.Events;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * TODO 实现
@@ -62,14 +61,8 @@ public class DefaultProfilerCore implements ProfilerCore {
                 while (null != nodes.peek()) {
                     ProfileNode child = new ProfileNode();
                     final Operation node = nodes.poll();
-                    child.setName(node.getName());
-                    child.setPattern(node.getPattern());
-                    child.setChildren(new ArrayList<>());
+                    makeProfileNode(theoreticalCost, patterns, child, node);
                     root.addChild(child);
-                    patterns.addAll(getPatterns(node, child));
-                    if (node instanceof AtomOperation) {
-                        calculateTheoreticalCost(theoreticalCost, node);
-                    }
 //                    calculateTheoreticalCost(node, theoreticalCost, names);
                 }
                 final List<Class<?>> allLoadedClasses = Optional.ofNullable(MethodAgent.inst)
@@ -90,14 +83,34 @@ public class DefaultProfilerCore implements ProfilerCore {
                 }
                 root.merge();
                 final Map<String, Frame> parse = FlameParser.parse(flamePath, root, patternMap);
-                MarkdownProfileResult profileResult = new MarkdownProfileResult(item.getCost(), root,
+                Markdown profileResult = new Markdown(item.getCost(), root,
                         Paths.get(System.getProperty("user.dir")).resolve(item.getProfileName() + ".md"));
                 profileResult.setFrames(parse);
+                profileResult.setTheoreticalCost(theoreticalCost);
+                profileResult.output();
 //                profileResult.setTheoreticalCost(theoreticalCost);
 //                return profileResult;
 //                parse.forEach((k, v) -> {
 //                    v.setName(names.get(k));
 //                });
+            }
+        }
+    }
+
+    private void makeProfileNode(Map<String, Long> theoreticalCost, Set<String> patterns, ProfileNode child, Operation node) {
+        child.setName(node.getName());
+        child.setPattern(node.getPattern());
+        child.setChildren(new ArrayList<>());
+
+        patterns.addAll(getPatterns(node, child));
+        if (node instanceof AtomOperation) {
+            calculateTheoreticalCost(theoreticalCost, node);
+        } else {
+            NormalOperation op = (NormalOperation) node;
+            for (Operation opChild : op.getChildren()) {
+                final ProfileNode grand = new ProfileNode();
+                makeProfileNode(theoreticalCost, patterns, grand, opChild);
+                child.addChild(grand);
             }
         }
     }
