@@ -57,7 +57,7 @@ public class Markdown {
             is.read(buffer);
             final String s = new String(buffer);
             final String target = s.replace("$StepTable", toString())
-                    .replace("$ProfileName", root.getName())
+                    .replace("$ProfileName", String.valueOf(root.getName()))
                     .replace("$AtomicTable", makeAtomTable(root).stream()
                             .map(data -> String.format(ATOM_FORMAT, data.toArray()))
                             .collect(Collectors.joining("\n")))

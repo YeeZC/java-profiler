@@ -2,7 +2,7 @@ package me.zyee.java.profiler.agent;
 
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
-import me.zyee.java.profiler.impl.BaseProfilerCore;
+import me.zyee.java.profiler.impl.DefaultProfilerCore;
 import me.zyee.java.profiler.impl.ProfileJUnitRunner;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import org.junit.Test;
@@ -17,8 +17,7 @@ public class MethodAgentTest {
     public void test() throws IOException {
         final Instrumentation install = ByteBuddyAgent.install();
         MethodAgent.agentmain(new String[]{}, install);
-        final BaseProfilerCore core = new BaseProfilerCore() {
-        };
+        final DefaultProfilerCore core = new DefaultProfilerCore();
         core.profile(new ProfileJUnitRunner(TestClass.class));
     }
 }

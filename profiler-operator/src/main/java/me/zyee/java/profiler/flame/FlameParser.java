@@ -172,12 +172,14 @@ public class FlameParser {
         final List<ProfileNode> children = node.getChildren();
         List<ProfileNode> result = new ArrayList<>();
         boolean match = false;
-        for (ProfileNode child : children) {
-            if (StringUtils.equals(child.getName(), node.getName())) {
-                match = true;
-                result.addAll(child.getChildren());
-            } else {
-                result.add(simple(child));
+        if (null != children) {
+            for (ProfileNode child : children) {
+                if (StringUtils.equals(child.getName(), node.getName())) {
+                    match = true;
+                    result.addAll(child.getChildren());
+                } else {
+                    result.add(simple(child));
+                }
             }
         }
         result.forEach(item -> item.setParent(node));
