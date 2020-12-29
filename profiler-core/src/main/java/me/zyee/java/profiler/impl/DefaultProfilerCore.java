@@ -58,6 +58,7 @@ public class DefaultProfilerCore implements ProfilerCore {
                 final Queue<Operation> nodes = item.getNodes();
                 final Map<String, GroupMatcher.Or<String>> patternMap = new HashMap<>(0);
                 ProfileNode root = new ProfileNode();
+                root.setName(item.getProfileName() + " Report");
                 final Set<String> patterns = new HashSet<>();
                 while (null != nodes.peek()) {
                     ProfileNode child = new ProfileNode();
@@ -89,11 +90,6 @@ public class DefaultProfilerCore implements ProfilerCore {
                 profileResult.setFrames(parse);
                 profileResult.setTheoreticalCost(theoreticalCost);
                 profileResult.output();
-//                profileResult.setTheoreticalCost(theoreticalCost);
-//                return profileResult;
-//                parse.forEach((k, v) -> {
-//                    v.setName(names.get(k));
-//                });
             }
         }
     }
