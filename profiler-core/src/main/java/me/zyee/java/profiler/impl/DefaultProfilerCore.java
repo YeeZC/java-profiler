@@ -62,9 +62,9 @@ public class DefaultProfilerCore implements ProfilerCore {
                 while (null != nodes.peek()) {
                     ProfileNode child = new ProfileNode();
                     final Operation node = nodes.poll();
-                    makeProfileNode(theoreticalCost, patterns, child, node);
+                    makeProfileNode(patterns, child, node);
                     root.addChild(child);
-//                    calculateTheoreticalCost(node, theoreticalCost, names);
+                    calculateTheoreticalCost(theoreticalCost, node);
                 }
                 final List<Class<?>> allLoadedClasses = Optional.ofNullable(MethodAgent.inst)
                         .map(inst -> (List<Class<?>>) Lists.<Class<?>>newArrayList(inst.getAllLoadedClasses()))
@@ -98,39 +98,46 @@ public class DefaultProfilerCore implements ProfilerCore {
         }
     }
 
-    private void makeProfileNode(Map<String, Long> theoreticalCost, Set<String> patterns, ProfileNode child, Operation node) {
+    private void makeProfileNode(Set<String> patterns, ProfileNode child, Operation node) {
         child.setName(node.getName());
         child.setPattern(node.getPattern());
         child.setChildren(new ArrayList<>());
 
         patterns.addAll(getPatterns(node, child));
         if (node instanceof AtomOperation) {
-            calculateTheoreticalCost(theoreticalCost, child, node);
+            child.setAtom((double) node.getCost());
         } else {
             NormalOperation op = (NormalOperation) node;
             for (Operation opChild : op.getChildren()) {
                 final ProfileNode grand = new ProfileNode();
-                makeProfileNode(theoreticalCost, patterns, grand, opChild);
+                makeProfileNode(patterns, grand, opChild);
                 child.addChild(grand);
             }
         }
     }
 
-    private void calculateTheoreticalCost(Map<String, Long> theoreticalCost, ProfileNode child, Operation node) {
-        final long cost = node.getCost();
-        final long expect = ((AtomOperation) node).getExpect();
-        final long when = ((AtomOperation) node).getWhen();
-        final Supplier<Long> actual = ((AtomOperation) node).getActual();
+    private void calculateTheoreticalCost(Map<String, Long> theoreticalCost, Operation node) {
+        if (node instanceof AtomOperation) {
+            final long cost = node.getCost();
+            final long expect = ((AtomOperation) node).getExpect();
+            final long when = ((AtomOperation) node).getWhen();
+            final Supplier<Long> actual = ((AtomOperation) node).getActual();
 //        final AtomOperationFormula formula = new AtomOperationFormula();
 
-        theoreticalCost.compute(node.getPattern(), (key, before) -> {
-            final long eval = expect * actual.get() * cost / when / 10000000;
-            child.setAtom((double) eval);
-            if (null != before) {
-                return before + eval;
+            theoreticalCost.compute(node.getPattern(), (key, before) -> {
+                final long eval = expect * actual.get() * cost / when / 10000000;
+                if (null != before) {
+                    return before + eval;
+                }
+                return eval;
+            });
+        } else {
+            NormalOperation op = (NormalOperation) node;
+            for (Operation opChild : op.getChildren()) {
+                calculateTheoreticalCost(theoreticalCost, opChild);
             }
-            return eval;
-        });
+        }
+
     }
 
     private Set<String> getPatterns(Operation node, ProfileNode profileNode) {
