@@ -25,8 +25,6 @@ public class AgentInterceptor {
         Context context = ContextHelper.getContext().resolve(method.getName()
                 + System.currentTimeMillis());
         final ProfileItem item = new ProfileItem(method.toGenericString());
-        final ProfileHandler handler = ProfileHandlerRegistry.getHandler();
-        item.offer(handler.next());
         try {
             final Profiler profiler = context.getProfiler();
             Object result = null;
@@ -39,6 +37,8 @@ public class AgentInterceptor {
                 } catch (Exception e) {
                     item.setThrowable(e);
                 } finally {
+                    final ProfileHandler handler = ProfileHandlerRegistry.getHandler();
+                    item.offer(handler.next());
                     item.setCost(System.currentTimeMillis() - start);
                     item.setFlamePath(profiler.stop());
                     Optional.ofNullable(context.getProfileItems()).ifPresent(queue -> queue.offer(item));

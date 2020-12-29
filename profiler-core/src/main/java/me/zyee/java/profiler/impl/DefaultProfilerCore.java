@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import me.zyee.java.profiler.AtomOperation;
 import me.zyee.java.profiler.Context;
@@ -104,7 +105,7 @@ public class DefaultProfilerCore implements ProfilerCore {
 
         patterns.addAll(getPatterns(node, child));
         if (node instanceof AtomOperation) {
-            calculateTheoreticalCost(theoreticalCost, node);
+            calculateTheoreticalCost(theoreticalCost, child, node);
         } else {
             NormalOperation op = (NormalOperation) node;
             for (Operation opChild : op.getChildren()) {
@@ -115,14 +116,16 @@ public class DefaultProfilerCore implements ProfilerCore {
         }
     }
 
-    private void calculateTheoreticalCost(Map<String, Long> theoreticalCost, Operation node) {
+    private void calculateTheoreticalCost(Map<String, Long> theoreticalCost, ProfileNode child, Operation node) {
         final long cost = node.getCost();
         final long expect = ((AtomOperation) node).getExpect();
         final long when = ((AtomOperation) node).getWhen();
+        final Supplier<Long> actual = ((AtomOperation) node).getActual();
 //        final AtomOperationFormula formula = new AtomOperationFormula();
 
         theoreticalCost.compute(node.getPattern(), (key, before) -> {
-            final long eval = expect * 10000000 * cost / when;
+            final long eval = expect * actual.get() * cost / when / 10000000;
+            child.setAtom((double) eval);
             if (null != before) {
                 return before + eval;
             }

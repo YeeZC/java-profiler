@@ -1,5 +1,6 @@
 package me.zyee.java.profiler;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -41,6 +42,9 @@ public class ProfileNode {
     }
 
     public void addChild(ProfileNode child) {
+        if (null == children) {
+            children = new ArrayList<>();
+        }
         this.children.add(child);
         child.parent = this;
     }

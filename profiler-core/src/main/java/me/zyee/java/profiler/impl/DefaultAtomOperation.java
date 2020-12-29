@@ -1,6 +1,7 @@
 package me.zyee.java.profiler.impl;
 
 import java.util.Objects;
+import java.util.function.Supplier;
 import me.zyee.java.profiler.AtomOperation;
 
 /**
@@ -11,11 +12,13 @@ import me.zyee.java.profiler.AtomOperation;
 public class DefaultAtomOperation extends BaseOperation implements AtomOperation {
     private final long when;
     private final long expect;
+    private final Supplier<Long> actual;
 
     private DefaultAtomOperation(Builder builder) {
         super(builder);
         this.when = Objects.requireNonNull(builder.when, "when");
         this.expect = Objects.requireNonNull(builder.expect, "expect");
+        this.actual = Objects.requireNonNull(builder.actual, "expect");
     }
 
     public static Builder builder() {
@@ -32,10 +35,16 @@ public class DefaultAtomOperation extends BaseOperation implements AtomOperation
         return expect;
     }
 
+    @Override
+    public Supplier<Long> getActual() {
+        return actual;
+    }
+
 
     public static class Builder extends BaseBuilder<Builder> {
-        private Long when;
-        private Long expect;
+        private Long when = 1L;
+        private Long expect = 1L;
+        private Supplier<Long> actual = () -> 0L;
 
         private Builder() {
         }
@@ -50,9 +59,15 @@ public class DefaultAtomOperation extends BaseOperation implements AtomOperation
             return this;
         }
 
+        public Builder setActual(Supplier<Long> actual) {
+            this.actual = actual;
+            return this;
+        }
+
         public Builder of(DefaultAtomOperation defaultAtomOperation) {
             this.when = defaultAtomOperation.when;
             this.expect = defaultAtomOperation.expect;
+            this.actual = defaultAtomOperation.actual;
             return this;
         }
 

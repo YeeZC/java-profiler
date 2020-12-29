@@ -1,5 +1,7 @@
 package me.zyee.java.profiler;
 
+import java.util.function.Supplier;
+
 /**
  * @author yee
  * @version 1.0
@@ -9,4 +11,6 @@ public interface AtomOperation extends Operation {
     long getWhen();
 
     long getExpect();
+
+    Supplier<Long> getActual();
 }

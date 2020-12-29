@@ -31,8 +31,7 @@ public abstract class BaseRunner implements Runner, Task {
                 try {
                     return Optional.ofNullable(context.getProfiler()).map(profiler -> {
                         final ProfileItem item = new ProfileItem(targetClass.getName());
-                        final ProfileHandler handler = ProfileHandlerRegistry.getHandler();
-                        item.offer(handler.next());
+
                         profiler.start();
                         long start = System.currentTimeMillis();
                         try {
@@ -41,6 +40,8 @@ public abstract class BaseRunner implements Runner, Task {
                             item.setThrowable(e);
                             return Result.failed(e);
                         } finally {
+                            final ProfileHandler handler = ProfileHandlerRegistry.getHandler();
+                            item.offer(handler.next());
                             item.setCost(System.currentTimeMillis() - start);
                             final Path stop = profiler.stop();
                             item.setFlamePath(stop);
