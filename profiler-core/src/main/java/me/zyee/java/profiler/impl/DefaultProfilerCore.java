@@ -2,6 +2,7 @@ package me.zyee.java.profiler.impl;
 
 import com.google.common.collect.Lists;
 import java.io.IOException;
+import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -30,6 +31,7 @@ import me.zyee.java.profiler.flame.Frame;
 import me.zyee.java.profiler.markdown.Markdown;
 import me.zyee.java.profiler.utils.GroupMatcher;
 import me.zyee.java.profiler.utils.SearchUtils;
+import net.bytebuddy.agent.ByteBuddyAgent;
 import one.profiler.Events;
 import org.apache.commons.lang3.StringUtils;
 
@@ -41,6 +43,12 @@ import org.apache.commons.lang3.StringUtils;
  * Create by yee on 2020/12/15
  */
 public class DefaultProfilerCore implements ProfilerCore {
+
+    static {
+        final Instrumentation install = ByteBuddyAgent.install();
+        MethodAgent.agentmain(new String[]{}, install);
+    }
+
     @Override
     public void profile(Runner runner) throws IOException {
         final Context context = ContextHelper.newContext(runner.name(), Events.CPU);
