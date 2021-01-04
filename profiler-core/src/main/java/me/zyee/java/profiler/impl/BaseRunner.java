@@ -44,6 +44,7 @@ public abstract class BaseRunner implements Runner, Task {
                             item.offer(handler.next());
                             item.setCost(System.currentTimeMillis() - start);
                             final Path stop = profiler.stop();
+                            System.out.println("profile tree 输出路径 " + stop);
                             item.setFlamePath(stop);
                             Optional.ofNullable(context.getProfileItems()).ifPresent(queue -> queue.offer(item));
                         }

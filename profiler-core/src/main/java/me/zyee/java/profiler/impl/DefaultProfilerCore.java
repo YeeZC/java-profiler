@@ -106,18 +106,7 @@ public class DefaultProfilerCore implements ProfilerCore {
         child.setName(node.getName());
         child.setPattern(node.getPattern());
         child.setChildren(new ArrayList<>());
-
         patterns.addAll(getPatterns(node, child));
-        if (node instanceof AtomOperation) {
-            child.setAtom((double) node.getCost());
-        } else {
-            NormalOperation op = (NormalOperation) node;
-            for (Operation opChild : op.getChildren()) {
-                final ProfileNode grand = new ProfileNode();
-                makeProfileNode(patterns, grand, opChild);
-                child.addChild(grand);
-            }
-        }
     }
 
     private void calculateTheoreticalCost(Map<String, Long> theoreticalCost, Operation node) {
@@ -156,7 +145,9 @@ public class DefaultProfilerCore implements ProfilerCore {
                 child.setName(n.getName());
                 child.setPattern(n.getPattern());
                 child.setChildren(new ArrayList<>());
-//                child.setAtom(n.getAtomCost());
+                if (n instanceof AtomOperation) {
+                    child.setAtom((double) n.getCost());
+                }
                 profileNode.addChild(child);
                 return getPatterns(n, child);
             }).forEach(patterns::addAll);
