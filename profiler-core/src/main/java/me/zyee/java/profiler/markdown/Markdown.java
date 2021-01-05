@@ -17,6 +17,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import me.zyee.java.profiler.ProfileNode;
 import me.zyee.java.profiler.flame.Frame;
+import me.zyee.java.profiler.utils.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -47,14 +48,11 @@ public class Markdown {
         this.theoreticalCost = theoreticalCost;
     }
 
-    //    @Override
     public void output() {
         try (InputStream is =
                      Markdown.class
                              .getResourceAsStream("/template.md")) {
-            final int available = is.available();
-            final byte[] buffer = new byte[available];
-            is.read(buffer);
+            final byte[] buffer = FileUtils.readAll(is);
             final String s = new String(buffer);
             final String target = s.replace("$StepTable", toString())
                     .replace("$ProfileName", String.valueOf(root.getName()))
