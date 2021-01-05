@@ -1,5 +1,10 @@
 package me.zyee.java.profiler.impl;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Queue;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Profiler;
@@ -7,12 +12,6 @@ import me.zyee.java.profiler.posix.Format;
 import me.zyee.java.profiler.posix.PosixProfiler;
 import one.profiler.Counter;
 import one.profiler.Events;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Queue;
 
 /**
  * @author yee
@@ -41,6 +40,7 @@ class PosixContext extends BaseContext {
                 .setOutput(profilerPath.resolve(event.name + ".html").toString())
                 .setThreads(false)
                 .setExclude("*Java: C*")
+                .setInterval("5ms")
                 .setFormat(Format.builder()
                         .setTree(Counter.TOTAL).build())
                 .build();

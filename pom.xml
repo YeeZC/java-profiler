@@ -12,7 +12,6 @@
         <module>profiler-nlogn</module>
         <module>profiler-operator</module>
         <module>profiler-core</module>
-        <module>profiler-theoretical</module>
         <module>profiler-base</module>
     </modules>
 

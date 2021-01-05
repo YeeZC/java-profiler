@@ -1,6 +1,7 @@
 package me.zyee.java.profiler.agent;
 
 import java.lang.reflect.Method;
+import java.nio.file.Path;
 import java.util.Optional;
 import java.util.concurrent.Callable;
 import me.zyee.java.profiler.Context;
@@ -40,8 +41,10 @@ public class AgentInterceptor {
                     final ProfileHandler handler = ProfileHandlerRegistry.getHandler();
                     item.offer(handler.next());
                     item.setCost(System.currentTimeMillis() - start);
-                    item.setFlamePath(profiler.stop());
+                    final Path stop = profiler.stop();
+                    item.setFlamePath(stop);
                     Optional.ofNullable(context.getProfileItems()).ifPresent(queue -> queue.offer(item));
+                    System.out.println("profile tree 输出路径 " + stop);
                 }
             } else {
                 try {

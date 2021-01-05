@@ -28,7 +28,6 @@ public class FlameParser {
         if (OS.getOSType() == OS.OSType.Windows) {
             throw new UnsupportedOperationException();
         }
-//        Map<String, Frame> result = new HashMap<>();
         final Document parse = Jsoup.parse(path.toFile(), "UTF-8");
         final Elements select = parse.select("ul.tree>li");
         final Frame root = new Frame();
@@ -36,10 +35,8 @@ public class FlameParser {
         buildFlameTree(select, rootNode, patterns);
         root.setName("Profile");
 
-//        buildFrame(rootNode, root, patterns, result);
         FlameNode simple = simple(rootNode);
         ProfileNode simple1 = simple(node);
-//        buildFrame(simple1, simple, patterns, result);
         return build(simple1, simple, patterns);
     }
 
