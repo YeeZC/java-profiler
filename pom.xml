@@ -13,6 +13,9 @@
         <module>profiler-operator</module>
         <module>profiler-core</module>
         <module>profiler-base</module>
+        <module>profiler-agent</module>
+        <module>profiler-agent-core</module>
+        <module>profiler-spy</module>
     </modules>
 
     <properties>

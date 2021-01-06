@@ -115,7 +115,6 @@ public class DefaultProfilerCore implements ProfilerCore {
             final long expect = ((AtomOperation) node).getExpect();
             final long when = ((AtomOperation) node).getWhen();
             final Supplier<Long> actual = ((AtomOperation) node).getActual();
-//        final AtomOperationFormula formula = new AtomOperationFormula();
 
             theoreticalCost.compute(node.getPattern(), (key, before) -> {
                 final long eval = expect * actual.get() * cost / when / 10000000;

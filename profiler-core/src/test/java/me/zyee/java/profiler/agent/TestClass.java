@@ -30,8 +30,12 @@ public class TestClass {
     @Profile
     public void test() throws InterruptedException {
         for (int i = 0; i < 100; i++) {
-            System.out.println(Thread.currentThread().getName() + "-" + i);
+            print(Thread.currentThread().getName() + "-" + i);
             Thread.sleep(100);
         }
+    }
+
+    public void print(String x) {
+        System.out.println(x);
     }
 }
