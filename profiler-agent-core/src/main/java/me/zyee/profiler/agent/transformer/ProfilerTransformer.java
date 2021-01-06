@@ -32,4 +32,12 @@ public class ProfilerTransformer implements ClassFileTransformer {
     public byte[] transform(ClassLoader loader, String className, Class<?> classBeingRedefined, ProtectionDomain protectionDomain, byte[] classfileBuffer) throws IllegalClassFormatException {
         return new byte[0];
     }
+
+    public int getId() {
+        return id;
+    }
+
+    public String getPattern() {
+        return pattern;
+    }
 }

@@ -19,7 +19,21 @@ public interface EventWatcher {
      */
     int watch(String pattern, EventListener listener, Event.Type... types);
 
+    /**
+     * 开始观察，监听所有事件
+     *
+     * @param pattern  行为匹配
+     * @param listener 监听器
+     * @return id
+     */
     default int watch(String pattern, EventListener listener) {
         return watch(pattern, listener, Event.Type.values());
     }
+
+    /**
+     * 移除观察
+     *
+     * @param id 观察id
+     */
+    void delete(int id);
 }
