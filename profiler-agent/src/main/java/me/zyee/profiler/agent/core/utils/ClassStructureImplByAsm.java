@@ -2,14 +2,6 @@ package me.zyee.profiler.agent.core.utils;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import me.zyee.java.profiler.utils.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.objectweb.asm.AnnotationVisitor;
@@ -20,6 +12,15 @@ import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static me.zyee.profiler.agent.core.utils.AgentStringUtils.toInternalClassName;
 import static me.zyee.profiler.agent.core.utils.AgentStringUtils.toJavaClassName;

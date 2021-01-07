@@ -1,7 +1,5 @@
 package me.zyee.profiler.agent.core.advice;
 
-import java.util.HashSet;
-import java.util.Set;
 import me.zyee.profiler.spy.Spy;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.Label;
@@ -11,6 +9,9 @@ import org.objectweb.asm.Type;
 import org.objectweb.asm.commons.AdviceAdapter;
 import org.objectweb.asm.commons.JSRInlinerAdapter;
 import org.objectweb.asm.commons.Method;
+
+import java.util.HashSet;
+import java.util.Set;
 
 import static me.zyee.profiler.agent.core.utils.AgentStringUtils.toJavaClassName;
 
