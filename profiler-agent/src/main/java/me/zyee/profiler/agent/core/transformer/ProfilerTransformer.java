@@ -1,10 +1,5 @@
 package me.zyee.profiler.agent.core.transformer;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.security.ProtectionDomain;
-import java.util.Set;
-import java.util.stream.Collectors;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.utils.Matcher;
@@ -13,6 +8,12 @@ import me.zyee.profiler.agent.core.enhancer.EventEnhancer;
 import me.zyee.profiler.agent.core.utils.BehaviorStructure;
 import me.zyee.profiler.agent.core.utils.ClassStructure;
 import me.zyee.profiler.agent.utils.ObjectIds;
+
+import java.lang.instrument.ClassFileTransformer;
+import java.lang.instrument.IllegalClassFormatException;
+import java.security.ProtectionDomain;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import static me.zyee.profiler.agent.core.utils.ClassStructureFactory.createClassStructure;
 

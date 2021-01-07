@@ -1,9 +1,10 @@
 package me.zyee.profiler.agent.core.utils;
 
-import java.io.IOException;
-import java.io.InputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * 类结构工厂类

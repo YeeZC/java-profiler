@@ -1,7 +1,5 @@
 package me.zyee.profiler.agent.event.watcher;
 
-import java.lang.instrument.Instrumentation;
-import java.util.concurrent.atomic.AtomicInteger;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
@@ -10,6 +8,9 @@ import me.zyee.profiler.spy.Spy;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import org.junit.Test;
 import org.junit.runner.JUnitCore;
+
+import java.lang.instrument.Instrumentation;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author yee
