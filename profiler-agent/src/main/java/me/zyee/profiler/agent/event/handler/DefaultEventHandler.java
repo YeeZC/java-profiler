@@ -44,6 +44,7 @@ public class DefaultEventHandler implements EventHandler {
                     .setTriggerLoader(loader)
                     .setTriggerMethod(methodName)
                     .setTrigger(target)
+                    .setTriggerMethodSign(methodDesc)
                     .setArgs(args).build();
             try {
                 listeners.get(listenId).onEvent(event);

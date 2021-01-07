@@ -1,7 +1,8 @@
 package me.zyee.java.profiler.event;
 
-import java.util.Arrays;
 import me.zyee.java.profiler.event.annotation.AutoClear;
+
+import java.util.Arrays;
 
 /**
  * @author yee
@@ -12,6 +13,7 @@ public class Before extends BaseEvent {
     private final ClassLoader triggerLoader;
     private final String triggerClass;
     private final String triggerMethod;
+    private final String triggerMethodSign;
     @AutoClear
     private final Object trigger;
     @AutoClear
@@ -23,6 +25,7 @@ public class Before extends BaseEvent {
         this.triggerClass = builder.triggerClass;
         this.triggerMethod = builder.triggerMethod;
         this.trigger = builder.trigger;
+        this.triggerMethodSign = builder.triggerMethodSign;
         this.args = builder.args;
     }
 
@@ -55,6 +58,7 @@ public class Before extends BaseEvent {
         private ClassLoader triggerLoader;
         private String triggerClass;
         private String triggerMethod;
+        private String triggerMethodSign;
         private Object trigger;
         private Object[] args;
 
@@ -86,6 +90,11 @@ public class Before extends BaseEvent {
             return this;
         }
 
+        public Builder setTriggerMethodSign(String triggerMethodSign) {
+            this.triggerMethodSign = triggerMethodSign;
+            return this;
+        }
+
         public Builder of(Before before) {
             super.of(before);
             this.triggerLoader = before.triggerLoader;
@@ -93,6 +102,7 @@ public class Before extends BaseEvent {
             this.triggerMethod = before.triggerMethod;
             this.trigger = before.trigger;
             this.args = before.args;
+            this.triggerMethodSign = before.triggerMethodSign;
             return this;
         }
 

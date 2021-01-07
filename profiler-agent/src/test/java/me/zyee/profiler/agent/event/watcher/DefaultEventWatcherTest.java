@@ -3,6 +3,7 @@ package me.zyee.profiler.agent.event.watcher;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
+import me.zyee.java.profiler.filter.DefaultBehaviorFilter;
 import me.zyee.profiler.agent.event.handler.DefaultEventHandler;
 import me.zyee.profiler.spy.Spy;
 import net.bytebuddy.agent.ByteBuddyAgent;
@@ -26,7 +27,7 @@ public class DefaultEventWatcherTest {
         Spy.init(handler);
         EventWatcher watcher = new DefaultEventWatcher(install, handler);
         AtomicInteger counter = new AtomicInteger();
-        final int watch = watcher.watch("me.zyee.profiler.agent.event.watcher.TestCase#print", new EventListener() {
+        final int watch = watcher.watch(new DefaultBehaviorFilter("me.zyee.profiler.agent.event.watcher.TestCase#print"), new EventListener() {
             @Override
             public boolean onEvent(Event event) throws Throwable {
                 counter.incrementAndGet();

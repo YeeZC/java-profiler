@@ -1,5 +1,6 @@
 package me.zyee.profiler.agent.event.watcher;
 
+import me.zyee.java.profiler.annotation.Profile;
 import org.junit.Test;
 
 /**
@@ -20,6 +21,7 @@ public class TestCase {
         }
     }
 
+    @Profile
     public void print(int i) {
         System.out.println(i);
     }

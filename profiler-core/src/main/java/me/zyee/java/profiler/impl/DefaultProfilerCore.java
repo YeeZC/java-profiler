@@ -1,5 +1,27 @@
 package me.zyee.java.profiler.impl;
 
+import me.zyee.java.profiler.AtomOperation;
+import me.zyee.java.profiler.Context;
+import me.zyee.java.profiler.NormalOperation;
+import me.zyee.java.profiler.Operation;
+import me.zyee.java.profiler.ProfileItem;
+import me.zyee.java.profiler.ProfileNode;
+import me.zyee.java.profiler.ProfilerCore;
+import me.zyee.java.profiler.Result;
+import me.zyee.java.profiler.Runner;
+import me.zyee.java.profiler.attach.Attach;
+import me.zyee.java.profiler.event.MethodProfileListener;
+import me.zyee.java.profiler.filter.ProfileBehaviorFilter;
+import me.zyee.java.profiler.flame.FlameParser;
+import me.zyee.java.profiler.flame.Frame;
+import me.zyee.java.profiler.markdown.Markdown;
+import me.zyee.java.profiler.utils.GroupMatcher;
+import me.zyee.java.profiler.utils.PidUtils;
+import me.zyee.java.profiler.utils.ProfilerHelper;
+import me.zyee.java.profiler.utils.SearchUtils;
+import one.profiler.Events;
+import org.apache.commons.lang3.StringUtils;
+
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -12,25 +34,6 @@ import java.util.Queue;
 import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import me.zyee.java.profiler.AtomOperation;
-import me.zyee.java.profiler.Context;
-import me.zyee.java.profiler.NormalOperation;
-import me.zyee.java.profiler.Operation;
-import me.zyee.java.profiler.ProfileItem;
-import me.zyee.java.profiler.ProfileNode;
-import me.zyee.java.profiler.ProfilerCore;
-import me.zyee.java.profiler.Result;
-import me.zyee.java.profiler.Runner;
-import me.zyee.java.profiler.attach.Attach;
-import me.zyee.java.profiler.flame.FlameParser;
-import me.zyee.java.profiler.flame.Frame;
-import me.zyee.java.profiler.markdown.Markdown;
-import me.zyee.java.profiler.utils.GroupMatcher;
-import me.zyee.java.profiler.utils.PidUtils;
-import me.zyee.java.profiler.utils.ProfilerHelper;
-import me.zyee.java.profiler.utils.SearchUtils;
-import one.profiler.Events;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * TODO 实现
@@ -42,8 +45,9 @@ import org.apache.commons.lang3.StringUtils;
 public class DefaultProfilerCore implements ProfilerCore {
     static {
         try {
-            Attach.attach(Paths.get("/Volumes/MacYee/work/IdeaProjects/java-profiler/profiler-agent-core/target/profiler-agent-core-1.0-SNAPSHOT-jar-with-dependencies.jar"),
+            Attach.attach(Paths.get("/Users/yee/IdeaProjects/java-profiler/profiler-agent/target/profiler-agent-1.0-SNAPSHOT-jar-with-dependencies.jar"),
                     PidUtils.currentPid());
+            ProfilerHelper.watcher.watch(new ProfileBehaviorFilter(), new MethodProfileListener());
         } catch (Exception e) {
             e.printStackTrace();
         }

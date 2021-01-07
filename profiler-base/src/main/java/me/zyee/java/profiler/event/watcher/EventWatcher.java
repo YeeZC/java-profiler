@@ -2,6 +2,7 @@ package me.zyee.java.profiler.event.watcher;
 
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
+import me.zyee.java.profiler.filter.BehaviorFilter;
 
 /**
  * @author yee
@@ -12,12 +13,12 @@ public interface EventWatcher {
     /**
      * 开始观察
      *
-     * @param pattern  行为匹配
+     * @param filter   行为匹配
      * @param listener 监听器
      * @param types    监听事件类型
      * @return id
      */
-    int watch(String pattern, EventListener listener, Event.Type... types);
+    int watch(BehaviorFilter filter, EventListener listener, Event.Type... types);
 
     /**
      * 开始观察，监听所有事件
@@ -26,9 +27,7 @@ public interface EventWatcher {
      * @param listener 监听器
      * @return id
      */
-    default int watch(String pattern, EventListener listener) {
-        return watch(pattern, listener, Event.Type.values());
-    }
+    int watch(BehaviorFilter pattern, EventListener listener);
 
     /**
      * 移除观察
