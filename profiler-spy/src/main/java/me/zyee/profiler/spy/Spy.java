@@ -30,23 +30,28 @@ public class Spy {
         HANDLERS.remove(namespace);
     }
 
-    public static void onBefore(String namespace, int listenId, ClassLoader loader, String className, String methodName, String methodDesc,
-                                Object target, Object[] args) throws Throwable {
-        final SpyHandler spyHandler = HANDLERS.get(namespace);
+    public static void onBefore(int listenId,
+                                ClassLoader loader,
+                                String className,
+                                String methodName,
+                                String methodDesc,
+                                Object target,
+                                Object[] args) throws Throwable {
+        final SpyHandler spyHandler = HANDLERS.get("profiler");
         if (null != spyHandler) {
             spyHandler.onBefore(listenId, loader, className, methodName, methodDesc, target, args);
         }
     }
 
-    public static void onReturn(String namespace, int listenId, Object object) throws Throwable {
-        final SpyHandler spyHandler = HANDLERS.get(namespace);
+    public static void onReturn(int listenId, Object object) throws Throwable {
+        final SpyHandler spyHandler = HANDLERS.get("profiler");
         if (null != spyHandler) {
             spyHandler.onReturn(listenId, object);
         }
     }
 
-    public static void onThrows(String namespace, int listenId, Throwable object) throws Throwable {
-        final SpyHandler spyHandler = HANDLERS.get(namespace);
+    public static void onThrows(int listenId, Throwable object) throws Throwable {
+        final SpyHandler spyHandler = HANDLERS.get("profiler");
         if (null != spyHandler) {
             spyHandler.onThrows(listenId, object);
         }

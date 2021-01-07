@@ -1,5 +1,7 @@
 package me.zyee.profiler.agent.event;
 
+import java.util.Arrays;
+
 /**
  * @author yee
  * @version 1.0
@@ -94,5 +96,16 @@ public class Before extends BaseEvent {
         public Before build() {
             return new Before(this);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Before{" +
+                "triggerLoader=" + triggerLoader +
+                ", triggerClass='" + triggerClass + '\'' +
+                ", triggerMethod='" + triggerMethod + '\'' +
+                ", trigger=" + trigger +
+                ", args=" + Arrays.toString(args) +
+                '}';
     }
 }
