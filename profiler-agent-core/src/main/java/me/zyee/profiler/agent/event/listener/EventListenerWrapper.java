@@ -1,6 +1,7 @@
 package me.zyee.profiler.agent.event.listener;
 
-import me.zyee.profiler.agent.event.Event;
+import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.event.listener.EventListener;
 import org.apache.commons.lang3.ArrayUtils;
 
 /**
@@ -27,7 +28,7 @@ public class EventListenerWrapper implements EventListener {
         if (ArrayUtils.contains(types, type)) {
             return delegate.onEvent(event);
         }
-        return false;
+        return true;
     }
 
 

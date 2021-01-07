@@ -39,7 +39,7 @@ class PosixContext extends BaseContext {
                 .setEvent(event)
                 .setOutput(profilerPath.resolve(event.name + ".html").toString())
                 .setThreads(false)
-                .setExclude("*Java: C*")
+                .setExclude("*Java: C*,*CompileBroker*")
                 .setInterval("5ms")
                 .setFormat(Format.builder()
                         .setTree(Counter.TOTAL).build())

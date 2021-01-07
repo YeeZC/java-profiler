@@ -1,8 +1,8 @@
 package me.zyee.profiler.spy;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
+import java.lang.reflect.Method;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.apache.commons.lang3.reflect.MethodUtils;
 
 /**
  * @author yee
@@ -10,24 +10,40 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Create by yee on 2021/1/6
  */
 public class Spy {
+
+    public static Method ON_BEFORE = getMethod(Spy.class, "onBefore",
+            int.class,
+            ClassLoader.class,
+            String.class,
+            String.class,
+            String.class,
+            Object.class,
+            Object[].class);
+    public static Method ON_RETURN = getMethod(Spy.class, "onReturn",
+            int.class,
+            Object.class);
+    public static Method ON_THROWS = getMethod(Spy.class, "onThrows",
+            int.class,
+            Throwable.class);
+
+    private static Method getMethod(Class<?> clazz, String name, Class<?>... params) {
+        return MethodUtils.getMatchingMethod(clazz, name, params);
+    }
+
     private static final AtomicInteger sequenceRef = new AtomicInteger(1000);
 
     public static int nextSequence() {
         return sequenceRef.getAndIncrement();
     }
 
-    private static final Map<String, SpyHandler> HANDLERS = new ConcurrentHashMap<>();
+    private static SpyHandler handler = null;
 
-    public static boolean isInit(String namespace) {
-        return HANDLERS.containsKey(namespace);
+    public static void init(SpyHandler handler) {
+        Spy.handler = handler;
     }
 
-    public static void init(String namespace, SpyHandler handler) {
-        HANDLERS.putIfAbsent(namespace, handler);
-    }
-
-    public static void destroy(String namespace) {
-        HANDLERS.remove(namespace);
+    public static void destroy() {
+        handler = null;
     }
 
     public static void onBefore(int listenId,
@@ -37,23 +53,20 @@ public class Spy {
                                 String methodDesc,
                                 Object target,
                                 Object[] args) throws Throwable {
-        final SpyHandler spyHandler = HANDLERS.get("profiler");
-        if (null != spyHandler) {
-            spyHandler.onBefore(listenId, loader, className, methodName, methodDesc, target, args);
+        if (null != handler) {
+            handler.onBefore(listenId, loader, className, methodName, methodDesc, target, args);
         }
     }
 
     public static void onReturn(int listenId, Object object) throws Throwable {
-        final SpyHandler spyHandler = HANDLERS.get("profiler");
-        if (null != spyHandler) {
-            spyHandler.onReturn(listenId, object);
+        if (null != handler) {
+            handler.onReturn(listenId, object);
         }
     }
 
     public static void onThrows(int listenId, Throwable object) throws Throwable {
-        final SpyHandler spyHandler = HANDLERS.get("profiler");
-        if (null != spyHandler) {
-            spyHandler.onThrows(listenId, object);
+        if (null != handler) {
+            handler.onThrows(listenId, object);
         }
     }
 }

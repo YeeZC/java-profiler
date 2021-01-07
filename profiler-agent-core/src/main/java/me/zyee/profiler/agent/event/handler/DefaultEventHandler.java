@@ -1,13 +1,15 @@
 package me.zyee.profiler.agent.event.handler;
 
 import java.lang.reflect.Field;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import me.zyee.profiler.agent.event.Before;
-import me.zyee.profiler.agent.event.Event;
-import me.zyee.profiler.agent.event.Return;
-import me.zyee.profiler.agent.event.Throws;
-import me.zyee.profiler.agent.event.listener.EventListener;
+import me.zyee.java.profiler.event.Before;
+import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.event.Return;
+import me.zyee.java.profiler.event.Throws;
+import me.zyee.java.profiler.event.annotation.AutoClear;
+import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.profiler.agent.event.listener.EventListenerWrapper;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
@@ -37,6 +39,7 @@ public class DefaultEventHandler implements EventHandler {
         if (listeners.containsKey(listenId)) {
             final Before event = Before.builder()
                     .setId(listenId)
+                    .setTriggerClass(className)
                     .setTriggerLoader(loader)
                     .setTriggerMethod(methodName)
                     .setTrigger(target)
@@ -80,21 +83,12 @@ public class DefaultEventHandler implements EventHandler {
     }
 
     void cleanEvent(Event event) {
-        switch (event.type()) {
-            case BEFORE: {
-                unCaughtSetClassDeclaredJavaFieldValue(event, "trigger", null);
-                unCaughtSetClassDeclaredJavaFieldValue(event, "args", null);
-                break;
+        final List<Field> fields = FieldUtils.getFieldsListWithAnnotation(event.getClass(), AutoClear.class);
+        for (Field field : fields) {
+            try {
+                FieldUtils.writeField(field, event, null, true);
+            } catch (IllegalAccessException ignore) {
             }
-            case RETURN: {
-                unCaughtSetClassDeclaredJavaFieldValue(event, "returnObject", null);
-                break;
-            }
-            case THROWS: {
-                unCaughtSetClassDeclaredJavaFieldValue(event, "throwable", null);
-                break;
-            }
-            default:
         }
     }
 

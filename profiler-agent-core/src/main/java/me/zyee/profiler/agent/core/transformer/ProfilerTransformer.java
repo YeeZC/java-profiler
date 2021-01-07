@@ -5,20 +5,18 @@ import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.Set;
 import java.util.stream.Collectors;
+import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.utils.Matcher;
 import me.zyee.java.profiler.utils.SearchUtils;
 import me.zyee.profiler.agent.core.enhancer.EventEnhancer;
 import me.zyee.profiler.agent.core.utils.BehaviorStructure;
 import me.zyee.profiler.agent.core.utils.ClassStructure;
-import me.zyee.profiler.agent.event.Event;
-import me.zyee.profiler.agent.event.listener.EventListener;
 import me.zyee.profiler.agent.utils.ObjectIds;
 
 import static me.zyee.profiler.agent.core.utils.ClassStructureFactory.createClassStructure;
 
 /**
- * TODO 实现
- *
  * @author yee
  * @version 1.0
  * created by yee on 2021/1/6
@@ -86,29 +84,4 @@ public class ProfilerTransformer implements ClassFileTransformer {
                 : createClassStructure(classBeingRedefined);
     }
 
-//    private String[] toJavaClassNameArray(final Collection<ClassStructure> classStructures) {
-//        if (null == classStructures) {
-//            return null;
-//        }
-//        final List<String> javaClassNames = new ArrayList<String>();
-//        for (final ClassStructure classStructure : classStructures) {
-//            javaClassNames.add(classStructure.getJavaClassName());
-//        }
-//        return javaClassNames.toArray(new String[0]);
-//    }
-//
-//    protected final boolean matchParams(boolean strict, String[] params, String[] paramsTypeClassName) {
-//        if (strict) {
-//            if (params.length != paramsTypeClassName.length) {
-//                return false;
-//            }
-//            for (int i = 0; i < params.length; i++) {
-//                if (!params[i].equals(paramsTypeClassName[i])) {
-//                    return false;
-//                }
-//            }
-//            return true;
-//        }
-//        return true;
-//    }
 }

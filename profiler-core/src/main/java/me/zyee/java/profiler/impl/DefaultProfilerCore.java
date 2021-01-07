@@ -1,17 +1,13 @@
 package me.zyee.java.profiler.impl;
 
-import com.google.common.collect.Lists;
 import java.io.IOException;
-import java.lang.instrument.Instrumentation;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -25,13 +21,14 @@ import me.zyee.java.profiler.ProfileNode;
 import me.zyee.java.profiler.ProfilerCore;
 import me.zyee.java.profiler.Result;
 import me.zyee.java.profiler.Runner;
-import me.zyee.java.profiler.agent.MethodAgent;
+import me.zyee.java.profiler.attach.Attach;
 import me.zyee.java.profiler.flame.FlameParser;
 import me.zyee.java.profiler.flame.Frame;
 import me.zyee.java.profiler.markdown.Markdown;
 import me.zyee.java.profiler.utils.GroupMatcher;
+import me.zyee.java.profiler.utils.PidUtils;
+import me.zyee.java.profiler.utils.ProfilerHelper;
 import me.zyee.java.profiler.utils.SearchUtils;
-import net.bytebuddy.agent.ByteBuddyAgent;
 import one.profiler.Events;
 import org.apache.commons.lang3.StringUtils;
 
@@ -43,10 +40,13 @@ import org.apache.commons.lang3.StringUtils;
  * Create by yee on 2020/12/15
  */
 public class DefaultProfilerCore implements ProfilerCore {
-
     static {
-        final Instrumentation install = ByteBuddyAgent.install();
-        MethodAgent.agentmain(new String[]{}, install);
+        try {
+            Attach.attach(Paths.get("/Volumes/MacYee/work/IdeaProjects/java-profiler/profiler-agent-core/target/profiler-agent-core-1.0-SNAPSHOT-jar-with-dependencies.jar"),
+                    PidUtils.currentPid());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -75,12 +75,9 @@ public class DefaultProfilerCore implements ProfilerCore {
                     root.addChild(child);
                     calculateTheoreticalCost(theoreticalCost, node);
                 }
-                final List<Class<?>> allLoadedClasses = Optional.ofNullable(MethodAgent.inst)
-                        .map(inst -> (List<Class<?>>) Lists.<Class<?>>newArrayList(inst.getAllLoadedClasses()))
-                        .orElseGet(Collections::emptyList);
-                final Map<String, Set<Class<?>>> collect = patterns.stream().map(pattern -> StringUtils.substringBefore(pattern, "#"))
-                        .distinct().collect(Collectors.toMap(classPattern -> classPattern, classPattern ->
-                                SearchUtils.searchClass(allLoadedClasses::stream, classPattern, false)));
+                final Map<String, Set<Class<?>>> collect = patterns.stream()
+                        .map(pattern -> StringUtils.substringBefore(pattern, "#"))
+                        .distinct().collect(Collectors.toMap(classPattern -> classPattern, ProfilerHelper::find));
                 for (String pattern : patterns) {
                     final String[] split = pattern.split("#");
                     final Set<Class<?>> set = collect.getOrDefault(split[0], Collections.emptySet());

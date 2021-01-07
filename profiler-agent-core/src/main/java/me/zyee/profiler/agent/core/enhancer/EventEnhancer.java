@@ -4,9 +4,9 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Set;
+import me.zyee.java.profiler.event.Event;
 import me.zyee.profiler.agent.core.advice.AdviceWeaver;
 import me.zyee.profiler.agent.core.utils.AsmUtils;
-import me.zyee.profiler.agent.event.Event;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
@@ -22,7 +22,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 public class EventEnhancer implements Enhancer {
 
 
-    private static final boolean isDumpClass = true;
+    private static final boolean isDumpClass = false;
 
     /**
      * dump class to file

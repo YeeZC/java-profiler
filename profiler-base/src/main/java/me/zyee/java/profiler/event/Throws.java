@@ -1,4 +1,6 @@
-package me.zyee.profiler.agent.event;
+package me.zyee.java.profiler.event;
+
+import me.zyee.java.profiler.event.annotation.AutoClear;
 
 /**
  * @author yee
@@ -6,8 +8,8 @@ package me.zyee.profiler.agent.event;
  * Create by yee on 2021/1/6
  */
 public class Throws extends BaseEvent {
+    @AutoClear
     private final Throwable throwable;
-
 
     private Throws(Builder builder) {
         super(builder.setType(Type.THROWS));
@@ -39,5 +41,12 @@ public class Throws extends BaseEvent {
         public Throws build() {
             return new Throws(this);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Throws{" +
+                "throwable=" + throwable +
+                '}';
     }
 }

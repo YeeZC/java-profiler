@@ -1,6 +1,7 @@
-package me.zyee.profiler.agent.event;
+package me.zyee.java.profiler.event;
 
 import java.util.Arrays;
+import me.zyee.java.profiler.event.annotation.AutoClear;
 
 /**
  * @author yee
@@ -11,7 +12,9 @@ public class Before extends BaseEvent {
     private final ClassLoader triggerLoader;
     private final String triggerClass;
     private final String triggerMethod;
+    @AutoClear
     private final Object trigger;
+    @AutoClear
     private final Object[] args;
 
     private Before(Builder builder) {

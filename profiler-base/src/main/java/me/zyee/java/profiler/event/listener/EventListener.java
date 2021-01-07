@@ -1,6 +1,6 @@
-package me.zyee.profiler.agent.event.listener;
+package me.zyee.java.profiler.event.listener;
 
-import me.zyee.profiler.agent.event.Event;
+import me.zyee.java.profiler.event.Event;
 
 /**
  * @author yee

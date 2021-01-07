@@ -1,9 +1,11 @@
 package me.zyee.profiler.agent.event.watcher;
 
 import java.lang.instrument.Instrumentation;
-import me.zyee.profiler.agent.event.Event;
+import java.util.concurrent.atomic.AtomicInteger;
+import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.event.listener.EventListener;
+import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.profiler.agent.event.handler.DefaultEventHandler;
-import me.zyee.profiler.agent.event.listener.EventListener;
 import me.zyee.profiler.spy.Spy;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import org.junit.Test;
@@ -20,16 +22,17 @@ public class DefaultEventWatcherTest {
     public void test() {
         final Instrumentation install = ByteBuddyAgent.install();
         final DefaultEventHandler handler = new DefaultEventHandler();
-        Spy.init("profiler", handler);
+        Spy.init(handler);
         EventWatcher watcher = new DefaultEventWatcher(install, handler);
+        AtomicInteger counter = new AtomicInteger();
         final int watch = watcher.watch("me.zyee.profiler.agent.event.watcher.TestCase#print", new EventListener() {
             @Override
             public boolean onEvent(Event event) throws Throwable {
-                System.out.println(event);
+                counter.incrementAndGet();
                 return true;
             }
         }, Event.Type.BEFORE);
         JUnitCore.runClasses(TestCase.class);
-
+        System.err.println(counter);
     }
 }

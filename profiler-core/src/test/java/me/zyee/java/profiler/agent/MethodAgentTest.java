@@ -1,8 +1,8 @@
 package me.zyee.java.profiler.agent;
 
 import java.io.IOException;
+import me.zyee.java.profiler.impl.DefaultProfilerCore;
 import me.zyee.java.profiler.impl.ProfileJUnitRunner;
-import me.zyee.java.profiler.impl.StrictProfilerCore;
 import org.junit.Test;
 
 /**
@@ -14,9 +14,7 @@ public class MethodAgentTest {
     @Test
     public void test() throws IOException {
         System.out.println(TestClass.class);
-        final StrictProfilerCore core = StrictProfilerCore.builder().addPattern("me.zyee.java.profiler.agent.TestClass#print")
-                .build();
+        final DefaultProfilerCore core = new DefaultProfilerCore();
         core.profile(new ProfileJUnitRunner(TestClass.class));
-        System.out.println(StrictInterceptor.counter);
     }
 }

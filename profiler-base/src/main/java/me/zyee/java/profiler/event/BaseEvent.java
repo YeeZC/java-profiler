@@ -1,4 +1,4 @@
-package me.zyee.profiler.agent.event;
+package me.zyee.java.profiler.event;
 
 /**
  * @author yee

@@ -1,4 +1,6 @@
-package me.zyee.profiler.agent.event;
+package me.zyee.java.profiler.event;
+
+import me.zyee.java.profiler.event.annotation.AutoClear;
 
 /**
  * @author yee
@@ -6,6 +8,7 @@ package me.zyee.profiler.agent.event;
  * Create by yee on 2021/1/6
  */
 public class Return extends BaseEvent {
+    @AutoClear
     private final Object returnObject;
 
 
@@ -40,5 +43,12 @@ public class Return extends BaseEvent {
         public Return build() {
             return new Return(this);
         }
+    }
+
+    @Override
+    public String toString() {
+        return "Return{" +
+                "returnObject=" + returnObject +
+                '}';
     }
 }

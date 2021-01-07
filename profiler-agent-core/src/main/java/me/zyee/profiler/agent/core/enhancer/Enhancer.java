@@ -2,7 +2,7 @@ package me.zyee.profiler.agent.core.enhancer;
 
 
 import java.util.Set;
-import me.zyee.profiler.agent.event.Event;
+import me.zyee.java.profiler.event.Event;
 
 /**
  * 代码增强

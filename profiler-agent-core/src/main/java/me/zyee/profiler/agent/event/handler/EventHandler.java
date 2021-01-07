@@ -1,7 +1,7 @@
 package me.zyee.profiler.agent.event.handler;
 
-import me.zyee.profiler.agent.event.Event;
-import me.zyee.profiler.agent.event.listener.EventListener;
+import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.profiler.spy.SpyHandler;
 
 /**

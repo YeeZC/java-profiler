@@ -11,8 +11,12 @@ public class TestCase {
     @Test
     public void test() throws InterruptedException {
         for (int i = 0; i < 100; i++) {
-            print(i);
-            Thread.sleep(100);
+            try {
+                print(i);
+                Thread.sleep(100);
+            } catch (Throwable t) {
+                t.printStackTrace();
+            }
         }
     }
 
