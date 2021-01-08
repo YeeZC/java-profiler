@@ -31,7 +31,6 @@ public abstract class BaseRunner implements Runner, Task {
                 try {
                     return Optional.ofNullable(context.getProfiler()).map(profiler -> {
                         final ProfileItem item = new ProfileItem(targetClass.getName());
-
                         profiler.start();
                         long start = System.currentTimeMillis();
                         try {

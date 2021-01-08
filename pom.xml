@@ -32,7 +32,6 @@
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
-            <version>1.7.30</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -89,6 +88,16 @@
                 <groupId>org.ow2.asm</groupId>
                 <artifactId>asm-commons</artifactId>
                 <version>7.2</version>
+            </dependency>
+            <dependency>
+                <groupId>org.slf4j</groupId>
+                <artifactId>slf4j-api</artifactId>
+                <version>1.7.30</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>3.10</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

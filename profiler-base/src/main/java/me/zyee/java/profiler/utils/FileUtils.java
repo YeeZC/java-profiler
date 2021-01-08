@@ -4,6 +4,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.Charset;
 
 /**
  * @author yee
@@ -26,5 +27,9 @@ public class FileUtils {
             transfer(is, bos);
             return bos.toByteArray();
         }
+    }
+
+    public static String read(InputStream is, Charset charset) throws IOException {
+        return new String(readAll(is), charset);
     }
 }

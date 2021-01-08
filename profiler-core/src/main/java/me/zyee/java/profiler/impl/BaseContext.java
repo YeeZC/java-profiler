@@ -1,10 +1,9 @@
 package me.zyee.java.profiler.impl;
 
-import me.zyee.java.profiler.Context;
-import me.zyee.java.profiler.ProfileItem;
-
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import me.zyee.java.profiler.Context;
+import me.zyee.java.profiler.ProfileItem;
 
 /**
  * @author yee
@@ -16,7 +15,7 @@ abstract class BaseContext implements Context {
 
     private final Queue<ProfileItem> queue = new ConcurrentLinkedQueue<>();
 
-    public BaseContext(String name) {
+    BaseContext(String name) {
         this.name = name;
     }
 

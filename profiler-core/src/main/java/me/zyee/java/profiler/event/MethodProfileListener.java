@@ -1,5 +1,7 @@
 package me.zyee.java.profiler.event;
 
+import java.nio.file.Path;
+import java.util.Optional;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileHandler;
 import me.zyee.java.profiler.ProfileHandlerRegistry;
@@ -7,9 +9,6 @@ import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Profiler;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.impl.ContextHelper;
-
-import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * @author yee

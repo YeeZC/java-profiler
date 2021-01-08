@@ -49,6 +49,7 @@ public class DefaultProfilerCore implements ProfilerCore {
 //    private final double memoryRate;
 //    private final int bandwidth;
 //    private final int network;
+//    private final long gcRate;
     private final Set<String> excludes;
 
     static {
@@ -66,6 +67,7 @@ public class DefaultProfilerCore implements ProfilerCore {
 //        this.memoryRate = builder.memoryRate;
 //        this.bandwidth = builder.bandwidth;
 //        this.network = builder.network;
+//        this.gcRate = builder.gcRate;
         this.excludes = builder.excludes;
     }
 
@@ -202,10 +204,11 @@ public class DefaultProfilerCore implements ProfilerCore {
 
     public static class Builder {
         private Path reportPath;
-        private double cpuRate;
-        private double memoryRate;
-        private int bandwidth;
-        private int network;
+        //        private double cpuRate;
+//        private double memoryRate;
+//        private int bandwidth;
+//        private int network;
+//        private long gcRate = 500;
         private Set<String> excludes;
 
         private Builder() {
@@ -218,30 +221,35 @@ public class DefaultProfilerCore implements ProfilerCore {
             return this;
         }
 
-        public Builder setCpuRate(double cpuRate) {
-            this.cpuRate = cpuRate;
-            return this;
-        }
-
-        public Builder setMemoryRate(double memoryRate) {
-            this.memoryRate = memoryRate;
-            return this;
-        }
-
-        public Builder setBandwidth(int bandwidth) {
-            this.bandwidth = bandwidth;
-            return this;
-        }
-
-        public Builder setNetwork(int network) {
-            this.network = network;
-            return this;
-        }
+//        public Builder setCpuRate(double cpuRate) {
+//            this.cpuRate = cpuRate;
+//            return this;
+//        }
+//
+//        public Builder setMemoryRate(double memoryRate) {
+//            this.memoryRate = memoryRate;
+//            return this;
+//        }
+//
+//        public Builder setBandwidth(int bandwidth) {
+//            this.bandwidth = bandwidth;
+//            return this;
+//        }
+//
+//        public Builder setNetwork(int network) {
+//            this.network = network;
+//            return this;
+//        }
 
         public Builder exclude(String exclude) {
             this.excludes.add(exclude);
             return this;
         }
+
+//        public Builder gcRate(long gcRate) {
+//            this.gcRate = gcRate;
+//            return this;
+//        }
 
         public Builder of(DefaultProfilerCore defaultProfilerCore) {
             this.reportPath = defaultProfilerCore.reportPath;
@@ -250,6 +258,7 @@ public class DefaultProfilerCore implements ProfilerCore {
 //            this.bandwidth = defaultProfilerCore.bandwidth;
 //            this.network = defaultProfilerCore.network;
             this.excludes = defaultProfilerCore.excludes;
+//            this.gcRate = defaultProfilerCore.gcRate;
             return this;
         }
 

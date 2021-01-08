@@ -66,6 +66,21 @@ public class Markdown {
         }
     }
 
+    private CharSequence makeGcStat(List<String> gcStat) {
+        StringBuilder builder = new StringBuilder("|");
+        final String s = gcStat.get(0);
+        final int length = s.split("\\|").length;
+        builder.append(s).append("|\n");
+        for (int i = 0; i < length; i++) {
+            builder.append("| --- ");
+        }
+        builder.append("|\n");
+        for (int i = 1; i < gcStat.size(); i++) {
+            builder.append("|").append(gcStat.get(1)).append("|\n");
+        }
+        return builder;
+    }
+
     public String getName() {
         return root.getName();
     }
