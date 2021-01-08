@@ -45,10 +45,10 @@ public class DefaultProfilerCore implements ProfilerCore {
 
 
     private final Path reportPath;
-    private final double cpuRate;
-    private final double memoryRate;
-    private final int bandwidth;
-    private final int network;
+    //    private final double cpuRate;
+//    private final double memoryRate;
+//    private final int bandwidth;
+//    private final int network;
     private final Set<String> excludes;
 
     static {
@@ -62,10 +62,10 @@ public class DefaultProfilerCore implements ProfilerCore {
 
     private DefaultProfilerCore(Builder builder) {
         this.reportPath = builder.reportPath;
-        this.cpuRate = builder.cpuRate;
-        this.memoryRate = builder.memoryRate;
-        this.bandwidth = builder.bandwidth;
-        this.network = builder.network;
+//        this.cpuRate = builder.cpuRate;
+//        this.memoryRate = builder.memoryRate;
+//        this.bandwidth = builder.bandwidth;
+//        this.network = builder.network;
         this.excludes = builder.excludes;
     }
 
@@ -179,22 +179,22 @@ public class DefaultProfilerCore implements ProfilerCore {
     public Path getReportPath() {
         return reportPath;
     }
-
-    public double getCpuRate() {
-        return cpuRate;
-    }
-
-    public double getMemoryRate() {
-        return memoryRate;
-    }
-
-    public int getBandwidth() {
-        return bandwidth;
-    }
-
-    public int getNetwork() {
-        return network;
-    }
+//
+//    public double getCpuRate() {
+//        return cpuRate;
+//    }
+//
+//    public double getMemoryRate() {
+//        return memoryRate;
+//    }
+//
+//    public int getBandwidth() {
+//        return bandwidth;
+//    }
+//
+//    public int getNetwork() {
+//        return network;
+//    }
 
     public Set<String> getExcludes() {
         return excludes;
@@ -245,10 +245,10 @@ public class DefaultProfilerCore implements ProfilerCore {
 
         public Builder of(DefaultProfilerCore defaultProfilerCore) {
             this.reportPath = defaultProfilerCore.reportPath;
-            this.cpuRate = defaultProfilerCore.cpuRate;
-            this.memoryRate = defaultProfilerCore.memoryRate;
-            this.bandwidth = defaultProfilerCore.bandwidth;
-            this.network = defaultProfilerCore.network;
+//            this.cpuRate = defaultProfilerCore.cpuRate;
+//            this.memoryRate = defaultProfilerCore.memoryRate;
+//            this.bandwidth = defaultProfilerCore.bandwidth;
+//            this.network = defaultProfilerCore.network;
             this.excludes = defaultProfilerCore.excludes;
             return this;
         }
