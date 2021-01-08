@@ -6,8 +6,15 @@ import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Properties;
+import java.util.concurrent.atomic.AtomicBoolean;
+import me.zyee.java.profiler.utils.FileUtils;
+import me.zyee.java.profiler.utils.PidUtils;
+import me.zyee.java.profiler.utils.ProfilerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,8 +27,9 @@ public class Attach {
     private static final Logger LOGGER = LoggerFactory.getLogger(Attach.class);
     private static final String VERSION_PROP_NAME = "java.specification.version";
     private static final String JAVA_VERSION_STR = System.getProperty(VERSION_PROP_NAME);
+    private static final AtomicBoolean ATTACHED = new AtomicBoolean(false);
 
-    public static void attach(Path agent, String javaPid) throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException {
+    private static void attach(Path agent, String javaPid) throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException {
         VirtualMachineDescriptor virtualMachineDescriptor = null;
         for (VirtualMachineDescriptor descriptor : VirtualMachine.list()) {
             String pid = descriptor.id();
@@ -57,7 +65,22 @@ public class Attach {
         }
     }
 
-    public static String javaVersionStr(Properties props) {
+    private static String javaVersionStr(Properties props) {
         return (null != props) ? props.getProperty(VERSION_PROP_NAME) : null;
+    }
+
+    public static void attach() throws AgentInitializationException, AgentLoadException, AttachNotSupportedException, IOException {
+        if (ATTACHED.compareAndSet(false, true)) {
+            final Path path = Paths.get(System.getProperty("java.io.tmpdir"), "me.zyee.java.profiler");
+            if (!Files.exists(path)) {
+                Files.createDirectories(path);
+            }
+            final Path agent = path.resolve("agent.jar");
+            try (InputStream is = ProfilerHelper.class.getResourceAsStream("/agent")) {
+                final byte[] bytes = FileUtils.readAll(is);
+                Files.write(agent, bytes);
+            }
+            Attach.attach(agent, PidUtils.currentPid());
+        }
     }
 }

@@ -1,15 +1,14 @@
 package me.zyee.profiler.agent.core.enhancer;
 
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.Set;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.profiler.agent.core.advice.AdviceWeaver;
 import me.zyee.profiler.agent.core.utils.AsmUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
-
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.util.Set;
 
 import static org.objectweb.asm.ClassReader.EXPAND_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -23,7 +22,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 public class EventEnhancer implements Enhancer {
 
 
-    private static final boolean isDumpClass = false;
+    private static final boolean isDumpClass = true;
 
     /**
      * dump class to file
@@ -33,7 +32,7 @@ public class EventEnhancer implements Enhancer {
         if (!isDumpClass) {
             return data;
         }
-        final File dumpClassFile = new File("./sandbox-class-dump/" + className + ".class");
+        final File dumpClassFile = new File("./java-profiler/" + className + ".class");
         final File classPath = new File(dumpClassFile.getParent());
 
         // 创建类所在的包路径

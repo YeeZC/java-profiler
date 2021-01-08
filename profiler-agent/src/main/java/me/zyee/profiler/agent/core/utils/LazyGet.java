@@ -4,8 +4,7 @@ package me.zyee.profiler.agent.core.utils;
  * 懒加载
  *
  * @param <T> 懒加载类型
- * @author luanjia@taobao.com
- * @since {@code sandbox-api:1.2.2}
+ * @author yee
  */
 public abstract class LazyGet<T> {
 

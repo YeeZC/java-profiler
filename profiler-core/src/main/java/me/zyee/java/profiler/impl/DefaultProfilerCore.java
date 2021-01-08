@@ -1,5 +1,18 @@
 package me.zyee.java.profiler.impl;
 
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import me.zyee.java.profiler.AtomOperation;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.NormalOperation;
@@ -16,24 +29,10 @@ import me.zyee.java.profiler.flame.FlameParser;
 import me.zyee.java.profiler.flame.Frame;
 import me.zyee.java.profiler.markdown.Markdown;
 import me.zyee.java.profiler.utils.GroupMatcher;
-import me.zyee.java.profiler.utils.PidUtils;
 import me.zyee.java.profiler.utils.ProfilerHelper;
 import me.zyee.java.profiler.utils.SearchUtils;
 import one.profiler.Events;
 import org.apache.commons.lang3.StringUtils;
-
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Queue;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
 /**
  * TODO 实现
@@ -43,19 +42,40 @@ import java.util.stream.Collectors;
  * Create by yee on 2020/12/15
  */
 public class DefaultProfilerCore implements ProfilerCore {
+
+
+    private final Path reportPath;
+    private final double cpuRate;
+    private final double memoryRate;
+    private final int bandwidth;
+    private final int network;
+    private final Set<String> excludes;
+
     static {
         try {
-            Attach.attach(Paths.get("/Users/yee/IdeaProjects/java-profiler/profiler-agent/target/profiler-agent-1.0-SNAPSHOT-jar-with-dependencies.jar"),
-                    PidUtils.currentPid());
-            ProfilerHelper.watcher.watch(new ProfileBehaviorFilter(), new MethodProfileListener());
+            Attach.attach();
+            ProfilerHelper.watch(new ProfileBehaviorFilter(), new MethodProfileListener());
         } catch (Exception e) {
             e.printStackTrace();
         }
     }
 
+    private DefaultProfilerCore(Builder builder) {
+        this.reportPath = builder.reportPath;
+        this.cpuRate = builder.cpuRate;
+        this.memoryRate = builder.memoryRate;
+        this.bandwidth = builder.bandwidth;
+        this.network = builder.network;
+        this.excludes = builder.excludes;
+    }
+
+    public static Builder builder() {
+        return new Builder();
+    }
+
     @Override
     public void profile(Runner runner) throws IOException {
-        final Context context = ContextHelper.newContext(runner.name(), Events.CPU);
+        final Context context = ContextHelper.newContext(runner.name(), Events.CPU, excludes);
         if (null == context) {
             throw new UnsupportedOperationException();
         }
@@ -95,7 +115,8 @@ public class DefaultProfilerCore implements ProfilerCore {
                 root.merge();
                 final Map<String, Frame> parse = FlameParser.parse(flamePath, root, patternMap);
                 Markdown profileResult = new Markdown(item.getCost(), root,
-                        Paths.get(System.getProperty("user.dir")).resolve(item.getProfileName() + ".md"));
+                        Optional.ofNullable(reportPath).orElse(
+                                Paths.get(System.getProperty("user.dir"))).resolve(item.getProfileName() + ".md"));
                 profileResult.setFrames(parse);
                 profileResult.setTheoreticalCost(theoreticalCost);
                 profileResult.output();
@@ -153,5 +174,87 @@ public class DefaultProfilerCore implements ProfilerCore {
             }).forEach(patterns::addAll);
         }
         return patterns;
+    }
+
+    public Path getReportPath() {
+        return reportPath;
+    }
+
+    public double getCpuRate() {
+        return cpuRate;
+    }
+
+    public double getMemoryRate() {
+        return memoryRate;
+    }
+
+    public int getBandwidth() {
+        return bandwidth;
+    }
+
+    public int getNetwork() {
+        return network;
+    }
+
+    public Set<String> getExcludes() {
+        return excludes;
+    }
+
+    public static class Builder {
+        private Path reportPath;
+        private double cpuRate;
+        private double memoryRate;
+        private int bandwidth;
+        private int network;
+        private Set<String> excludes;
+
+        private Builder() {
+            this.excludes = new HashSet<>();
+            this.excludes.add("*Java: C*,CompileBroker");
+        }
+
+        public Builder setReportPath(Path reportPath) {
+            this.reportPath = reportPath;
+            return this;
+        }
+
+        public Builder setCpuRate(double cpuRate) {
+            this.cpuRate = cpuRate;
+            return this;
+        }
+
+        public Builder setMemoryRate(double memoryRate) {
+            this.memoryRate = memoryRate;
+            return this;
+        }
+
+        public Builder setBandwidth(int bandwidth) {
+            this.bandwidth = bandwidth;
+            return this;
+        }
+
+        public Builder setNetwork(int network) {
+            this.network = network;
+            return this;
+        }
+
+        public Builder exclude(String exclude) {
+            this.excludes.add(exclude);
+            return this;
+        }
+
+        public Builder of(DefaultProfilerCore defaultProfilerCore) {
+            this.reportPath = defaultProfilerCore.reportPath;
+            this.cpuRate = defaultProfilerCore.cpuRate;
+            this.memoryRate = defaultProfilerCore.memoryRate;
+            this.bandwidth = defaultProfilerCore.bandwidth;
+            this.network = defaultProfilerCore.network;
+            this.excludes = defaultProfilerCore.excludes;
+            return this;
+        }
+
+        public DefaultProfilerCore build() {
+            return new DefaultProfilerCore(this);
+        }
     }
 }

@@ -1,17 +1,8 @@
 package me.zyee.profiler.agent.event.watcher;
 
-import me.zyee.java.profiler.event.Event;
-import me.zyee.java.profiler.event.listener.EventListener;
-import me.zyee.java.profiler.event.watcher.EventWatcher;
-import me.zyee.java.profiler.filter.BehaviorFilter;
-import me.zyee.java.profiler.utils.GroupMatcher;
-import me.zyee.java.profiler.utils.Matcher;
-import me.zyee.java.profiler.utils.SearchUtils;
-import me.zyee.profiler.agent.core.transformer.ProfilerTransformer;
-import me.zyee.profiler.agent.event.handler.EventHandler;
-
 import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -20,6 +11,18 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.event.listener.EventListener;
+import me.zyee.java.profiler.event.watcher.EventWatcher;
+import me.zyee.java.profiler.filter.BehaviorFilter;
+import me.zyee.java.profiler.utils.GroupMatcher;
+import me.zyee.java.profiler.utils.Matcher;
+import me.zyee.java.profiler.utils.SearchUtils;
+import me.zyee.profiler.agent.core.transformer.ProfilerTransformer;
+import me.zyee.profiler.agent.core.utils.ClassStructure;
+import me.zyee.profiler.agent.core.utils.ClassStructureFactory;
+import me.zyee.profiler.agent.event.handler.EventHandler;
+import org.apache.commons.lang3.ClassUtils;
 
 /**
  * @author yee
@@ -40,8 +43,19 @@ public class DefaultEventWatcher implements EventWatcher {
     public int watch(BehaviorFilter filter, EventListener listener, Event.Type... types) {
         final ProfilerTransformer transformer = new ProfilerTransformer(filter, listener, types);
         transformers.add(transformer);
-        Set<Class<?>> classes = SearchUtils.searchClass(() -> Stream.of(inst.getAllLoadedClasses()),
+        Set<Class<?>> classes = SearchUtils.searchClass(() -> Stream.<Class<?>>of(inst.getAllLoadedClasses())
+                        .filter(clazz -> !(clazz.isArray() || clazz.isInterface() || clazz.isEnum() ||
+                                clazz.equals(Class.class) || clazz.equals(Method.class)
+                                || ClassUtils.isPrimitiveOrWrapper(clazz) || clazz.equals(String.class))),
                 className -> transformer.getFilter().classFilter(className));
+        classes = classes.stream().filter(clazz -> {
+            final ClassStructure classStructure = ClassStructureFactory.createClassStructure(clazz);
+            return classStructure.getBehaviorStructures().stream().anyMatch(behavior ->
+                    filter.methodFilter(behavior.getName(), behavior.getAnnotationTypeClassStructures()
+                            .stream()
+                            .map(ClassStructure::getJavaClassName)
+                    ));
+        }).collect(Collectors.toSet());
         final int id = transformer.getId();
 //        if (!classes.isEmpty()) {
         inst.addTransformer(transformer, true);

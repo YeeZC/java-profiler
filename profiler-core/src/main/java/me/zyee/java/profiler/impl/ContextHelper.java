@@ -1,5 +1,6 @@
 package me.zyee.java.profiler.impl;
 
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicReference;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.utils.OS;
@@ -32,11 +33,11 @@ public class ContextHelper {
         CONTEXT_ATOMIC_REFERENCE.compareAndSet(context, null);
     }
 
-    public static Context newContext(String name, Events event) {
+    public static Context newContext(String name, Events event, Set<String> excludes) {
         switch (OS.getOSType()) {
             case Linux:
             case Macintosh: {
-                final PosixContext context = new PosixContext(name, event);
+                final PosixContext context = new PosixContext(name, event, excludes);
                 setContext(context);
                 return context;
             }

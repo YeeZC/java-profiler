@@ -4,7 +4,10 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Optional;
 import java.util.Queue;
+import java.util.Set;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Profiler;
@@ -20,9 +23,11 @@ import one.profiler.Events;
  */
 class PosixContext extends BaseContext {
     private final Profiler profiler;
+    private final Set<String> excludes;
 
-    PosixContext(String name, Events event) {
+    PosixContext(String name, Events event, Set<String> excludes) {
         super(name);
+        this.excludes = Optional.ofNullable(excludes).map(HashSet::new).orElseGet(HashSet::new);
         this.profiler = init(name, event);
     }
 
@@ -39,7 +44,7 @@ class PosixContext extends BaseContext {
                 .setEvent(event)
                 .setOutput(profilerPath.resolve(event.name + ".html").toString())
                 .setThreads(false)
-                .setExclude("*Java: C*,*CompileBroker*")
+                .setExclude(String.join(",", this.excludes))
                 .setInterval("5ms")
                 .setFormat(Format.builder()
                         .setTree(Counter.TOTAL).build())
