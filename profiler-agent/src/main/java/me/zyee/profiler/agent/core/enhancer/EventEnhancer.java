@@ -82,12 +82,12 @@ public class EventEnhancer implements Enhancer {
                                   final byte[] byteCodeArray,
                                   final Set<String> signCodes,
                                   final int listenerId,
-                                  final Event.Type[] eventTypeArray) {
+                                  final Event.Type[] events) {
         // 返回增强后字节码
         final ClassReader cr = new ClassReader(byteCodeArray);
         final ClassWriter cw = createClassWriter(targetClassLoader, cr);
         cr.accept(
-                new AdviceWeaver(listenerId, signCodes, cr.getClassName(), cw),
+                new AdviceWeaver(listenerId, signCodes, cr.getClassName(), cw, events),
                 EXPAND_FRAMES
         );
 

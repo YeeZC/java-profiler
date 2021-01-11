@@ -27,7 +27,7 @@ public class Throws extends BaseEvent {
     public static class Builder extends BaseEvent.Builder<Builder> {
         private Throwable throwable;
 
-        public Builder setReturnObject(Throwable throwable) {
+        public Builder setThrowable(Throwable throwable) {
             this.throwable = throwable;
             return this;
         }

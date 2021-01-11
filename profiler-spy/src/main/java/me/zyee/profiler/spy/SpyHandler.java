@@ -12,4 +12,12 @@ public interface SpyHandler {
     void onReturn(int listenId, Object returnObject) throws Throwable;
 
     void onThrows(int listenId, Throwable throwable) throws Throwable;
+
+    void onCallBefore(int listenId, String className, String methodName, String desc, int lineNumber) throws Throwable;
+
+    void onCallReturn(int listenId, int lineNumber) throws Throwable;
+
+    void onCallThrows(int listenId, int lineNumber, Throwable throwMsg) throws Throwable;
+
+    void onLine(int listenId, int lineNumber) throws Throwable;
 }

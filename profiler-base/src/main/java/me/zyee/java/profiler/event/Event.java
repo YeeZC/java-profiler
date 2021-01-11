@@ -22,6 +22,14 @@ public interface Event {
         /**
          * 调用:THROWS
          */
-        THROWS
+        THROWS,
+
+        CALL_BEFORE,
+
+        CALL_RETURN,
+
+        CALL_THROWS,
+
+        LINE
     }
 }
