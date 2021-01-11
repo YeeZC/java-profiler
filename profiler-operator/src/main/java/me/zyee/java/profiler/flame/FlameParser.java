@@ -40,42 +40,6 @@ public class FlameParser {
         return build(simple1, simple, patterns);
     }
 
-//    private static void buildFrame(ProfileNode node, FlameNode flameNode, Map<String, GroupMatcher.Or<String>> patterns, Map<String, Frame> result) {
-//        final String pattern = node.getPattern();
-//        final List<FlameNode> children = flameNode.getChildren();
-//        if (StringUtils.isNotEmpty(pattern)) {
-//            final GroupMatcher.Or<String> matcher = patterns.get(pattern);
-//            final List<FlameNode> collect = children.stream().filter(n -> matcher.matching(n.getName()))
-//                    .collect(Collectors.toList());
-//            if (!collect.isEmpty()) {
-//                for (FlameNode c : collect) {
-//                    result.compute(pattern, (k, f) -> {
-//                        Frame target = new Frame();
-//                        if (null == f) {
-//                            target.setPercent(c.getPercent());
-//                            target.setName(c.getName());
-//                        } else {
-//                            target.setPercent(c.getPercent() + f.getPercent());
-//                            target.setName(f.getName());
-//                        }
-//                        return target;
-//                    });
-//                    for (ProfileNode child : node.getChildren()) {
-//                        buildFrame(child, c, patterns, result);
-//                    }
-//                }
-//            } else {
-//                children.forEach(n -> buildFrame(node, n, patterns, result));
-//            }
-//
-//        } else {
-//            for (ProfileNode child : Optional.ofNullable(node.getChildren()).orElse(Collections.emptyList())) {
-//                buildFrame(child, flameNode, patterns, result);
-//            }
-//        }
-//
-//    }
-
     private static List<FlameNode> findMatched(FlameNode current, Matcher<String> matcher) {
         List<FlameNode> result = new ArrayList<>();
         if (matcher.matching(current.getName())) {
