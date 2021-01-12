@@ -1,9 +1,14 @@
 # $ProfileName
 
+## 硬件信息
+
+$Hardware
+
 ## 原子操作
 
 | 操作名称 | 表达式 | 理论耗时 (ms/kw) | 备注 |
 | --- | --- | --- | --- |
+
 $AtomicTable
 
 ## 步骤详情

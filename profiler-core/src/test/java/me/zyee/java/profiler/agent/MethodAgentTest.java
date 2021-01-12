@@ -5,7 +5,7 @@ import java.nio.file.Paths;
 import me.zyee.java.profiler.filter.DefaultBehaviorFilter;
 import me.zyee.java.profiler.impl.DefaultProfilerCore;
 import me.zyee.java.profiler.impl.ProfileJUnitRunner;
-import me.zyee.java.profiler.utils.ProfilerHelper;
+import me.zyee.java.profiler.module.CoreModule;
 import org.junit.Test;
 
 /**
@@ -19,7 +19,7 @@ public class MethodAgentTest {
         final DefaultProfilerCore core = DefaultProfilerCore.builder()
                 .setReportPath(Paths.get(System.getProperty("user.dir")))
                 .build();
-        ProfilerHelper.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.agent.TestClass#print"), event -> {
+        CoreModule.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.agent.TestClass#print"), event -> {
             System.out.println(event);
             return false;
         });

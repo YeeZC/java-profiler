@@ -14,10 +14,16 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import me.zyee.java.profiler.ProfileNode;
+import me.zyee.java.profiler.bean.Cpu;
+import me.zyee.java.profiler.bean.Memory;
+import me.zyee.java.profiler.bean.Net;
 import me.zyee.java.profiler.flame.Frame;
+import me.zyee.java.profiler.module.CoreModule;
 import me.zyee.java.profiler.utils.FileUtils;
+import me.zyee.java.profiler.utils.FormatUtil;
 import org.apache.commons.lang3.StringUtils;
 
 /**
@@ -59,26 +65,12 @@ public class Markdown {
                     .replace("$AtomicTable", makeAtomTable(root).stream()
                             .map(data -> String.format(ATOM_FORMAT, data.toArray()))
                             .collect(Collectors.joining("\n")))
+                    .replace("$Hardware", makeHardware())
                     .replace("$Conclusion", makeConclusions());
             Files.write(outPath, target.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             e.printStackTrace();
         }
-    }
-
-    private CharSequence makeGcStat(List<String> gcStat) {
-        StringBuilder builder = new StringBuilder("|");
-        final String s = gcStat.get(0);
-        final int length = s.split("\\|").length;
-        builder.append(s).append("|\n");
-        for (int i = 0; i < length; i++) {
-            builder.append("| --- ");
-        }
-        builder.append("|\n");
-        for (int i = 1; i < gcStat.size(); i++) {
-            builder.append("|").append(gcStat.get(1)).append("|\n");
-        }
-        return builder;
     }
 
     public String getName() {
@@ -244,5 +236,20 @@ public class Markdown {
         }
 
         return data;
+    }
+
+    private String makeHardware() {
+        final CoreModule instance = CoreModule.getInstance();
+        final Cpu cpu = instance.getCpu();
+        final List<Memory> memories = instance.getMemories();
+        final List<Net> nets = instance.getNets();
+        StringJoiner joiner = new StringJoiner("\n");
+
+        joiner.add("1. CPU")
+                .add("\t1. 频率：" + FormatUtil.formatHertz(cpu.getFreq()))
+                .add("\t2. 物理CPU：" + cpu.getPhysical())
+                .add("\t3. 逻辑CPU：" + cpu.getLogical());
+
+        return joiner.toString();
     }
 }

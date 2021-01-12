@@ -23,39 +23,29 @@ import me.zyee.java.profiler.ProfilerCore;
 import me.zyee.java.profiler.Result;
 import me.zyee.java.profiler.Runner;
 import me.zyee.java.profiler.attach.Attach;
-import me.zyee.java.profiler.event.MethodProfileListener;
-import me.zyee.java.profiler.filter.ProfileBehaviorFilter;
 import me.zyee.java.profiler.flame.FlameParser;
 import me.zyee.java.profiler.flame.Frame;
 import me.zyee.java.profiler.markdown.Markdown;
+import me.zyee.java.profiler.module.CoreModule;
 import me.zyee.java.profiler.utils.GroupMatcher;
-import me.zyee.java.profiler.utils.ProfilerHelper;
 import me.zyee.java.profiler.utils.SearchUtils;
 import one.profiler.Events;
 import org.apache.commons.lang3.StringUtils;
 
 /**
- * TODO 实现
- *
  * @author yee
  * @version 1.0
  * Create by yee on 2020/12/15
  */
 public class DefaultProfilerCore implements ProfilerCore {
-
-
     private final Path reportPath;
-    //    private final double cpuRate;
-//    private final double memoryRate;
-//    private final int bandwidth;
-//    private final int network;
-//    private final long gcRate;
     private final Set<String> excludes;
 
     static {
         try {
             Attach.attach();
-            ProfilerHelper.watch(new ProfileBehaviorFilter(), new MethodProfileListener());
+            CoreModule.init();
+            Runtime.getRuntime().addShutdownHook(new Thread(CoreModule::destroy));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,11 +53,6 @@ public class DefaultProfilerCore implements ProfilerCore {
 
     private DefaultProfilerCore(Builder builder) {
         this.reportPath = builder.reportPath;
-//        this.cpuRate = builder.cpuRate;
-//        this.memoryRate = builder.memoryRate;
-//        this.bandwidth = builder.bandwidth;
-//        this.network = builder.network;
-//        this.gcRate = builder.gcRate;
         this.excludes = builder.excludes;
     }
 
@@ -103,7 +88,7 @@ public class DefaultProfilerCore implements ProfilerCore {
                 }
                 final Map<String, Set<Class<?>>> collect = patterns.stream()
                         .map(pattern -> StringUtils.substringBefore(pattern, "#"))
-                        .distinct().collect(Collectors.toMap(classPattern -> classPattern, ProfilerHelper::find));
+                        .distinct().collect(Collectors.toMap(classPattern -> classPattern, CoreModule::find));
                 for (String pattern : patterns) {
                     final String[] split = pattern.split("#");
                     final Set<Class<?>> set = collect.getOrDefault(split[0], Collections.emptySet());
@@ -181,22 +166,6 @@ public class DefaultProfilerCore implements ProfilerCore {
     public Path getReportPath() {
         return reportPath;
     }
-//
-//    public double getCpuRate() {
-//        return cpuRate;
-//    }
-//
-//    public double getMemoryRate() {
-//        return memoryRate;
-//    }
-//
-//    public int getBandwidth() {
-//        return bandwidth;
-//    }
-//
-//    public int getNetwork() {
-//        return network;
-//    }
 
     public Set<String> getExcludes() {
         return excludes;
@@ -204,11 +173,6 @@ public class DefaultProfilerCore implements ProfilerCore {
 
     public static class Builder {
         private Path reportPath;
-        //        private double cpuRate;
-//        private double memoryRate;
-//        private int bandwidth;
-//        private int network;
-//        private long gcRate = 500;
         private Set<String> excludes;
 
         private Builder() {
@@ -221,44 +185,14 @@ public class DefaultProfilerCore implements ProfilerCore {
             return this;
         }
 
-//        public Builder setCpuRate(double cpuRate) {
-//            this.cpuRate = cpuRate;
-//            return this;
-//        }
-//
-//        public Builder setMemoryRate(double memoryRate) {
-//            this.memoryRate = memoryRate;
-//            return this;
-//        }
-//
-//        public Builder setBandwidth(int bandwidth) {
-//            this.bandwidth = bandwidth;
-//            return this;
-//        }
-//
-//        public Builder setNetwork(int network) {
-//            this.network = network;
-//            return this;
-//        }
-
         public Builder exclude(String exclude) {
             this.excludes.add(exclude);
             return this;
         }
 
-//        public Builder gcRate(long gcRate) {
-//            this.gcRate = gcRate;
-//            return this;
-//        }
-
         public Builder of(DefaultProfilerCore defaultProfilerCore) {
             this.reportPath = defaultProfilerCore.reportPath;
-//            this.cpuRate = defaultProfilerCore.cpuRate;
-//            this.memoryRate = defaultProfilerCore.memoryRate;
-//            this.bandwidth = defaultProfilerCore.bandwidth;
-//            this.network = defaultProfilerCore.network;
             this.excludes = defaultProfilerCore.excludes;
-//            this.gcRate = defaultProfilerCore.gcRate;
             return this;
         }
 

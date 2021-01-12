@@ -1,5 +1,7 @@
 package me.zyee.profiler.agent.event.watcher;
 
+import java.util.Arrays;
+import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import oshi.SystemInfo;
@@ -19,12 +21,8 @@ import oshi.hardware.UsbDevice;
 import oshi.software.os.FileSystem;
 import oshi.software.os.NetworkParams;
 import oshi.software.os.OSFileStore;
-import oshi.software.os.OperatingSystem;
 import oshi.util.FormatUtil;
 import oshi.util.Util;
-
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * @author yee
@@ -144,20 +142,23 @@ public class TestHardware {
     private static void printNetworkInterfaces(List<NetworkIF> networkIFs) {
         System.out.println("Network interfaces:");
         for (NetworkIF net : networkIFs) {
-            System.out.format(" Name: %s (%s)%n", net.getName(), net.getDisplayName());
-            System.out.format("   MAC Address: %s %n", net.getMacaddr());
-            System.out.format("   MTU: %s, Speed: %s %n", net.getMTU(), FormatUtil.formatValue(net.getSpeed(), "bps"));
-            System.out.format("   IPv4: %s %n", Arrays.toString(net.getIPv4addr()));
-            System.out.format("   IPv6: %s %n", Arrays.toString(net.getIPv6addr()));
-            boolean hasData = net.getBytesRecv() > 0 || net.getBytesSent() > 0 || net.getPacketsRecv() > 0
-                    || net.getPacketsSent() > 0;
-            System.out.format("   Traffic: received %s/%s%s; transmitted %s/%s%s %n",
-                    hasData ? net.getPacketsRecv() + " packets" : "?",
-                    hasData ? FormatUtil.formatBytes(net.getBytesRecv()) : "?",
-                    hasData ? " (" + net.getInErrors() + " err)" : "",
-                    hasData ? net.getPacketsSent() + " packets" : "?",
-                    hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?",
-                    hasData ? " (" + net.getOutErrors() + " err)" : "");
+//            System.out.format(" Name: %s (%s)%n", net.getName(), net.getDisplayName());
+//            System.out.format("   MAC Address: %s %n", net.getMacaddr());
+//            System.out.format("   MTU: %s, Speed: %s %n", net.getMTU(), FormatUtil.formatValue(net.getSpeed(), "bps"));
+//            System.out.format("   IPv4: %s %n", Arrays.toString(net.getIPv4addr()));
+//            System.out.format("   IPv6: %s %n", Arrays.toString(net.getIPv6addr()));
+//            boolean hasData = net.getBytesRecv() > 0 || net.getBytesSent() > 0 || net.getPacketsRecv() > 0
+//                    || net.getPacketsSent() > 0;
+//            System.out.format("   Traffic: received %s/%s%s; transmitted %s/%s%s %n",
+//                    hasData ? net.getPacketsRecv() + " packets" : "?",
+//                    hasData ? FormatUtil.formatBytes(net.getBytesRecv()) : "?",
+//                    hasData ? " (" + net.getInErrors() + " err)" : "",
+//                    hasData ? net.getPacketsSent() + " packets" : "?",
+//                    hasData ? FormatUtil.formatBytes(net.getBytesSent()) : "?",
+//                    hasData ? " (" + net.getOutErrors() + " err)" : "");
+            if (net.getSpeed() > 0) {
+                System.out.println(net.getName() + " " + FormatUtil.formatValue(net.getSpeed(), "bps"));
+            }
         }
     }
 
@@ -187,43 +188,51 @@ public class TestHardware {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws InterruptedException {
         Logger LOG = LoggerFactory.getLogger(TestHardware.class);
         LOG.info("Initializing System...");
-        SystemInfo si = new SystemInfo();
-        HardwareAbstractionLayer hal = si.getHardware();
-        OperatingSystem os = si.getOperatingSystem();
+        final SystemInfo si = new SystemInfo();
+        final HardwareAbstractionLayer hal = si.getHardware();
         // cpu 频率
-        System.out.println(hal.getProcessor().getMaxFreq());
-        System.out.println(hal.getProcessor().getPhysicalProcessorCount());
-        System.out.println(hal.getProcessor().getLogicalProcessorCount());
-        System.out.println(os);
-        LOG.info("Checking computer system...");
-        printComputerSystem(hal.getComputerSystem());
-        LOG.info("Checking Processor...");
-        printProcessor(hal.getProcessor());
-        LOG.info("Checking Memory...");
-        printMemory(hal.getMemory());
-        LOG.info("Checking CPU...");
-        printCpu(hal.getProcessor());
-        LOG.info("Checking Processes...");
-        LOG.info("Checking Sensors...");
-//        printSensors(hal.getSensors());
-        LOG.info("Checking Power sources...");
-//        printPowerSources(hal.getPowerSources());
-        LOG.info("Checking Disks...");
-        printDisks(hal.getDiskStores());
-        LOG.info("Checking File System...");
-        printFileSystem(os.getFileSystem());
-        LOG.info("Checking Network interfaces...");
+//        System.out.println(hal.getProcessor().getMaxFreq());
+//        System.out.println(hal.getProcessor().getPhysicalProcessorCount());
+//        System.out.println(hal.getProcessor().getLogicalProcessorCount());
+//        System.out.println(os);
+//        LOG.info("Checking computer system...");
+//        printComputerSystem(hal.getComputerSystem());
+//        LOG.info("Checking Processor...");
+//        printProcessor(hal.getProcessor());
+//        LOG.info("Checking Memory...");
+//        printMemory(hal.getMemory());
+//        LOG.info("Checking CPU...");
+//        printCpu(hal.getProcessor());
+//        LOG.info("Checking Processes...");
+//        LOG.info("Checking Sensors...");
+////        printSensors(hal.getSensors());
+//        LOG.info("Checking Power sources...");
+////        printPowerSources(hal.getPowerSources());
+//        LOG.info("Checking Disks...");
+//        printDisks(hal.getDiskStores());
+//        LOG.info("Checking File System...");
+//        printFileSystem(os.getFileSystem());
+//        LOG.info("Checking Network interfaces...");
         printNetworkInterfaces(hal.getNetworkIFs());
-        LOG.info("Checking Network parameterss...");
-        printNetworkParameters(os.getNetworkParams());
-        // hardware: displays
-        LOG.info("Checking Displays...");
-        printDisplays(hal.getDisplays());
-        // hardware: USB devices
-        LOG.info("Checking USB Devices...");
-        printUsbDevices(hal.getUsbDevices(true));
+//        LOG.info("Checking Network parameterss...");
+//        printNetworkParameters(os.getNetworkParams());
+//        // hardware: displays
+//        LOG.info("Checking Displays...");
+//        printDisplays(hal.getDisplays());
+//        // hardware: USB devices
+//        LOG.info("Checking USB Devices...");
+//        printUsbDevices(hal.getUsbDevices(true));
+
+
+//        SystemInfo si = new SystemInfo();
+//        HardwareAbstractionLayer hal = si.getHardware();
+//        OperatingSystem os = si.getOperatingSystem();
+//        for (PhysicalMemory physicalMemory : hal.getMemory().getPhysicalMemory()) {
+//            System.out.println(physicalMemory.getClockSpeed());
+//        }
+
     }
 }

@@ -1,6 +1,7 @@
 package me.zyee.java.profiler.bean;
 
 import java.util.Objects;
+import me.zyee.java.profiler.utils.FormatUtil;
 
 /**
  * @author yee
@@ -73,7 +74,7 @@ public class Cpu {
     @Override
     public String toString() {
         return "Cpu{" +
-                "freq=" + freq +
+                "freq=" + FormatUtil.formatHertz(freq) +
                 ", logical=" + logical +
                 ", physical=" + physical +
                 '}';

@@ -14,7 +14,6 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import me.zyee.java.profiler.utils.FileUtils;
 import me.zyee.java.profiler.utils.PidUtils;
-import me.zyee.java.profiler.utils.ProfilerHelper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -76,7 +75,7 @@ public class Attach {
                 Files.createDirectories(path);
             }
             final Path agent = path.resolve("agent.jar");
-            try (InputStream is = ProfilerHelper.class.getResourceAsStream("/agent")) {
+            try (InputStream is = Attach.class.getResourceAsStream("/agent")) {
                 final byte[] bytes = FileUtils.readAll(is);
                 Files.write(agent, bytes);
             }

@@ -1,38 +1,55 @@
-package me.zyee.java.profiler.event;
+package me.zyee.java.profiler.module;
 
 import java.nio.file.Path;
 import java.util.Optional;
+import javax.annotation.Resource;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileHandler;
 import me.zyee.java.profiler.ProfileHandlerRegistry;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Profiler;
-import me.zyee.java.profiler.event.listener.EventListener;
+import me.zyee.java.profiler.event.Before;
+import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.event.Throws;
+import me.zyee.java.profiler.event.watcher.EventWatcher;
+import me.zyee.java.profiler.filter.ProfileBehaviorFilter;
 import me.zyee.java.profiler.impl.ContextHelper;
 
 /**
  * @author yee
  * @version 1.0
- * created by yee on 2021/1/8
+ * Create by yee on 2021/1/12
  */
-public class MethodProfileListener implements EventListener {
+public class MethodProfilerModule implements Module {
+
+    @Resource
+    private EventWatcher watcher;
+
+    private int watchId;
     private long start;
     private ProfileItem item;
     private Context context;
     private Profiler profiler;
 
     @Override
-    public boolean onEvent(Event event) throws Throwable {
-        switch (event.type()) {
-            case BEFORE:
-                return onBefore((Before) event);
-            case RETURN:
-                return onReturn();
-            case THROWS:
-                return onThrows((Throws) event);
-            default:
-        }
-        return false;
+    public void enable() {
+        this.watchId = watcher.watch(new ProfileBehaviorFilter(), event -> {
+            switch (event.type()) {
+                case BEFORE:
+                    return onBefore((Before) event);
+                case RETURN:
+                    return onReturn();
+                case THROWS:
+                    return onThrows((Throws) event);
+                default:
+            }
+            return false;
+        }, Event.Type.BEFORE, Event.Type.RETURN, Event.Type.THROWS);
+    }
+
+    @Override
+    public void disable() {
+        watcher.delete(watchId);
     }
 
     private boolean onBefore(Before before) {
@@ -68,5 +85,4 @@ public class MethodProfileListener implements EventListener {
         item.setThrowable(throwsEvent.getThrowable());
         return onReturn();
     }
-
 }
