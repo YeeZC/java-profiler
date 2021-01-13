@@ -1,19 +1,22 @@
 package me.zyee.profiler.agent.core.transformer;
 
-import me.zyee.java.profiler.event.Event;
-import me.zyee.java.profiler.event.listener.EventListener;
-import me.zyee.java.profiler.filter.BehaviorFilter;
-import me.zyee.profiler.agent.core.enhancer.EventEnhancer;
-import me.zyee.profiler.agent.core.utils.BehaviorStructure;
-import me.zyee.profiler.agent.core.utils.ClassStructure;
-import me.zyee.profiler.agent.utils.ObjectIds;
-
 import java.lang.instrument.ClassFileTransformer;
 import java.lang.instrument.IllegalClassFormatException;
 import java.security.ProtectionDomain;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
+import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.event.listener.EventListener;
+import me.zyee.java.profiler.filter.BehaviorFilter;
+import me.zyee.profiler.agent.core.enhancer.EventEnhancer;
+import me.zyee.profiler.agent.core.utils.AgentStringUtils;
+import me.zyee.profiler.agent.core.utils.BehaviorStructure;
+import me.zyee.profiler.agent.core.utils.ClassStructure;
+import me.zyee.profiler.agent.utils.ObjectIds;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import static me.zyee.profiler.agent.core.utils.ClassStructureFactory.createClassStructure;
 
@@ -23,9 +26,11 @@ import static me.zyee.profiler.agent.core.utils.ClassStructureFactory.createClas
  * created by yee on 2021/1/6
  */
 public class ProfilerTransformer implements ClassFileTransformer {
+    private final Logger logger = LoggerFactory.getLogger(ProfilerTransformer.class);
     private final Event.Type[] listenEvents;
     private final BehaviorFilter filter;
     private final int id;
+    private final Set<String> transformed = new HashSet<>();
 
     public ProfilerTransformer(BehaviorFilter filter, EventListener listener, Event.Type[] listenEvents) {
         this.listenEvents = listenEvents;
@@ -44,6 +49,7 @@ public class ProfilerTransformer implements ClassFileTransformer {
         if (!filter.classFilter(javaClassName)) {
             return null;
         }
+        logger.info("matched class {}", javaClassName);
         Set<String> behaviorSignCodes = classStructure.getBehaviorStructures().stream()
                 .filter(behavior -> filter.methodFilter(behavior.getName(), behavior.getAnnotationTypeClassStructures().stream()
                         .map(ClassStructure::getJavaClassName)))
@@ -52,6 +58,7 @@ public class ProfilerTransformer implements ClassFileTransformer {
         if (behaviorSignCodes.isEmpty()) {
             return null;
         }
+        logger.info("matched behaviors {}", behaviorSignCodes);
         final byte[] bytes = new EventEnhancer().toByteCodeArray(loader,
                 classfileBuffer,
                 behaviorSignCodes,
@@ -60,6 +67,7 @@ public class ProfilerTransformer implements ClassFileTransformer {
         if (Arrays.equals(bytes, classfileBuffer)) {
             return null;
         }
+        transformed.add(AgentStringUtils.toJavaClassName(className));
         return bytes;
     }
 
@@ -79,4 +87,7 @@ public class ProfilerTransformer implements ClassFileTransformer {
                 : createClassStructure(classBeingRedefined);
     }
 
+    public Set<String> getTransformed() {
+        return transformed;
+    }
 }

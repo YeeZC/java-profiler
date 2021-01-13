@@ -8,7 +8,6 @@ import java.util.Set;
 import java.util.stream.Stream;
 import javax.annotation.Resource;
 import me.zyee.java.profiler.bean.Cpu;
-import me.zyee.java.profiler.bean.Memory;
 import me.zyee.java.profiler.bean.Net;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
@@ -29,9 +28,6 @@ public class CoreModule {
     private Instrumentation inst;
     @Resource
     private EventWatcher watcher;
-
-    @Resource(name = "memories")
-    private List<Memory> memories;
     @Resource(name = "nets")
     private List<Net> nets;
     @Resource
@@ -100,7 +96,4 @@ public class CoreModule {
         return cpu;
     }
 
-    public List<Memory> getMemories() {
-        return memories;
-    }
 }

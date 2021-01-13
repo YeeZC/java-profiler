@@ -56,7 +56,8 @@ public class Attach {
                             targetSystemProperties.getProperty("java.home"), System.getProperty("java.home"));
                 }
             }
-            virtualMachine.loadAgent(agent.toString());
+            final String property = System.getProperty("profiler.home", Paths.get(System.getProperty("java.io.tmpdir"), "java-profiler").toString());
+            virtualMachine.loadAgent(agent.toString(), property);
         } finally {
             if (null != virtualMachine) {
                 virtualMachine.detach();

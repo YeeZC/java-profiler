@@ -102,7 +102,7 @@
             <!-- https://mvnrepository.com/artifact/org.hyperic/sigar -->
             <dependency>
                 <groupId>com.github.oshi</groupId>
-                <artifactId>oshi-core</artifactId>
+                <artifactId>oshi-core-shaded</artifactId>
                 <version>5.3.7</version>
             </dependency>
         </dependencies>

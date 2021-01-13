@@ -4,10 +4,10 @@ import java.lang.instrument.Instrumentation;
 import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -15,8 +15,6 @@ import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.BehaviorFilter;
-import me.zyee.java.profiler.utils.GroupMatcher;
-import me.zyee.java.profiler.utils.Matcher;
 import me.zyee.java.profiler.utils.SearchUtils;
 import me.zyee.profiler.agent.core.transformer.ProfilerTransformer;
 import me.zyee.profiler.agent.core.utils.ClassStructure;
@@ -79,24 +77,28 @@ public class DefaultEventWatcher implements EventWatcher {
     @Override
     public void delete(int id) {
         final Iterator<ProfilerTransformer> it = transformers.iterator();
-        Set<BehaviorFilter> matchers = new HashSet<>();
+        Set<String> transformed = new HashSet<>();
         while (it.hasNext()) {
             final ProfilerTransformer next = it.next();
             if (id == next.getId()) {
                 handler.unRegister(next.getId());
                 inst.removeTransformer(next);
                 it.remove();
-                matchers.add(next.getFilter());
+                transformed.addAll(next.getTransformed());
             }
         }
 
-        if (!matchers.isEmpty()) {
-            Set<Class<?>> classes = SearchUtils.searchClass(() -> Arrays.stream(inst.getAllLoadedClasses()),
-                    new GroupMatcher.Or<>(matchers.stream().map(filter -> (Matcher<String>) className -> filter.classFilter(className))
-                            .collect(Collectors.toSet())));
+        if (!transformed.isEmpty()) {
+            final Class<?>[] classes = transformed.stream().map(name -> {
+                try {
+                    return ClassUtils.getClass(name);
+                } catch (ClassNotFoundException e) {
+                    return null;
+                }
+            }).filter(Objects::nonNull).toArray(Class[]::new);
             try {
-                inst.retransformClasses(classes.toArray(new Class[0]));
-            } catch (UnmodifiableClassException e) {
+                inst.retransformClasses(classes);
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

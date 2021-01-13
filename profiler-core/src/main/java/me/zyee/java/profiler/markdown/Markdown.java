@@ -3,6 +3,10 @@ package me.zyee.java.profiler.markdown;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.ManagementFactory;
+import java.lang.management.MemoryMXBean;
+import java.lang.management.ThreadInfo;
+import java.lang.management.ThreadMXBean;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -18,7 +22,6 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import me.zyee.java.profiler.ProfileNode;
 import me.zyee.java.profiler.bean.Cpu;
-import me.zyee.java.profiler.bean.Memory;
 import me.zyee.java.profiler.bean.Net;
 import me.zyee.java.profiler.flame.Frame;
 import me.zyee.java.profiler.module.CoreModule;
@@ -241,14 +244,34 @@ public class Markdown {
     private String makeHardware() {
         final CoreModule instance = CoreModule.getInstance();
         final Cpu cpu = instance.getCpu();
-        final List<Memory> memories = instance.getMemories();
         final List<Net> nets = instance.getNets();
         StringJoiner joiner = new StringJoiner("\n");
+        final MemoryMXBean memory = ManagementFactory.getMemoryMXBean();
 
-        joiner.add("1. CPU")
-                .add("\t1. 频率：" + FormatUtil.formatHertz(cpu.getFreq()))
-                .add("\t2. 物理CPU：" + cpu.getPhysical())
-                .add("\t3. 逻辑CPU：" + cpu.getLogical());
+        joiner.add("- CPU\n")
+                .add("| 频率 | 核心数 | 线程数 |")
+                .add("|---|---|---|")
+                .add("|" + FormatUtil.formatHertz(cpu.getFreq()) + "|" + cpu.getPhysical() + "|" + cpu.getLogical() + "|");
+        joiner.add("- 内存\n")
+                .add("|内存|最大|已使用|")
+                .add("|---|---|---|")
+                .add("|堆内存|" + FormatUtil.formatBytes(memory.getHeapMemoryUsage().getMax())
+                        + "|" + FormatUtil.formatBytes(memory.getHeapMemoryUsage().getUsed()) + "|")
+                .add("|堆外内存|" + FormatUtil.formatBytes(memory.getNonHeapMemoryUsage().getMax())
+                        + "|" + FormatUtil.formatBytes(memory.getNonHeapMemoryUsage().getUsed()) + "|");
+        joiner.add("- 网络\n")
+                .add("| 名称 | 速率 |")
+                .add("| --- | --- |");
+        for (Net net : nets) {
+            joiner.add("| " + net.getName() + " | " + FormatUtil.formatValue(net.getSpeed(), "bps") + " |");
+        }
+
+
+        final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
+        final ThreadInfo[] threadInfos = threadMXBean.dumpAllThreads(false, false);
+        for (ThreadInfo threadInfo : threadInfos) {
+            System.err.println(threadInfo.getThreadName() + " " + threadMXBean.getThreadCpuTime(threadInfo.getThreadId()));
+        }
 
         return joiner.toString();
     }
