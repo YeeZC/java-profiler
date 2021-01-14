@@ -15,7 +15,8 @@ import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.BehaviorFilter;
-import me.zyee.java.profiler.utils.SearchUtils;
+import me.zyee.java.profiler.fork.ForkJoiner;
+import me.zyee.java.profiler.fork.SearchTask;
 import me.zyee.profiler.agent.core.transformer.ProfilerTransformer;
 import me.zyee.profiler.agent.core.utils.ClassStructure;
 import me.zyee.profiler.agent.core.utils.ClassStructureFactory;
@@ -41,19 +42,16 @@ public class DefaultEventWatcher implements EventWatcher {
     public int watch(BehaviorFilter filter, EventListener listener, Event.Type... types) {
         final ProfilerTransformer transformer = new ProfilerTransformer(filter, listener, types);
         transformers.add(transformer);
-        Set<Class<?>> classes = SearchUtils.searchClass(() -> Stream.<Class<?>>of(inst.getAllLoadedClasses())
-                        .filter(clazz -> !(clazz.isArray() || clazz.isInterface() || clazz.isEnum() ||
-                                clazz.equals(Class.class) || clazz.equals(Method.class)
-                                || ClassUtils.isPrimitiveOrWrapper(clazz) || clazz.equals(String.class))),
-                className -> transformer.getFilter().classFilter(className));
-        classes = classes.stream().filter(clazz -> {
-            final ClassStructure classStructure = ClassStructureFactory.createClassStructure(clazz);
-            return classStructure.getBehaviorStructures().stream().anyMatch(behavior ->
-                    filter.methodFilter(behavior.getName(), behavior.getAnnotationTypeClassStructures()
-                            .stream()
-                            .map(ClassStructure::getJavaClassName)
-                    ));
-        }).collect(Collectors.toSet());
+        Set<Class<?>> classes = ForkJoiner.invoke(new SearchTask(filter(inst.getAllLoadedClasses()),
+                transformer.getFilter()::classFilter))
+                .stream().filter(clazz -> {
+                    final ClassStructure classStructure = ClassStructureFactory.createClassStructure(clazz);
+                    return classStructure.getBehaviorStructures().stream().anyMatch(behavior ->
+                            filter.methodFilter(behavior.getName(), behavior.getAnnotationTypeClassStructures()
+                                    .stream()
+                                    .map(ClassStructure::getJavaClassName)
+                            ));
+                }).collect(Collectors.toSet());
         final int id = transformer.getId();
 //        if (!classes.isEmpty()) {
         inst.addTransformer(transformer, true);
@@ -102,5 +100,12 @@ public class DefaultEventWatcher implements EventWatcher {
                 e.printStackTrace();
             }
         }
+    }
+
+    private Class<?>[] filter(Class<?>[] source) {
+        return Stream.of(source).filter(clazz -> !(clazz.isArray() || clazz.isInterface() || clazz.isEnum() ||
+                clazz.equals(Class.class) || clazz.equals(Method.class)
+                || ClassUtils.isPrimitiveOrWrapper(clazz) || clazz.equals(String.class)))
+                .toArray(Class<?>[]::new);
     }
 }

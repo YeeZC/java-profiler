@@ -1,5 +1,7 @@
 package me.zyee.java.profiler.utils;
 
+import org.apache.commons.lang3.StringUtils;
+
 /**
  * 匹配器
  * Created by vlinux on 15/5/17.
@@ -16,4 +18,17 @@ public interface Matcher<T> {
      */
     boolean matching(T target);
 
+    static Matcher<String> classNameMatcher(String classPattern, boolean isRegEx) {
+        if (StringUtils.isEmpty(classPattern)) {
+            classPattern = isRegEx ? ".*" : "*";
+        }
+        if (!classPattern.contains("$$Lambda")) {
+            classPattern = StringUtils.replace(classPattern, "/", ".");
+        }
+        return isRegEx ? new RegexMatcher(classPattern) : new WildcardMatcher(classPattern);
+    }
+
+    static Matcher<String> classNameMatcher(String classPattern) {
+        return classNameMatcher(classPattern, false);
+    }
 }

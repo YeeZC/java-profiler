@@ -3,10 +3,9 @@ package me.zyee.java.profiler.markdown;
 import com.google.common.collect.Lists;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.management.GarbageCollectorMXBean;
 import java.lang.management.ManagementFactory;
 import java.lang.management.MemoryMXBean;
-import java.lang.management.ThreadInfo;
-import java.lang.management.ThreadMXBean;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -69,11 +68,23 @@ public class Markdown {
                             .map(data -> String.format(ATOM_FORMAT, data.toArray()))
                             .collect(Collectors.joining("\n")))
                     .replace("$Hardware", makeHardware())
+                    .replace("$GC", makeGC())
                     .replace("$Conclusion", makeConclusions());
             Files.write(outPath, target.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private String makeGC() {
+        StringJoiner joiner = new StringJoiner("\n")
+                .add("| GC类型 | 次数 | 耗时 |")
+                .add("|---|---|---|");
+        final List<GarbageCollectorMXBean> beans = ManagementFactory.getGarbageCollectorMXBeans();
+        beans.forEach(bean -> joiner.add("|" + bean.getName()
+                + "|" + bean.getCollectionCount()
+                + "|" + bean.getCollectionTime() + "ms |"));
+        return joiner.toString();
     }
 
     public String getName() {
@@ -264,13 +275,6 @@ public class Markdown {
                 .add("| --- | --- |");
         for (Net net : nets) {
             joiner.add("| " + net.getName() + " | " + FormatUtil.formatValue(net.getSpeed(), "bps") + " |");
-        }
-
-
-        final ThreadMXBean threadMXBean = ManagementFactory.getThreadMXBean();
-        final ThreadInfo[] threadInfos = threadMXBean.dumpAllThreads(false, false);
-        for (ThreadInfo threadInfo : threadInfos) {
-            System.err.println(threadInfo.getThreadName() + " " + threadMXBean.getThreadCpuTime(threadInfo.getThreadId()));
         }
 
         return joiner.toString();

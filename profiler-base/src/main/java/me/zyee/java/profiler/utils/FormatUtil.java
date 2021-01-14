@@ -33,7 +33,7 @@ public final class FormatUtil {
     /**
      * Binary prefixes, used in IEC Standard for naming bytes.
      * (https://en.wikipedia.org/wiki/International_Electrotechnical_Commission)
-     *
+     * <p>
      * Should be used for most representations of bytes
      */
     private static final long KIBI = 1L << 10;
@@ -59,7 +59,9 @@ public final class FormatUtil {
      */
     private static final BigInteger TWOS_COMPLEMENT_REF = BigInteger.ONE.shiftLeft(64);
 
-    /** Constant <code>HEX_ERROR="0x%08X"</code> */
+    /**
+     * Constant <code>HEX_ERROR="0x%08X"</code>
+     */
     public static final String HEX_ERROR = "0x%08X";
 
     private FormatUtil() {
@@ -72,8 +74,7 @@ public final class FormatUtil {
      * JEDEC units, edit the returned string to remove the 'i' to display the
      * (incorrect) JEDEC units.
      *
-     * @param bytes
-     *            Bytes.
+     * @param bytes Bytes.
      * @return Rounded string representation of the byte size.
      */
     public static String formatBytes(long bytes) {
@@ -108,12 +109,9 @@ public final class FormatUtil {
      * Format units as exact integer or fractional decimal based on the prefix,
      * appending the appropriate units
      *
-     * @param value
-     *            The value to format
-     * @param prefix
-     *            The divisor of the unit multiplier
-     * @param unit
-     *            A string representing the units
+     * @param value  The value to format
+     * @param prefix The divisor of the unit multiplier
+     * @param unit   A string representing the units
      * @return A string with the value
      */
     private static String formatUnits(long value, long prefix, String unit) {
@@ -128,8 +126,7 @@ public final class FormatUtil {
      * These are used by hard drive manufacturers for capacity. Most other storage
      * should use {@link #formatBytes(long)}.
      *
-     * @param bytes
-     *            Bytes.
+     * @param bytes Bytes.
      * @return Rounded string representation of the byte size.
      */
     public static String formatBytesDecimal(long bytes) {
@@ -147,8 +144,7 @@ public final class FormatUtil {
     /**
      * Format hertz into a string to a rounded string representation.
      *
-     * @param hertz
-     *            Hertz.
+     * @param hertz Hertz.
      * @return Rounded string representation of the hertz size.
      */
     public static String formatHertz(long hertz) {
@@ -158,12 +154,10 @@ public final class FormatUtil {
     /**
      * Format arbitrary units into a string to a rounded string representation.
      *
-     * @param value
-     *            The value
-     * @param unit
-     *            Units to append metric prefix to
+     * @param value The value
+     * @param unit  Units to append metric prefix to
      * @return Rounded string representation of the value with metric prefix to
-     *         extension
+     * extension
      */
     public static String formatValue(long value, String unit) {
         if (value < KILO) {
@@ -192,8 +186,7 @@ public final class FormatUtil {
     /**
      * Formats an elapsed time in seconds as days, hh:mm:ss.
      *
-     * @param secs
-     *            Elapsed seconds
+     * @param secs Elapsed seconds
      * @return A string representation of elapsed time
      */
     public static String formatElapsedSecs(long secs) {
@@ -211,8 +204,7 @@ public final class FormatUtil {
     /**
      * Convert unsigned int to signed long.
      *
-     * @param x
-     *            Signed int representing an unsigned integer
+     * @param x Signed int representing an unsigned integer
      * @return long value of x unsigned
      */
     public static long getUnsignedInt(int x) {
@@ -221,11 +213,10 @@ public final class FormatUtil {
 
     /**
      * Represent a 32 bit value as if it were an unsigned integer.
-     *
+     * <p>
      * This is a Java 7 implementation of Java 8's Integer.toUnsignedString.
      *
-     * @param i
-     *            a 32 bit value
+     * @param i a 32 bit value
      * @return the string representation of the unsigned integer
      */
     public static String toUnsignedString(int i) {
@@ -237,11 +228,10 @@ public final class FormatUtil {
 
     /**
      * Represent a 64 bit value as if it were an unsigned long.
-     *
+     * <p>
      * This is a Java 7 implementation of Java 8's Long.toUnsignedString.
      *
-     * @param l
-     *            a 64 bit value
+     * @param l a 64 bit value
      * @return the string representation of the unsigned long
      */
     public static String toUnsignedString(long l) {
@@ -254,8 +244,7 @@ public final class FormatUtil {
     /**
      * Translate an integer error code to its hex notation
      *
-     * @param errorCode
-     *            The error code
+     * @param errorCode The error code
      * @return A string representing the error as 0x....
      */
     public static String formatError(int errorCode) {

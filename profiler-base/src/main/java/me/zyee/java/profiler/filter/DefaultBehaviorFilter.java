@@ -1,9 +1,7 @@
 package me.zyee.java.profiler.filter;
 
-import me.zyee.java.profiler.utils.Matcher;
-import me.zyee.java.profiler.utils.SearchUtils;
-
 import java.util.stream.Stream;
+import me.zyee.java.profiler.utils.Matcher;
 
 /**
  * @author yee
@@ -23,8 +21,8 @@ public class DefaultBehaviorFilter implements BehaviorFilter {
         if (split.length >= 2) {
             methodPattern = split[1];
         }
-        this.classMatcher = SearchUtils.classNameMatcher(classPattern, regx);
-        this.methodMatcher = SearchUtils.classNameMatcher(methodPattern, regx);
+        this.classMatcher = Matcher.classNameMatcher(classPattern, regx);
+        this.methodMatcher = Matcher.classNameMatcher(methodPattern, regx);
     }
 
     public DefaultBehaviorFilter(String pattern) {

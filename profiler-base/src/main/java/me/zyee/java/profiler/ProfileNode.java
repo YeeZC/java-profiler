@@ -15,7 +15,6 @@ public class ProfileNode {
     private String name;
     private Double atom;
     private List<ProfileNode> children;
-    private ProfileNode parent;
 
     public String getPattern() {
         return pattern;
@@ -38,7 +37,7 @@ public class ProfileNode {
     }
 
     public void setChildren(List<ProfileNode> children) {
-        this.children = children.stream().peek(node -> node.parent = this).collect(Collectors.toList());
+        this.children = new ArrayList<>(children);
     }
 
     public void addChild(ProfileNode child) {
@@ -46,15 +45,6 @@ public class ProfileNode {
             children = new ArrayList<>();
         }
         this.children.add(child);
-        child.parent = this;
-    }
-
-    public ProfileNode getParent() {
-        return parent;
-    }
-
-    public void setParent(ProfileNode parent) {
-        this.parent = parent;
     }
 
     public Double getAtom() {

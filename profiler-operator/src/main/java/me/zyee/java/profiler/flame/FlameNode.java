@@ -8,22 +8,13 @@ import java.util.List;
  * @version 1.0
  * Create by yee on 2020/8/25
  */
-public class FlameNode {
-    private FlameNode parent;
+class FlameNode {
     private double percent;
     private String name;
     private long count;
     private long selfCount;
     private double selfPercent;
     private List<FlameNode> children = new ArrayList<>();
-
-    public FlameNode getParent() {
-        return parent;
-    }
-
-    public void setParent(FlameNode parent) {
-        this.parent = parent;
-    }
 
     public double getPercent() {
         return percent;
@@ -75,6 +66,5 @@ public class FlameNode {
 
     public void add(FlameNode node) {
         children.add(node);
-        node.setParent(this);
     }
 }

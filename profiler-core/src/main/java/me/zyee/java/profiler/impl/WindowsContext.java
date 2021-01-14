@@ -1,11 +1,10 @@
 package me.zyee.java.profiler.impl;
 
+import java.util.Queue;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Profiler;
 import me.zyee.java.profiler.win.WindowsProfiler;
-
-import java.util.Queue;
 
 /**
  * TODO WindowsContext

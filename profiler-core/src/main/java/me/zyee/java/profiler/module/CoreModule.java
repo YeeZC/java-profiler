@@ -5,7 +5,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-import java.util.stream.Stream;
 import javax.annotation.Resource;
 import me.zyee.java.profiler.bean.Cpu;
 import me.zyee.java.profiler.bean.Net;
@@ -13,8 +12,9 @@ import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.BehaviorFilter;
+import me.zyee.java.profiler.fork.ForkJoiner;
+import me.zyee.java.profiler.fork.SearchTask;
 import me.zyee.java.profiler.utils.Matcher;
-import me.zyee.java.profiler.utils.SearchUtils;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
@@ -63,12 +63,12 @@ public class CoreModule {
     }
 
     public static Set<Class<?>> find(String pattern) {
-        return find(SearchUtils.classNameMatcher(pattern));
+        return find(Matcher.classNameMatcher(pattern));
     }
 
     public static Set<Class<?>> find(Matcher<String> matcher) {
-        final Class<?>[] allLoadedClasses = getInstance().inst.getAllLoadedClasses();
-        return SearchUtils.searchClass(() -> Stream.of(allLoadedClasses), matcher);
+        final Class<?>[] classes = getInstance().inst.getAllLoadedClasses();
+        return ForkJoiner.invoke(new SearchTask(classes, matcher));
     }
 
     public static void watch(BehaviorFilter filter, EventListener listener, Event.Type... types) {
@@ -86,6 +86,7 @@ public class CoreModule {
         }
         getInstance().module.disable();
         getInstance().module = null;
+        ForkJoiner.shutdown();
     }
 
     public List<Net> getNets() {

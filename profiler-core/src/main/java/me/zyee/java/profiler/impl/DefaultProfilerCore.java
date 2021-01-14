@@ -4,13 +4,14 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Queue;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import me.zyee.java.profiler.AtomOperation;
@@ -28,7 +29,7 @@ import me.zyee.java.profiler.flame.Frame;
 import me.zyee.java.profiler.markdown.Markdown;
 import me.zyee.java.profiler.module.CoreModule;
 import me.zyee.java.profiler.utils.GroupMatcher;
-import me.zyee.java.profiler.utils.SearchUtils;
+import me.zyee.java.profiler.utils.Matcher;
 import one.profiler.Events;
 import org.apache.commons.lang3.StringUtils;
 
@@ -75,7 +76,6 @@ public class DefaultProfilerCore implements ProfilerCore {
                 final ProfileItem item = items.poll();
                 final Path flamePath = item.getFlamePath();
                 final Queue<Operation> nodes = item.getNodes();
-                final Map<String, GroupMatcher.Or<String>> patternMap = new HashMap<>(0);
                 ProfileNode root = new ProfileNode();
                 root.setName(item.getProfileName() + " Report");
                 final Set<String> patterns = new HashSet<>();
@@ -86,19 +86,21 @@ public class DefaultProfilerCore implements ProfilerCore {
                     root.addChild(child);
                     calculateTheoreticalCost(theoreticalCost, node);
                 }
-                final Map<String, Set<Class<?>>> collect = patterns.stream()
-                        .map(pattern -> StringUtils.substringBefore(pattern, "#"))
-                        .distinct().collect(Collectors.toMap(classPattern -> classPattern, CoreModule::find));
-                for (String pattern : patterns) {
-                    final String[] split = pattern.split("#");
-                    final Set<Class<?>> set = collect.getOrDefault(split[0], Collections.emptySet());
-                    final GroupMatcher.Or<String> value = new GroupMatcher.Or<>();
-                    value.add(SearchUtils.classNameMatcher(pattern));
-                    patternMap.put(pattern, value);
-                    for (Class<?> clazz : set) {
-                        patternMap.get(pattern).add(SearchUtils.classNameMatcher(clazz.getName() + "." + split[1]));
-                    }
-                }
+
+                final Map<String, Matcher<String>> patternMap = patterns.stream()
+                        .collect(Collectors.toMap(pattern -> pattern, pattern -> {
+                            String[] split = pattern.split("#");
+                            final Set<Class<?>> classes = CoreModule.find(split[0]);
+                            String methodPattern = "*";
+                            if (split.length >= 2) {
+                                methodPattern = split[1];
+                            }
+
+                            String target = methodPattern;
+                            final List<Matcher<String>> matchers = classes.stream().map(clazz -> clazz.getName() + "." + target)
+                                    .map((Function<String, Matcher<String>>) Matcher::classNameMatcher).collect(Collectors.toList());
+                            return new GroupMatcher.Or<>(matchers);
+                        }));
                 root.merge();
                 final Map<String, Frame> parse = FlameParser.parse(flamePath, root, patternMap);
                 Markdown profileResult = new Markdown(item.getCost(), root,

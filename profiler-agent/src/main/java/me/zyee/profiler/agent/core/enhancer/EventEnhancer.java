@@ -22,7 +22,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 public class EventEnhancer implements Enhancer {
 
 
-    private static final boolean isDumpClass = true;
+    private static final boolean isDumpClass = false;
 
     /**
      * dump class to file

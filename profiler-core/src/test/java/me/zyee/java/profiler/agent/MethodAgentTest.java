@@ -16,6 +16,7 @@ import org.junit.Test;
 public class MethodAgentTest {
     @Test
     public void test() throws IOException {
+        System.out.println(TestClass.class);
         final DefaultProfilerCore core = DefaultProfilerCore.builder()
                 .setReportPath(Paths.get(System.getProperty("user.dir")))
                 .build();
