@@ -1,13 +1,14 @@
 package me.zyee.java.profiler.agent;
 
-import java.util.Queue;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import me.zyee.java.profiler.Operation;
 import me.zyee.java.profiler.ProfileHandler;
 import me.zyee.java.profiler.ProfileHandlerRegistry;
 import me.zyee.java.profiler.annotation.Profile;
 import org.junit.BeforeClass;
 import org.junit.Test;
+
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * @author yee
@@ -27,7 +28,9 @@ public class TestClass {
 
 
     @Test
-    @Profile
+    @Profile(
+            strictCount = "me.zyee.java.profiler.agent.TestClass#print"
+    )
     public void test() throws InterruptedException {
         for (int i = 0; i < 100; i++) {
             print(Thread.currentThread().getName() + "-" + i);

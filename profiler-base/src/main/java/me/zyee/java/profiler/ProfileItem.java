@@ -1,8 +1,11 @@
 package me.zyee.java.profiler;
 
 import java.nio.file.Path;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.function.Supplier;
 
 /**
  * @author yee
@@ -15,6 +18,7 @@ public class ProfileItem {
     private long cost;
     private Throwable throwable;
     private final Queue<Operation> nodes = new ConcurrentLinkedQueue<>();
+    private final Map<String, Supplier<Long>> actualCost = new HashMap<>();
 
     public ProfileItem(String profileName) {
         this.profileName = profileName;
@@ -54,5 +58,13 @@ public class ProfileItem {
 
     public void offer(Queue<Operation> nodes) {
         this.nodes.addAll(nodes);
+    }
+
+    public Map<String, Supplier<Long>> getActualCost() {
+        return actualCost;
+    }
+
+    public void setActualCost(Map<String, Supplier<Long>> costs) {
+        this.actualCost.putAll(costs);
     }
 }

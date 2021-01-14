@@ -1,19 +1,30 @@
 package me.zyee.java.profiler.module;
 
-import java.nio.file.Path;
-import java.util.Optional;
-import javax.annotation.Resource;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileHandler;
 import me.zyee.java.profiler.ProfileHandlerRegistry;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Profiler;
+import me.zyee.java.profiler.annotation.Profile;
 import me.zyee.java.profiler.event.Before;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.Throws;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.ProfileBehaviorFilter;
 import me.zyee.java.profiler.impl.ContextHelper;
+import org.apache.commons.lang3.reflect.MethodUtils;
+
+import javax.annotation.Resource;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author yee
@@ -30,6 +41,7 @@ public class MethodProfilerModule implements Module {
     private ProfileItem item;
     private Context context;
     private Profiler profiler;
+    private final List<ActualCostCountModule> modules = new ArrayList<>();
 
     @Override
     public void enable() {
@@ -53,11 +65,26 @@ public class MethodProfilerModule implements Module {
     }
 
     private boolean onBefore(Before before) {
-        context = ContextHelper.getContext().resolve(before.getTriggerMethod()
-                + System.currentTimeMillis());
+        context = ContextHelper.getContext()
+                .resolve(before.getTriggerClass() + "#" + before.getTriggerMethod()
+                        + System.currentTimeMillis());
         item = new ProfileItem(before.getTriggerMethod());
         profiler = context.getProfiler();
         if (null != profiler) {
+            try {
+                final Class<?> clazz = before.getTriggerLoader().loadClass(before.getTriggerClass());
+                final MethodType methodType = MethodType.fromMethodDescriptorString(before.getTriggerMethodSign(), before.getTriggerLoader());
+                final Method method = MethodUtils.getMatchingMethod(clazz, before.getTriggerMethod(), methodType.parameterArray());
+                final Profile profile = method.getAnnotation(Profile.class);
+                final String[] patterns = profile.strictCount();
+                if (patterns.length > 0) {
+                    Stream.of(patterns).distinct().map(ActualCostCountModule::new)
+                            .map(CoreModule::enableModule)
+                            .forEach(modules::add);
+                }
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
             profiler.start();
             start = System.currentTimeMillis();
         }
@@ -76,6 +103,11 @@ public class MethodProfilerModule implements Module {
                 System.out.println("profile tree 输出路径 " + stop);
             } catch (NullPointerException e) {
                 item.setThrowable(e);
+            } finally {
+                final Map<String, Supplier<Long>> costs = modules.stream().peek(Module::disable)
+                        .collect(Collectors.toMap(ActualCostCountModule::getPattern,
+                                ActualCostCountModule::getReference));
+                item.setActualCost(costs);
             }
         }
         return false;

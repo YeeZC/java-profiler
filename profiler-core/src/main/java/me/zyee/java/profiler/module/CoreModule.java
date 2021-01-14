@@ -1,11 +1,5 @@
 package me.zyee.java.profiler.module;
 
-import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import javax.annotation.Resource;
 import me.zyee.java.profiler.bean.Cpu;
 import me.zyee.java.profiler.bean.Net;
 import me.zyee.java.profiler.event.Event;
@@ -17,6 +11,13 @@ import me.zyee.java.profiler.fork.SearchTask;
 import me.zyee.java.profiler.utils.Matcher;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
+
+import javax.annotation.Resource;
+import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
 
 /**
  * @author yee
@@ -38,20 +39,7 @@ public class CoreModule {
     private final List<Integer> watches = new ArrayList<>();
 
     public static void init() {
-        final EventWatcher watcher = getInstance().watcher;
-        final MethodProfilerModule module = new MethodProfilerModule();
-        final List<Field> fields = FieldUtils.getFieldsListWithAnnotation(module.getClass(), Resource.class);
-        for (Field field : fields) {
-            if (ClassUtils.isAssignable(field.getType(), EventWatcher.class)
-                    || ClassUtils.isAssignable(EventWatcher.class, field.getType())) {
-                try {
-                    FieldUtils.writeField(field, module, watcher, true);
-                } catch (IllegalAccessException ignore) {
-                }
-            }
-        }
-        module.enable();
-        getInstance().module = module;
+        getInstance().module = enableModule(new MethodProfilerModule());
     }
 
     private static class SingletonHolder {
@@ -97,4 +85,19 @@ public class CoreModule {
         return cpu;
     }
 
+    public static <T extends Module> T enableModule(T module) {
+        final EventWatcher watcher = getInstance().watcher;
+        final List<Field> fields = FieldUtils.getFieldsListWithAnnotation(module.getClass(), Resource.class);
+        for (Field field : fields) {
+            if (ClassUtils.isAssignable(field.getType(), EventWatcher.class)
+                    || ClassUtils.isAssignable(EventWatcher.class, field.getType())) {
+                try {
+                    FieldUtils.writeField(field, module, watcher, true);
+                } catch (IllegalAccessException ignore) {
+                }
+            }
+        }
+        module.enable();
+        return module;
+    }
 }
