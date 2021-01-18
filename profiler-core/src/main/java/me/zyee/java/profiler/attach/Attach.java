@@ -5,6 +5,11 @@ import com.sun.tools.attach.AgentLoadException;
 import com.sun.tools.attach.AttachNotSupportedException;
 import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
+import me.zyee.java.profiler.utils.FileUtils;
+import me.zyee.java.profiler.utils.PidUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
@@ -12,11 +17,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
-import me.zyee.java.profiler.utils.FileUtils;
-import me.zyee.java.profiler.utils.PidUtils;
-import net.lingala.zip4j.ZipFile;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 /**
  * @author yee
@@ -76,13 +76,11 @@ public class Attach {
             if (!Files.exists(path)) {
                 Files.createDirectories(path);
             }
-            final Path agent = path.resolve("profiler-agent.jar");
-            final Path zip = path.resolve("profiler-agent.zip");
+            final Path agent = path.resolve("agent.jar");
 
             try (InputStream is = Attach.class.getResourceAsStream("/agent")) {
                 final byte[] bytes = FileUtils.readAll(is);
-                Files.write(zip, bytes);
-                new ZipFile(zip.toFile()).extractAll(path.toString());
+                Files.write(agent, bytes);
             }
             Attach.attach(agent, PidUtils.currentPid());
         }

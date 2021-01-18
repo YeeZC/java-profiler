@@ -1,10 +1,7 @@
 package me.zyee.profiler.agent;
 
-import java.io.IOException;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.InvocationTargetException;
-import java.nio.file.Paths;
-import me.zyee.profiler.agent.classloader.ProfilerClassLoader;
 
 /**
  * @author yee
@@ -18,13 +15,6 @@ public class ProfilerAgent {
     }
 
     public static void agentmain(String args, Instrumentation inst) throws ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        try {
-            final ProfilerClassLoader loader = ProfilerClassLoader.create(Paths.get(args));
-            Thread.currentThread().setContextClassLoader(loader);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         Initializer.init(inst);
     }
 }

@@ -14,6 +14,7 @@ import me.zyee.java.profiler.flame.FlameParser;
 import me.zyee.java.profiler.flame.Frame;
 import me.zyee.java.profiler.markdown.Markdown;
 import me.zyee.java.profiler.module.CoreModule;
+import me.zyee.java.profiler.module.MethodProfilerModule;
 import me.zyee.java.profiler.utils.GroupMatcher;
 import me.zyee.java.profiler.utils.Matcher;
 import one.profiler.Events;
@@ -46,8 +47,11 @@ public class DefaultProfilerCore implements ProfilerCore {
     static {
         try {
             Attach.attach();
-            CoreModule.init();
-            Runtime.getRuntime().addShutdownHook(new Thread(CoreModule::destroy));
+            final MethodProfilerModule module = CoreModule.enableModule(new MethodProfilerModule());
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                CoreModule.destroy();
+                module.disable();
+            }));
         } catch (Exception e) {
             e.printStackTrace();
         }
