@@ -250,4 +250,32 @@ public final class FormatUtil {
     public static String formatError(int errorCode) {
         return String.format(HEX_ERROR, errorCode);
     }
+
+    public static String formatMilliseconds(long millis) {
+        long eTime = millis;
+        final long days = TimeUnit.MILLISECONDS.toDays(eTime);
+        eTime -= TimeUnit.DAYS.toMillis(days);
+        final long hr = TimeUnit.MILLISECONDS.toHours(eTime);
+        eTime -= TimeUnit.HOURS.toMillis(hr);
+        final long min = TimeUnit.MILLISECONDS.toMinutes(eTime);
+        eTime -= TimeUnit.MINUTES.toMillis(min);
+        final long second = TimeUnit.MILLISECONDS.toSeconds(eTime);
+        eTime -= TimeUnit.SECONDS.toMillis(second);
+        final long milli = eTime;
+        StringBuilder builder = new StringBuilder();
+        if (days > 0L) {
+            builder.append(days).append("days");
+        }
+        if (hr > 0L) {
+            builder.append(hr).append("H");
+        }
+        if (min > 0) {
+            builder.append(min).append("m");
+        }
+        if (second > 0) {
+            builder.append(second).append("s");
+        }
+        builder.append(milli).append("ms");
+        return builder.toString();
+    }
 }

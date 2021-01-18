@@ -49,7 +49,9 @@ public class ProfilerTransformer implements ClassFileTransformer {
         if (!filter.classFilter(javaClassName)) {
             return null;
         }
-        logger.info("matched class {}", javaClassName);
+        if (logger.isDebugEnabled()) {
+            logger.debug("matched class {}", javaClassName);
+        }
         Set<String> behaviorSignCodes = classStructure.getBehaviorStructures().stream()
                 .filter(behavior -> filter.methodFilter(behavior.getName(), behavior.getAnnotationTypeClassStructures().stream()
                         .map(ClassStructure::getJavaClassName)))
@@ -58,7 +60,9 @@ public class ProfilerTransformer implements ClassFileTransformer {
         if (behaviorSignCodes.isEmpty()) {
             return null;
         }
-        logger.info("matched behaviors {}", behaviorSignCodes);
+        if (logger.isDebugEnabled()) {
+            logger.debug("matched behaviors {}", behaviorSignCodes);
+        }
         final byte[] bytes = new EventEnhancer().toByteCodeArray(loader,
                 classfileBuffer,
                 behaviorSignCodes,

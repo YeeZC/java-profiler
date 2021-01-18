@@ -1,7 +1,6 @@
 package me.zyee.profiler.agent.event.watcher;
 
 import java.lang.instrument.Instrumentation;
-import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -60,7 +59,7 @@ public class DefaultEventWatcher implements EventWatcher {
             if (!classes.isEmpty()) {
                 inst.retransformClasses(classes.toArray(new Class[0]));
             }
-        } catch (UnmodifiableClassException ignore) {
+        } catch (Throwable ignore) {
             ignore.printStackTrace();
         }
 //        }

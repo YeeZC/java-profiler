@@ -14,6 +14,7 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import me.zyee.java.profiler.utils.FileUtils;
 import me.zyee.java.profiler.utils.PidUtils;
+import net.lingala.zip4j.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -56,7 +57,7 @@ public class Attach {
                             targetSystemProperties.getProperty("java.home"), System.getProperty("java.home"));
                 }
             }
-            final String property = System.getProperty("profiler.home", Paths.get(System.getProperty("java.io.tmpdir"), "java-profiler").toString());
+            final String property = Paths.get(System.getProperty("java.io.tmpdir"), "me.zyee.java.profiler", "lib").toString();
             virtualMachine.loadAgent(agent.toString(), property);
         } finally {
             if (null != virtualMachine) {
@@ -75,10 +76,13 @@ public class Attach {
             if (!Files.exists(path)) {
                 Files.createDirectories(path);
             }
-            final Path agent = path.resolve("agent.jar");
+            final Path agent = path.resolve("profiler-agent.jar");
+            final Path zip = path.resolve("profiler-agent.zip");
+
             try (InputStream is = Attach.class.getResourceAsStream("/agent")) {
                 final byte[] bytes = FileUtils.readAll(is);
-                Files.write(agent, bytes);
+                Files.write(zip, bytes);
+                new ZipFile(zip.toFile()).extractAll(path.toString());
             }
             Attach.attach(agent, PidUtils.currentPid());
         }

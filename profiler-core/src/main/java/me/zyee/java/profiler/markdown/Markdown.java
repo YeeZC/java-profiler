@@ -34,7 +34,7 @@ import org.apache.commons.lang3.StringUtils;
  * Create by yee on 2020/8/19
  */
 public class Markdown {
-    private static final String FORMAT = "| %s | %s | %s | %s | %.2f | %.2f | %.2f | %.2f | %.2f | %s |";
+    private static final String FORMAT = "| %s | %s | %s | %s | %.2f | %.2f | %.2f | %.2f | %s | %s |";
     private static final String ATOM_FORMAT = "| %s | %s | %.2f | %s |";
     private final double cost;
     private final Path outPath;
@@ -83,7 +83,7 @@ public class Markdown {
         final List<GarbageCollectorMXBean> beans = ManagementFactory.getGarbageCollectorMXBeans();
         beans.forEach(bean -> joiner.add("|" + bean.getName()
                 + "|" + bean.getCollectionCount()
-                + "|" + bean.getCollectionTime() + "ms |"));
+                + "|" + FormatUtil.formatMilliseconds(bean.getCollectionTime()) + "|"));
         return joiner.toString();
     }
 
@@ -226,7 +226,7 @@ public class Markdown {
                 }
             }
             List<Object> row = Lists.newArrayList(stepName, node.getPattern(),
-                    atomicName, atomicPattern, atomicCost, cost * percent / 100, 0D, percent, cost, "");
+                    atomicName, atomicPattern, atomicCost, cost * percent / 100, 0D, percent, FormatUtil.formatMilliseconds((long) cost), "");
             data.add(row);
         } else {
             for (ProfileNode child : children) {
@@ -244,7 +244,7 @@ public class Markdown {
                 final double stepCost = cost * percent / 100;
                 List<Object> total = Lists.newArrayList(stepName, node.getPattern(), "", "", data.stream()
                         .peek(row -> row.set(6, 100 * ((Number) row.get(5)).doubleValue() / stepCost))
-                        .mapToDouble(row -> ((Number) row.get(4)).doubleValue()).sum(), stepCost, 100D, percent, cost, "");
+                        .mapToDouble(row -> ((Number) row.get(4)).doubleValue()).sum(), stepCost, 100D, percent, FormatUtil.formatMilliseconds((long) cost), "");
                 data.add(total);
             }
         }

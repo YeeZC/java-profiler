@@ -2,7 +2,6 @@ package me.zyee.profiler.agent.core.advice;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Stream;
 import me.zyee.java.profiler.event.Event;
 import org.apache.commons.lang3.ArrayUtils;
 import org.objectweb.asm.ClassVisitor;
@@ -29,22 +28,6 @@ public class AdviceWeaver extends ClassVisitor implements Opcodes {
         this.signCodes = new HashSet<>(signCodes);
         this.targetJavaClassName = targetJavaClassName;
         this.types = types;
-    }
-
-    private boolean hasEnableLine() {
-        return Stream.of(types).anyMatch(type -> type == Event.Type.LINE);
-    }
-
-    private boolean hasEnableCallBefore() {
-        return Stream.of(types).anyMatch(type -> type == Event.Type.CALL_BEFORE);
-    }
-
-    private boolean hasEnableCallReturn() {
-        return Stream.of(types).anyMatch(type -> type == Event.Type.CALL_RETURN);
-    }
-
-    private boolean hasEnableCallThrows() {
-        return Stream.of(types).anyMatch(type -> type == Event.Type.CALL_THROWS);
     }
 
     private String getBehaviorSignCode(final String name,
