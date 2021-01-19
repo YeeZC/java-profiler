@@ -1,9 +1,11 @@
 package me.zyee.profiler.agent;
 
+import me.zyee.profiler.agent.core.utils.AgentProxy;
+
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.lang.instrument.UnmodifiableClassException;
 import java.lang.reflect.InvocationTargetException;
-import me.zyee.profiler.agent.loader.ProfilerClassLoader;
 
 /**
  * @author yee
@@ -12,16 +14,12 @@ import me.zyee.profiler.agent.loader.ProfilerClassLoader;
  */
 public class ProfilerAgent {
 
-    public static void premain(String args, Instrumentation inst) throws ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
+    public static void premain(String args, Instrumentation inst) throws ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, IOException, UnmodifiableClassException {
         agentmain(args, inst);
     }
 
-    public static void agentmain(String args, Instrumentation inst) throws ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException {
-        try {
-            ProfilerClassLoader.create(args);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        Initializer.init(inst);
+    public static void agentmain(String args, Instrumentation inst) throws ClassNotFoundException, IllegalAccessException, NoSuchMethodException, InvocationTargetException, IOException, UnmodifiableClassException {
+        AgentProxy.init(args);
+        Injector.init(inst);
     }
 }

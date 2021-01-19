@@ -1,24 +1,20 @@
 package me.zyee.profiler.agent.core.transformer;
 
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
-import java.security.ProtectionDomain;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.filter.BehaviorFilter;
-import me.zyee.profiler.agent.core.enhancer.EnhancerProxy;
+import me.zyee.profiler.agent.core.utils.AgentProxy;
 import me.zyee.profiler.agent.core.utils.AgentStringUtils;
-import me.zyee.profiler.agent.core.utils.ClassStructure;
 import me.zyee.profiler.agent.core.utils.Structure;
-import me.zyee.profiler.agent.core.utils.StructureProxy;
 import me.zyee.profiler.agent.utils.ObjectIds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import static me.zyee.profiler.agent.core.utils.ClassStructureFactory.createClassStructure;
+import java.lang.instrument.ClassFileTransformer;
+import java.security.ProtectionDomain;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * @author yee
@@ -43,9 +39,8 @@ public class ProfilerTransformer implements ClassFileTransformer {
                             String className,
                             Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain,
-                            byte[] classfileBuffer) throws IllegalClassFormatException {
-        final Structure structure = StructureProxy.newInstance(loader, classBeingRedefined, classfileBuffer);
-//        final ClassStructure classStructure = getClassStructure(loader, classBeingRedefined, classfileBuffer);
+                            byte[] classfileBuffer) {
+        final Structure structure = AgentProxy.newStructure(loader, classBeingRedefined, classfileBuffer);
         final String javaClassName = structure.getJavaClassName();
         if (!filter.classFilter(javaClassName)) {
             return null;
@@ -61,7 +56,7 @@ public class ProfilerTransformer implements ClassFileTransformer {
             logger.debug("matched behaviors {}", behaviorSignCodes);
         }
 
-        byte[] bytes = EnhancerProxy.getInstance().toByteCodeArray(loader,
+        byte[] bytes = AgentProxy.newEnhancer().toByteCodeArray(loader,
                 classfileBuffer, behaviorSignCodes, id, listenEvents);
         if (null == bytes) {
             return null;
@@ -79,14 +74,6 @@ public class ProfilerTransformer implements ClassFileTransformer {
 
     public BehaviorFilter getFilter() {
         return filter;
-    }
-
-    private ClassStructure getClassStructure(final ClassLoader loader,
-                                             final Class<?> classBeingRedefined,
-                                             final byte[] srcByteCodeArray) {
-        return null == classBeingRedefined
-                ? createClassStructure(srcByteCodeArray, loader)
-                : createClassStructure(classBeingRedefined);
     }
 
     public Set<String> getTransformed() {
