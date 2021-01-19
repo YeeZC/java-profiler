@@ -19,7 +19,7 @@
             <outputDirectory>${file.separator}</outputDirectory>
             <useProjectArtifact>false</useProjectArtifact>
             <unpack>true</unpack>
-            <scope>runtime</scope>
+            <scope>provided</scope>
             <excludes>
                 <exclude>net.lingala.zip4j:zip4j</exclude>
                 <exclude>org.apache.commons:commons-lang3</exclude>
