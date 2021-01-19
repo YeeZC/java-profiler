@@ -15,6 +15,7 @@
         <module>profiler-base</module>
         <module>profiler-agent</module>
         <module>profiler-spy</module>
+        <module>profiler-assembly</module>
     </modules>
 
     <properties>

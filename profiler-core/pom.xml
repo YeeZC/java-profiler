@@ -47,12 +47,6 @@
             <artifactId>zip4j</artifactId>
             <version>2.6.4</version>
         </dependency>
-        <dependency>
-            <groupId>me.zyee</groupId>
-            <artifactId>profiler-agent</artifactId>
-            <version>1.0-SNAPSHOT</version>
-            <scope>provided</scope>
-        </dependency>
     </dependencies>
 
     <build>
@@ -60,7 +54,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-shade-plugin</artifactId>
-                <version>3.2.3</version>
+                <version>3.2.4</version>
                 <executions>
                     <execution>
                         <phase>package</phase>
@@ -68,6 +62,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <minimizeJar>true</minimizeJar>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <relocations>
                                 <relocation>
@@ -87,11 +82,6 @@
                                     <shadedPattern>me.zyee.profiler.jsoup</shadedPattern>
                                 </relocation>
                             </relocations>
-                            <transformers>
-                                <transformer
-                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-                                </transformer>
-                            </transformers>
                             <filters>
                                 <filter>
                                     <artifact>*:*</artifact>
@@ -103,24 +93,6 @@
                                 </filter>
                             </filters>
 
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-assembly-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>single</goal>
-                        </goals>
-                        <phase>package</phase>
-                        <configuration>
-                            <finalName>profiler</finalName>
-                            <descriptors>
-                                <descriptor>src/main/assembly/assembly.xml</descriptor>
-                            </descriptors>
                         </configuration>
                     </execution>
                 </executions>

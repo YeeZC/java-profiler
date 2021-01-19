@@ -77,6 +77,7 @@
                             <goal>shade</goal>
                         </goals>
                         <configuration>
+                            <minimizeJar>true</minimizeJar>
                             <finalName>profiler-agent-shape</finalName>
                             <createDependencyReducedPom>false</createDependencyReducedPom>
                             <relocations>
