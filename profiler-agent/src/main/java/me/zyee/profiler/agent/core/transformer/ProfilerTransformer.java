@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.filter.BehaviorFilter;
-import me.zyee.profiler.agent.core.enhancer.EventEnhancer;
+import me.zyee.profiler.agent.core.enhancer.EnhancerProxy;
 import me.zyee.profiler.agent.core.utils.AgentStringUtils;
 import me.zyee.profiler.agent.core.utils.BehaviorStructure;
 import me.zyee.profiler.agent.core.utils.ClassStructure;
@@ -63,11 +63,12 @@ public class ProfilerTransformer implements ClassFileTransformer {
         if (logger.isDebugEnabled()) {
             logger.debug("matched behaviors {}", behaviorSignCodes);
         }
-        final byte[] bytes = new EventEnhancer().toByteCodeArray(loader,
-                classfileBuffer,
-                behaviorSignCodes,
-                id,
-                listenEvents);
+
+        byte[] bytes = EnhancerProxy.getInstance().toByteCodeArray(loader,
+                classfileBuffer, behaviorSignCodes, id, listenEvents);
+        if (null == bytes) {
+            return null;
+        }
         if (Arrays.equals(bytes, classfileBuffer)) {
             return null;
         }

@@ -9,7 +9,7 @@
 
     <files>
         <file>
-            <source>../profiler-agent/target/profiler-agent.jar</source>
+            <source>../profiler-agent/target/profiler-agent-shape.jar</source>
             <destName>profiler-agent.jar</destName>
         </file>
     </files>
@@ -20,7 +20,7 @@
             <useProjectArtifact>false</useProjectArtifact>
             <outputDirectory>lib</outputDirectory>
             <!--将scope为runtime的依赖包打包-->
-            <scope>runtime</scope>
+            <scope>provided</scope>
         </dependencySet>
     </dependencySets>
 </assembly>

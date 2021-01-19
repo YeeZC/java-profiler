@@ -160,11 +160,4 @@ public class DefaultEventHandler implements EventHandler {
         }
     }
 
-    void unCaughtSetClassDeclaredJavaFieldValue(Object target, String fieldName, Object fieldValue) {
-        final Field trigger = FieldUtils.getField(target.getClass(), fieldName);
-        try {
-            FieldUtils.writeField(trigger, target, fieldValue, true);
-        } catch (IllegalAccessException ignore) {
-        }
-    }
 }
