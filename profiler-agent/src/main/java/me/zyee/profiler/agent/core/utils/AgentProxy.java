@@ -1,8 +1,8 @@
 package me.zyee.profiler.agent.core.utils;
 
 import me.zyee.profiler.agent.core.enhancer.Enhancer;
+import me.zyee.profiler.agent.core.enhancer.EventEnhancer;
 import me.zyee.profiler.agent.utils.Hardware;
-import org.apache.commons.lang3.reflect.ConstructorUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 import java.io.IOException;
@@ -11,8 +11,6 @@ import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.function.Function;
-
-import static me.zyee.profiler.agent.core.utils.ClassStructureFactory.createClassStructure;
 
 /**
  * @author yee
@@ -48,37 +46,20 @@ public class AgentProxy {
     }
 
     public static Enhancer newEnhancer() {
-        return newProxy(Enhancer.class.getClassLoader(), Enhancer.class, loader -> {
-            try {
-                final Class<?> clazz = loader.loadClass("me.zyee.profiler.agent.core.enhancer.EventEnhancer");
-                return clazz.newInstance();
-            } catch (Throwable t) {
-                return null;
-            }
-        });
+        return new EventEnhancer(true);
     }
 
     public static Structure newStructure(final ClassLoader loader,
                                          final Class<?> classBeingRedefined,
                                          final byte[] srcByteCodeArray) {
-        return AgentProxy.newProxy(Structure.class.getClassLoader(), Structure.class, profilerLoader -> {
-            if (null == classBeingRedefined) {
-                try {
-                    final Class<?> factory = profilerLoader.loadClass("me.zyee.profiler.agent.core.utils.ClassStructureFactory");
-                    final Object structure = MethodUtils.invokeStaticMethod(factory, "createClassStructure",
-                            srcByteCodeArray, loader);
+        ClassStructure structure = null;
+        if (null == classBeingRedefined) {
+            structure = new ClassStructureImplByAsm(srcByteCodeArray, loader);
+        } else {
+            structure = new ClassStructureImplByJDK(classBeingRedefined);
+        }
 
-                    final Class<?> wrapper = profilerLoader.loadClass(StructureWrapper.class.getName());
-                    return ConstructorUtils.invokeConstructor(wrapper, structure);
-                } catch (Throwable e) {
-                    return null;
-                }
-            } else {
-                final ClassStructure classStructure = createClassStructure(classBeingRedefined);
-                return new StructureWrapper(classStructure);
-            }
-        });
-
+        return new StructureWrapper(structure);
     }
 
     public static Hardware newHardware() {

@@ -46,7 +46,7 @@ public class Injector {
                         || ClassUtils.isAssignable(type, Instrumentation.class)) {
                     FieldUtils.writeField(field, instance, inst, true);
                 } else if (type.equals(Cpu.class)) {
-
+//
                     final Cpu cpu = Cpu.builder().setFreq(hardware.getProcessorFreq())
                             .setLogical(hardware.getLogicalProcessorCount())
                             .setPhysical(hardware.getPhysicalProcessorCount())
