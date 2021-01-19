@@ -38,6 +38,10 @@ public interface BehaviorFilter {
         return methodFilter(methodName, annotationSignCode, false, paramsTypeClassName);
     }
 
+    default boolean methodFilter(String methodName, Stream<String> annotationSignCode) {
+        return methodFilter(methodName, annotationSignCode, false);
+    }
+
     BehaviorFilter TRUE = new BehaviorFilter() {
         @Override
         public boolean classFilter(String className) {

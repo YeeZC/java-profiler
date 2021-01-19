@@ -6,14 +6,14 @@ import java.security.ProtectionDomain;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.filter.BehaviorFilter;
 import me.zyee.profiler.agent.core.enhancer.EnhancerProxy;
 import me.zyee.profiler.agent.core.utils.AgentStringUtils;
-import me.zyee.profiler.agent.core.utils.BehaviorStructure;
 import me.zyee.profiler.agent.core.utils.ClassStructure;
+import me.zyee.profiler.agent.core.utils.Structure;
+import me.zyee.profiler.agent.core.utils.StructureProxy;
 import me.zyee.profiler.agent.utils.ObjectIds;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -44,19 +44,16 @@ public class ProfilerTransformer implements ClassFileTransformer {
                             Class<?> classBeingRedefined,
                             ProtectionDomain protectionDomain,
                             byte[] classfileBuffer) throws IllegalClassFormatException {
-        final ClassStructure classStructure = getClassStructure(loader, classBeingRedefined, classfileBuffer);
-        final String javaClassName = classStructure.getJavaClassName();
+        final Structure structure = StructureProxy.newInstance(loader, classBeingRedefined, classfileBuffer);
+//        final ClassStructure classStructure = getClassStructure(loader, classBeingRedefined, classfileBuffer);
+        final String javaClassName = structure.getJavaClassName();
         if (!filter.classFilter(javaClassName)) {
             return null;
         }
         if (logger.isDebugEnabled()) {
             logger.debug("matched class {}", javaClassName);
         }
-        Set<String> behaviorSignCodes = classStructure.getBehaviorStructures().stream()
-                .filter(behavior -> filter.methodFilter(behavior.getName(), behavior.getAnnotationTypeClassStructures().stream()
-                        .map(ClassStructure::getJavaClassName)))
-                .map(BehaviorStructure::getSignCode)
-                .collect(Collectors.toSet());
+        final Set<String> behaviorSignCodes = structure.getMatchesBehaviors(filter::methodFilter);
         if (behaviorSignCodes.isEmpty()) {
             return null;
         }

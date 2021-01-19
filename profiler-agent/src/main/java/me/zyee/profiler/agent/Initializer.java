@@ -14,7 +14,6 @@ import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.profiler.agent.event.handler.DefaultEventHandler;
 import me.zyee.profiler.agent.event.watcher.DefaultEventWatcher;
 import me.zyee.profiler.agent.loader.ProfilerClassLoader;
-import me.zyee.profiler.agent.utils.Hardware;
 import me.zyee.profiler.spy.Spy;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
@@ -36,7 +35,7 @@ public class Initializer {
             final DefaultEventHandler handler = new DefaultEventHandler();
             EventWatcher watcher = new DefaultEventWatcher(inst, handler);
             final ClassLoader loader = ProfilerClassLoader.getInstance();
-            final Class<?> hardware = loader.loadClass(Hardware.class.getName());
+            final Class<?> hardware = loader.loadClass("me.zyee.profiler.agent.utils.Hardware");
             for (Field field : fields) {
                 final Class<?> type = field.getType();
                 if (ClassUtils.isAssignable(EventWatcher.class, type)

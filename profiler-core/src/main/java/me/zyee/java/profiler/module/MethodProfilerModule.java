@@ -1,20 +1,5 @@
 package me.zyee.java.profiler.module;
 
-import me.zyee.java.profiler.Context;
-import me.zyee.java.profiler.ProfileHandler;
-import me.zyee.java.profiler.ProfileHandlerRegistry;
-import me.zyee.java.profiler.ProfileItem;
-import me.zyee.java.profiler.Profiler;
-import me.zyee.java.profiler.annotation.Profile;
-import me.zyee.java.profiler.event.Before;
-import me.zyee.java.profiler.event.Event;
-import me.zyee.java.profiler.event.Throws;
-import me.zyee.java.profiler.event.watcher.EventWatcher;
-import me.zyee.java.profiler.filter.ProfileBehaviorFilter;
-import me.zyee.java.profiler.impl.ContextHelper;
-import org.apache.commons.lang3.reflect.MethodUtils;
-
-import javax.annotation.Resource;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Method;
 import java.nio.file.Path;
@@ -25,6 +10,21 @@ import java.util.Optional;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+import javax.annotation.Resource;
+import me.zyee.java.profiler.Context;
+import me.zyee.java.profiler.ProfileHandler;
+import me.zyee.java.profiler.ProfileHandlerRegistry;
+import me.zyee.java.profiler.ProfileItem;
+import me.zyee.java.profiler.Profiler;
+import me.zyee.java.profiler.annotation.Profile;
+import me.zyee.java.profiler.event.Before;
+import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.event.Throws;
+import me.zyee.java.profiler.event.watcher.EventWatcher;
+import me.zyee.java.profiler.filter.BehaviorFilter;
+import me.zyee.java.profiler.filter.ProfileBehaviorFilter;
+import me.zyee.java.profiler.impl.ContextHelper;
+import org.apache.commons.lang3.reflect.MethodUtils;
 
 /**
  * @author yee
@@ -45,7 +45,7 @@ public class MethodProfilerModule implements Module {
 
     @Override
     public void enable() {
-        this.watchId = watcher.watch(new ProfileBehaviorFilter(), event -> {
+        this.watchId = watcher.watch(getFilter(), event -> {
             switch (event.type()) {
                 case BEFORE:
                     return onBefore((Before) event);
@@ -64,10 +64,9 @@ public class MethodProfilerModule implements Module {
         watcher.delete(watchId);
     }
 
-    private boolean onBefore(Before before) {
+    protected boolean onBefore(Before before) {
         context = ContextHelper.getContext()
-                .resolve(before.getTriggerClass() + "#" + before.getTriggerMethod()
-                        + System.currentTimeMillis());
+                .resolve(transferProfileName(before));
         item = new ProfileItem(before.getTriggerMethod());
         profiler = context.getProfiler();
         if (null != profiler) {
@@ -76,11 +75,13 @@ public class MethodProfilerModule implements Module {
                 final MethodType methodType = MethodType.fromMethodDescriptorString(before.getTriggerMethodSign(), before.getTriggerLoader());
                 final Method method = MethodUtils.getMatchingMethod(clazz, before.getTriggerMethod(), methodType.parameterArray());
                 final Profile profile = method.getAnnotation(Profile.class);
-                final String[] patterns = profile.strictCount();
-                if (patterns.length > 0) {
-                    Stream.of(patterns).distinct().map(ActualCostCountModule::new)
-                            .map(CoreModule::enableModule)
-                            .forEach(modules::add);
+                if (null != profile) {
+                    final String[] patterns = profile.strictCount();
+                    if (patterns.length > 0) {
+                        Stream.of(patterns).distinct().map(ActualCostCountModule::new)
+                                .map(CoreModule::enableModule)
+                                .forEach(modules::add);
+                    }
                 }
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
@@ -91,7 +92,7 @@ public class MethodProfilerModule implements Module {
         return false;
     }
 
-    private boolean onReturn() {
+    protected boolean onReturn() {
         if (null != profiler) {
             try {
                 final ProfileHandler handler = ProfileHandlerRegistry.getHandler();
@@ -113,8 +114,17 @@ public class MethodProfilerModule implements Module {
         return false;
     }
 
-    private boolean onThrows(Throws throwsEvent) {
+    protected boolean onThrows(Throws throwsEvent) {
         item.setThrowable(throwsEvent.getThrowable());
         return onReturn();
+    }
+
+    protected String transferProfileName(Before before) {
+        return before.getTriggerClass() + "#" + before.getTriggerMethod()
+                + System.currentTimeMillis();
+    }
+
+    protected BehaviorFilter getFilter() {
+        return new ProfileBehaviorFilter();
     }
 }

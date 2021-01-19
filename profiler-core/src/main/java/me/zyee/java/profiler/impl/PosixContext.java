@@ -15,6 +15,7 @@ import me.zyee.java.profiler.posix.Format;
 import me.zyee.java.profiler.posix.PosixProfiler;
 import one.profiler.Counter;
 import one.profiler.Events;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author yee
@@ -59,7 +60,13 @@ class PosixContext extends BaseContext {
     @Override
     public Context resolve(String name) {
         Context ctx = this;
-        final Profiler cpu = init(this.name + File.separator + name, Events.CPU);
+        Profiler profiler = null;
+        if (StringUtils.isNotEmpty(this.name)) {
+            profiler = init(this.name + File.separator + name, Events.CPU);
+        } else {
+            profiler = init(name, Events.CPU);
+        }
+        Profiler cpu = profiler;
         return new Context() {
             @Override
             public Profiler getProfiler() {
