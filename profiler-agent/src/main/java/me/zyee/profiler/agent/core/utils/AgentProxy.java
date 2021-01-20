@@ -1,16 +1,16 @@
 package me.zyee.profiler.agent.core.utils;
 
-import me.zyee.profiler.agent.core.enhancer.Enhancer;
-import me.zyee.profiler.agent.core.enhancer.EventEnhancer;
-import me.zyee.profiler.agent.utils.Hardware;
-import org.apache.commons.lang3.reflect.MethodUtils;
-
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.util.function.Function;
+import me.zyee.profiler.agent.core.enhancer.Enhancer;
+import me.zyee.profiler.agent.core.enhancer.EventEnhancer;
+import me.zyee.profiler.agent.utils.Hardware;
+import me.zyee.profiler.agent.utils.OshiHardware;
+import org.apache.commons.lang3.reflect.MethodUtils;
 
 /**
  * @author yee
@@ -22,7 +22,9 @@ public class AgentProxy {
     private static ProfilerClassLoader PROFILER_LOADER;
 
     public static void init(String args) throws IOException {
-        PROFILER_LOADER = ProfilerClassLoader.newInstance(args);
+        if (null != args) {
+            PROFILER_LOADER = ProfilerClassLoader.newInstance(args);
+        }
     }
 
     public static <T> T newProxy(ClassLoader loader, Class<T> inf, Function<ClassLoader, Object> provider) {
@@ -64,6 +66,9 @@ public class AgentProxy {
 
     public static Hardware newHardware() {
         return newProxy(Hardware.class.getClassLoader(), Hardware.class, loader -> {
+            if (null == loader) {
+                return new OshiHardware();
+            }
             try {
                 final Class<?> hardware = loader.loadClass("me.zyee.profiler.agent.utils.OshiHardware");
                 return hardware.newInstance();

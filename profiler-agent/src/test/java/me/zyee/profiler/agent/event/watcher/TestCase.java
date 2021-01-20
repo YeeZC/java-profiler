@@ -23,6 +23,10 @@ public class TestCase {
 
     @Profile
     public void print(int i) {
-        System.out.println(i);
+        System.out.println(plusRandom(i));
+    }
+
+    private double plusRandom(int i) {
+        return i + Math.random() * 1000;
     }
 }

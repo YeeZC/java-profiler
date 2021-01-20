@@ -1,7 +1,5 @@
 package me.zyee.profiler.agent.utils;
 
-import me.zyee.profiler.spy.Spy;
-
 import java.lang.ref.ReferenceQueue;
 import java.lang.ref.WeakReference;
 import java.util.HashMap;
@@ -11,6 +9,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import java.util.function.Supplier;
+import me.zyee.java.profiler.spy.Spy;
 
 /**
  * @author yee

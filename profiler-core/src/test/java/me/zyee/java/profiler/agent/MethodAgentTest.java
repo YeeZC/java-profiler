@@ -1,11 +1,10 @@
 package me.zyee.java.profiler.agent;
 
+import java.io.IOException;
+import java.nio.file.Paths;
 import me.zyee.java.profiler.impl.DefaultProfilerCore;
 import me.zyee.java.profiler.impl.ProfileJUnitRunner;
 import org.junit.Test;
-
-import java.io.IOException;
-import java.nio.file.Paths;
 
 /**
  * @author yee

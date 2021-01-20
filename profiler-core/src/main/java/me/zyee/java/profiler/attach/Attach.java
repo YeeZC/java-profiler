@@ -7,6 +7,7 @@ import com.sun.tools.attach.VirtualMachine;
 import com.sun.tools.attach.VirtualMachineDescriptor;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.instrument.Instrumentation;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -14,6 +15,8 @@ import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
 import me.zyee.java.profiler.utils.FileUtils;
 import me.zyee.java.profiler.utils.PidUtils;
+import me.zyee.profiler.agent.ProfilerAgent;
+import net.bytebuddy.agent.ByteBuddyAgent;
 import net.lingala.zip4j.ZipFile;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -79,6 +82,15 @@ public class Attach {
             final Path agent = path.resolve("profiler-agent.jar");
             final Path resolve = path.resolve("tmp.zip");
             try (InputStream is = Attach.class.getResourceAsStream("/agent")) {
+                if (null == is) {
+                    final Instrumentation inst = ByteBuddyAgent.install();
+                    try {
+                        ProfilerAgent.agentmain(null, inst);
+                    } catch (Throwable e) {
+                        e.printStackTrace();
+                    }
+                    return;
+                }
                 final byte[] bytes = FileUtils.readAll(is);
                 Files.write(resolve, bytes);
                 new ZipFile(resolve.toFile()).extractAll(path.toString());

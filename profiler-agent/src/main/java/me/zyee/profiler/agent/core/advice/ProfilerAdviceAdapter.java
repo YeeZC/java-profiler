@@ -2,7 +2,7 @@ package me.zyee.profiler.agent.core.advice;
 
 import java.util.function.Predicate;
 import me.zyee.java.profiler.event.Event;
-import me.zyee.profiler.spy.Spy;
+import me.zyee.java.profiler.spy.Spy;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
@@ -219,7 +219,7 @@ public class ProfilerAdviceAdapter extends AdviceAdapter {
         final boolean enableThrows = eventSwitch.test(Event.Type.CALL_THROWS);
         if (!enableThrows) {
             super.visitMethodInsn(opcodeAndSource, owner, name, descriptor, isInterface);
-            traceCallReturn(opcodeAndSource);
+            traceCallReturn();
             return;
         }
 
@@ -235,7 +235,7 @@ public class ProfilerAdviceAdapter extends AdviceAdapter {
         super.visitMethodInsn(opcodeAndSource, owner, name, descriptor, isInterface);
         mark(tracingEndLabel);
 
-        traceCallReturn(opcodeAndSource);
+        traceCallReturn();
 
         goTo(tracingFinallyLabel);
 
@@ -251,7 +251,7 @@ public class ProfilerAdviceAdapter extends AdviceAdapter {
         mark(tracingFinallyLabel);
     }
 
-    private void traceCallReturn(int opcode) {
+    private void traceCallReturn() {
         if (eventSwitch.test(Event.Type.CALL_RETURN)) {
             codeLockForTracing.lock(() -> {
                 push(adviceId);

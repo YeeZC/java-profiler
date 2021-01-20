@@ -1,4 +1,4 @@
-package me.zyee.profiler.spy;
+package me.zyee.java.profiler.spy;
 
 import java.util.concurrent.atomic.AtomicInteger;
 
