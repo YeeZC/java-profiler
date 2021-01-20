@@ -2,7 +2,7 @@ package me.zyee.java.profiler.agent;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import me.zyee.java.profiler.impl.DefaultProfilerCore;
+import me.zyee.java.profiler.impl.Core;
 import me.zyee.java.profiler.impl.ProfileJUnitRunner;
 import org.junit.Test;
 
@@ -15,7 +15,7 @@ public class MethodAgentTest {
     @Test
     public void test() throws IOException {
         System.out.println(TestClass.class);
-        final DefaultProfilerCore core = DefaultProfilerCore.builder()
+        final Core core = Core.builder()
                 .setReportPath(Paths.get(System.getProperty("user.dir")))
                 .build();
         core.profile(new ProfileJUnitRunner(TestClass.class));

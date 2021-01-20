@@ -13,9 +13,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicBoolean;
+import me.zyee.java.profiler.agent.ProfilerAgent;
+import me.zyee.java.profiler.module.CoreModule;
+import me.zyee.java.profiler.module.MethodProfilerModule;
 import me.zyee.java.profiler.utils.FileUtils;
 import me.zyee.java.profiler.utils.PidUtils;
-import me.zyee.profiler.agent.ProfilerAgent;
 import net.bytebuddy.agent.ByteBuddyAgent;
 import net.lingala.zip4j.ZipFile;
 import org.slf4j.Logger;
@@ -32,7 +34,7 @@ public class Attach {
     private static final String JAVA_VERSION_STR = System.getProperty(VERSION_PROP_NAME);
     private static final AtomicBoolean ATTACHED = new AtomicBoolean(false);
 
-    private static void attach(Path agent, String javaPid) throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException {
+    private static void attach(Path agent, boolean dump, String javaPid) throws IOException, AttachNotSupportedException, AgentLoadException, AgentInitializationException {
         VirtualMachineDescriptor virtualMachineDescriptor = null;
         for (VirtualMachineDescriptor descriptor : VirtualMachine.list()) {
             String pid = descriptor.id();
@@ -60,8 +62,7 @@ public class Attach {
                             targetSystemProperties.getProperty("java.home"), System.getProperty("java.home"));
                 }
             }
-            final String property = Paths.get(System.getProperty("java.io.tmpdir"), "me.zyee.java.profiler", "lib").toString();
-            virtualMachine.loadAgent(agent.toString(), property);
+            virtualMachine.loadAgent(agent.toString(), "libPath=" + agent.getParent().resolve("lib") + ";dumpClassFile=" + dump);
         } finally {
             if (null != virtualMachine) {
                 virtualMachine.detach();
@@ -73,7 +74,7 @@ public class Attach {
         return (null != props) ? props.getProperty(VERSION_PROP_NAME) : null;
     }
 
-    public static void attach() throws AgentInitializationException, AgentLoadException, AttachNotSupportedException, IOException {
+    public static void attach(boolean dump) throws AgentInitializationException, AgentLoadException, AttachNotSupportedException, IOException {
         if (ATTACHED.compareAndSet(false, true)) {
             final Path path = Paths.get(System.getProperty("java.io.tmpdir"), "me.zyee.java.profiler");
             if (!Files.exists(path)) {
@@ -85,18 +86,23 @@ public class Attach {
                 if (null == is) {
                     final Instrumentation inst = ByteBuddyAgent.install();
                     try {
-                        ProfilerAgent.agentmain(null, inst);
+                        ProfilerAgent.agentmain("dumpClassFile=" + dump, inst);
                     } catch (Throwable e) {
                         e.printStackTrace();
                     }
-                    return;
+                } else {
+                    final byte[] bytes = FileUtils.readAll(is);
+                    Files.write(resolve, bytes);
+                    new ZipFile(resolve.toFile()).extractAll(path.toString());
+                    Files.delete(resolve);
+                    Attach.attach(agent, dump, PidUtils.currentPid());
                 }
-                final byte[] bytes = FileUtils.readAll(is);
-                Files.write(resolve, bytes);
-                new ZipFile(resolve.toFile()).extractAll(path.toString());
-                Files.delete(resolve);
             }
-            Attach.attach(agent, PidUtils.currentPid());
+            final MethodProfilerModule module = CoreModule.enableModule(new MethodProfilerModule());
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                CoreModule.destroy();
+                module.disable();
+            }));
         }
     }
 }

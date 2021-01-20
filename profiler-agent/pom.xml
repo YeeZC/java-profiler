@@ -83,31 +83,31 @@
                             <relocations>
                                 <relocation>
                                     <pattern>com.google.guava</pattern>
-                                    <shadedPattern>me.zyee.profiler.google.guava</shadedPattern>
+                                    <shadedPattern>me.zyee.java.profiler.third.google.guava</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.slf4j</pattern>
-                                    <shadedPattern>me.zyee.profiler.slf4j</shadedPattern>
+                                    <shadedPattern>me.zyee.java.profiler.third.slf4j</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.objectweb.asm</pattern>
-                                    <shadedPattern>me.zyee.profiler.asm</shadedPattern>
+                                    <shadedPattern>me.zyee.java.profiler.third.asm</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.google.common</pattern>
-                                    <shadedPattern>me.zyee.profiler.google.common</shadedPattern>
+                                    <shadedPattern>me.zyee.java.profiler.third.google.common</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.google.thirdparty</pattern>
-                                    <shadedPattern>me.zyee.profiler.google.thirdparty</shadedPattern>
+                                    <shadedPattern>me.zyee.java.profiler.third.google.thirdparty</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.google.errorprone</pattern>
-                                    <shadedPattern>me.zyee.profiler.google.errorprone</shadedPattern>
+                                    <shadedPattern>me.zyee.java.profiler.third.google.errorprone</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>com.google.j2objc</pattern>
-                                    <shadedPattern>me.zyee.profiler.google.j2objc</shadedPattern>
+                                    <shadedPattern>me.zyee.java.profiler.third.google.j2objc</shadedPattern>
                                 </relocation>
 
                             </relocations>
@@ -115,8 +115,8 @@
                                 <transformer
                                         implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
                                     <manifestEntries>
-                                        <Premain-Class>me.zyee.profiler.agent.ProfilerAgent</Premain-Class>
-                                        <Agent-Class>me.zyee.profiler.agent.ProfilerAgent</Agent-Class>
+                                        <Premain-Class>me.zyee.java.profiler.agent.ProfilerAgent</Premain-Class>
+                                        <Agent-Class>me.zyee.java.profiler.agent.ProfilerAgent</Agent-Class>
                                         <Can-Redefine-Classes>true</Can-Redefine-Classes>
                                         <Can-Retransform-Classes>true</Can-Retransform-Classes>
                                         <Specification-Title>${project.name}</Specification-Title>

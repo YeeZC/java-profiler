@@ -91,19 +91,19 @@
                             <relocations>
                                 <relocation>
                                     <pattern>net.lingala.zip4j</pattern>
-                                    <shadedPattern>me.zyee.profiler.zip4j</shadedPattern>
+                                    <shadedPattern>me.zyee.java.profiler.third.zip4j</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.slf4j</pattern>
-                                    <shadedPattern>me.zyee.profiler.slf4j</shadedPattern>
+                                    <shadedPattern>me.zyee.java.profiler.third.slf4j</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.apache.commons.lang3</pattern>
-                                    <shadedPattern>me.zyee.profiler.lang3</shadedPattern>
+                                    <shadedPattern>me.zyee.java.profiler.third.lang3</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>org.jsoup</pattern>
-                                    <shadedPattern>me.zyee.profiler.jsoup</shadedPattern>
+                                    <shadedPattern>me.zyee.java.profiler.third.jsoup</shadedPattern>
                                 </relocation>
                             </relocations>
                             <filters>
