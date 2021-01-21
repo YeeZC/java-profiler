@@ -1,5 +1,6 @@
 package me.zyee.java.profiler.agent.utils;
 
+import java.io.IOException;
 import java.util.Map;
 
 /**
@@ -15,4 +16,22 @@ public interface Hardware {
     int getPhysicalProcessorCount();
 
     Map<String, Long> getNetIfs();
+
+    long heapReadSpeed();
+
+    long heapWriteSpeed();
+
+    long nonHeapReadSpeed();
+
+    long nonHeapWriteSpeed();
+
+    long bioReadSpeed();
+
+    long bioWriteSpeed();
+
+    long nioReadSpeed();
+
+    long nioWriteSpeed();
+
+    void clear() throws IOException;
 }

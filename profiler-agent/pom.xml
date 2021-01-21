@@ -59,7 +59,17 @@
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
             <version>5.3.7</version>
-            <scope>provided</scope>
+            <!--            <scope>provided</scope>-->
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-core</artifactId>
+            <version>1.26</version>
+        </dependency>
+        <dependency>
+            <groupId>org.openjdk.jmh</groupId>
+            <artifactId>jmh-generator-annprocess</artifactId>
+            <version>1.26</version>
         </dependency>
     </dependencies>
 
@@ -109,7 +119,6 @@
                                     <pattern>com.google.j2objc</pattern>
                                     <shadedPattern>me.zyee.java.profiler.third.google.j2objc</shadedPattern>
                                 </relocation>
-
                             </relocations>
                             <transformers>
                                 <transformer

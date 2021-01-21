@@ -35,7 +35,7 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class Markdown {
     private static final String FORMAT = "| %s | %s | %s | %s | %.2f | %.2f | %.2f | %.2f | %s | %s |";
-    private static final String ATOM_FORMAT = "| %s | %s | %.2f | %s |";
+    private static final String ATOM_FORMAT = "| %s | %s | %s | %s |";
     private final double cost;
     private final Path outPath;
     private final ProfileNode root;
@@ -57,6 +57,7 @@ public class Markdown {
     }
 
     public void output() {
+        System.err.println(CoreModule.getInstance().getSpeeds());
         try (InputStream is =
                      Markdown.class
                              .getResourceAsStream("/template.md")) {
@@ -189,8 +190,10 @@ public class Markdown {
 
     private List<List<Object>> makeAtomTable(ProfileNode node) {
         List<List<Object>> data = new ArrayList<>();
+        final String pattern = node.getPattern();
         if (null != node.getAtom()) {
-            data.add(Lists.newArrayList(node.getName(), node.getPattern(), node.getAtom(), ""));
+            data.add(Lists.newArrayList(node.getName(), StringUtils.isEmpty(pattern) ? ""
+                    : String.format("`%s`", pattern), FormatUtil.formatMilliseconds((node.getAtom()).longValue()), ""));
         } else {
             final List<List<Object>> lists = Optional.ofNullable(node.getChildren()).map(List::stream)
                     .map(stream -> stream.map(this::makeAtomTable).reduce((a, b) -> {
@@ -213,28 +216,31 @@ public class Markdown {
             String atomicName = "";
             String atomicPattern = "";
             double atomicCost = 0D;
-            if (StringUtils.isNotEmpty(node.getPattern())) {
-                final Frame frame = frames.get(node.getPattern());
+            final String pattern = node.getPattern();
+            if (StringUtils.isNotEmpty(pattern)) {
+                final Frame frame = frames.get(pattern);
                 if (null != frame) {
                     percent = frame.getPercent();
                 }
-                final Long theoretical = theoreticalCost.get(node.getPattern());
+                final Long theoretical = theoreticalCost.get(pattern);
                 if (null != theoretical) {
                     atomicCost = theoretical;
                     atomicName = node.getName();
-                    atomicPattern = node.getPattern();
+                    atomicPattern = pattern;
                 }
             }
-            List<Object> row = Lists.newArrayList(stepName, node.getPattern(),
-                    atomicName, atomicPattern, atomicCost, cost * percent / 100, 0D, percent, FormatUtil.formatMilliseconds((long) cost), "");
+            List<Object> row = Lists.newArrayList(stepName, StringUtils.isEmpty(pattern) ? "" : String.format("`%s`", pattern),
+                    atomicName, StringUtils.isEmpty(atomicPattern) ? "" : String.format("`%s`", atomicPattern),
+                    atomicCost, cost * percent / 100, 0D, percent, FormatUtil.formatMilliseconds((long) cost), "");
             data.add(row);
         } else {
             for (ProfileNode child : children) {
                 data.addAll(makeNodeData(child, stepName));
             }
             double percent = 0D;
-            if (StringUtils.isNotEmpty(node.getPattern())) {
-                final Frame frame = frames.get(node.getPattern());
+            final String pattern = node.getPattern();
+            if (StringUtils.isNotEmpty(pattern)) {
+                final Frame frame = frames.get(pattern);
                 if (null != frame) {
                     percent = frame.getPercent();
                 }
@@ -242,7 +248,8 @@ public class Markdown {
 
             if (!node.equals(root)) {
                 final double stepCost = cost * percent / 100;
-                List<Object> total = Lists.newArrayList(stepName, node.getPattern(), "", "", data.stream()
+                List<Object> total = Lists.newArrayList(stepName, StringUtils.isEmpty(pattern) ? ""
+                        : String.format("`%s`", pattern), "", "", data.stream()
                         .peek(row -> row.set(6, 100 * ((Number) row.get(5)).doubleValue() / stepCost))
                         .mapToDouble(row -> ((Number) row.get(4)).doubleValue()).sum(), stepCost, 100D, percent, FormatUtil.formatMilliseconds((long) cost), "");
                 data.add(total);

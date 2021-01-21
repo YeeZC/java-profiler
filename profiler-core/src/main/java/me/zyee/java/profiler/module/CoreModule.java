@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import javax.annotation.Resource;
 import me.zyee.java.profiler.bean.Cpu;
+import me.zyee.java.profiler.bean.IOSpeed;
 import me.zyee.java.profiler.bean.Net;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
@@ -30,6 +31,8 @@ public class CoreModule {
     private EventWatcher watcher;
     @Resource(name = "nets")
     private List<Net> nets;
+    @Resource(name = "speed")
+    private List<IOSpeed> speeds;
     @Resource
     private Cpu cpu;
 
@@ -75,6 +78,10 @@ public class CoreModule {
 
     public Cpu getCpu() {
         return cpu;
+    }
+
+    public List<IOSpeed> getSpeeds() {
+        return speeds;
     }
 
     public static <T extends Module> T enableModule(T module) {
