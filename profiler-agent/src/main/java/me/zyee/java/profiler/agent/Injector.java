@@ -1,25 +1,26 @@
 package me.zyee.java.profiler.agent;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.util.ArrayList;
-import java.util.Collections;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.Properties;
 import javax.annotation.Resource;
+import me.zyee.java.profiler.agent.converter.Converters;
+import me.zyee.java.profiler.agent.converter.string.FromStringConverter;
 import me.zyee.java.profiler.agent.event.handler.DefaultEventHandler;
 import me.zyee.java.profiler.agent.event.watcher.DefaultEventWatcher;
-import me.zyee.java.profiler.agent.utils.Hardware;
-import me.zyee.java.profiler.agent.utils.Initializer;
-import me.zyee.java.profiler.bean.Cpu;
-import me.zyee.java.profiler.bean.IOSpeed;
-import me.zyee.java.profiler.bean.IOSpeedType;
-import me.zyee.java.profiler.bean.Net;
+import me.zyee.java.profiler.agent.listener.ReportListener;
+import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
+import me.zyee.java.profiler.filter.DefaultBehaviorFilter;
 import me.zyee.java.profiler.spy.Spy;
 import org.apache.commons.lang3.ClassUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
@@ -38,8 +39,6 @@ public class Injector {
             final List<Field> fields = FieldUtils.getFieldsListWithAnnotation(core, Resource.class);
             final DefaultEventHandler handler = new DefaultEventHandler();
             EventWatcher watcher = new DefaultEventWatcher(inst, handler);
-            final Hardware hardware = Initializer.newHardware();
-
             for (Field field : fields) {
                 final Class<?> type = field.getType();
                 if (ClassUtils.isAssignable(EventWatcher.class, type)
@@ -48,77 +47,38 @@ public class Injector {
                 } else if (ClassUtils.isAssignable(Instrumentation.class, type)
                         || ClassUtils.isAssignable(type, Instrumentation.class)) {
                     FieldUtils.writeField(field, instance, inst, true);
-                } else if (type.equals(Cpu.class)) {
-//
-                    final Cpu cpu = Cpu.builder().setFreq(hardware.getProcessorFreq())
-                            .setLogical(hardware.getLogicalProcessorCount())
-                            .setPhysical(hardware.getPhysicalProcessorCount())
-                            .build();
-                    FieldUtils.writeField(field, instance, cpu, true);
-                } else if (ClassUtils.isAssignable(List.class, type)
-                        || ClassUtils.isAssignable(type, List.class)) {
-                    final Resource resource = field.getAnnotation(Resource.class);
-                    switch (resource.name()) {
-                        case "nets": {
-                            final Map<String, Long> ifs = hardware.getNetIfs();
-                            final List<Net> collect = ifs.entrySet().stream()
-                                    .filter(nif -> nif.getValue() > 0)
-                                    .map(nif -> Net.builder().setName(nif.getKey()).setSpeed(nif.getValue()).build())
-                                    .collect(Collectors.toList());
-                            FieldUtils.writeField(field, instance, Collections.unmodifiableList(collect), true);
-                            break;
-                        }
-                        case "speed": {
-                            List<IOSpeed> speeds = new ArrayList<>();
-                            speeds.add(IOSpeed.builder()
-                                    .setName("堆内存写")
-                                    .setType(IOSpeedType.HEAP_W)
-                                    .setSpeed(hardware.heapWriteSpeed())
-                                    .build());
-                            speeds.add(IOSpeed.builder()
-                                    .setName("堆内存读")
-                                    .setType(IOSpeedType.HEAP_R)
-                                    .setSpeed(hardware.heapReadSpeed())
-                                    .build());
-                            speeds.add(IOSpeed.builder()
-                                    .setName("堆外内存写")
-                                    .setType(IOSpeedType.NON_HEAP_W)
-                                    .setSpeed(hardware.nonHeapWriteSpeed())
-                                    .build());
-                            speeds.add(IOSpeed.builder()
-                                    .setName("堆外内存读")
-                                    .setType(IOSpeedType.NON_HEAP_R)
-                                    .setSpeed(hardware.nonHeapReadSpeed())
-                                    .build());
-                            speeds.add(IOSpeed.builder()
-                                    .setName("写文件")
-                                    .setType(IOSpeedType.BIO_W)
-                                    .setSpeed(hardware.bioWriteSpeed())
-                                    .build());
-                            speeds.add(IOSpeed.builder()
-                                    .setName("读文件")
-                                    .setType(IOSpeedType.BIO_R)
-                                    .setSpeed(hardware.bioReadSpeed())
-                                    .build());
-                            speeds.add(IOSpeed.builder()
-                                    .setName("NIO写文件（RandomAccessFile）")
-                                    .setType(IOSpeedType.NIO_W)
-                                    .setSpeed(hardware.nioWriteSpeed())
-                                    .build());
-                            speeds.add(IOSpeed.builder()
-                                    .setName("NIO读文件（RandomAccessFile）")
-                                    .setType(IOSpeedType.NIO_R)
-                                    .setSpeed(hardware.nioReadSpeed())
-                                    .build());
-                            FieldUtils.writeField(field, instance, Collections.unmodifiableList(speeds), true);
-                            break;
-                        }
-                        default:
-                            break;
-                    }
                 }
             }
             Spy.init(handler);
+            final int watchId = watcher.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.report.Report#output"),
+                    new ReportListener(), Event.Type.BEFORE);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> watcher.delete(watchId)));
         }
+    }
+
+    public static <T> T fromArgs(String arg, T configure) {
+        if (null == arg) {
+            return configure;
+        }
+        final byte[] bytes = arg.replace(";", "\n").getBytes(StandardCharsets.UTF_8);
+        Properties properties = new Properties();
+        try (InputStream is = new ByteArrayInputStream(bytes)) {
+            properties.load(is);
+        } catch (IOException e) {
+            return configure;
+        }
+        final Field[] fields = FieldUtils.getAllFields(configure.getClass());
+        for (Field field : fields) {
+            try {
+                final String property = properties.getProperty(field.getName());
+                if (StringUtils.isNotEmpty(property)) {
+                    final FromStringConverter<?> converter = Converters.create(field.getType());
+                    FieldUtils.writeField(field, configure, converter.convert(property), true);
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+        return configure;
     }
 }

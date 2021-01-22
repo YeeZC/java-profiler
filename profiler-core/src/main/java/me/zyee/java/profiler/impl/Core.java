@@ -25,9 +25,12 @@ import me.zyee.java.profiler.Result;
 import me.zyee.java.profiler.Runner;
 import me.zyee.java.profiler.attach.Attach;
 import me.zyee.java.profiler.flame.FlameParser;
-import me.zyee.java.profiler.flame.Frame;
-import me.zyee.java.profiler.markdown.Markdown;
 import me.zyee.java.profiler.module.CoreModule;
+import me.zyee.java.profiler.report.Report;
+import me.zyee.java.profiler.report.markdown.Title;
+import me.zyee.java.profiler.report.plugin.AtomPlugin;
+import me.zyee.java.profiler.report.plugin.ConclusionPlugin;
+import me.zyee.java.profiler.report.plugin.StepPlugin;
 import me.zyee.java.profiler.utils.GroupMatcher;
 import me.zyee.java.profiler.utils.Matcher;
 import one.profiler.Events;
@@ -75,7 +78,6 @@ public class Core implements ProfilerCore {
                 final Path flamePath = item.getFlamePath();
                 final Queue<Operation> nodes = item.getNodes();
                 ProfileNode root = new ProfileNode();
-                root.setName(item.getProfileName() + " Report");
                 final Set<String> patterns = new HashSet<>();
                 while (null != nodes.peek()) {
                     ProfileNode child = new ProfileNode();
@@ -100,13 +102,15 @@ public class Core implements ProfilerCore {
                             return new GroupMatcher.Or<>(matchers);
                         }));
                 root.merge();
-                final Map<String, Frame> parse = FlameParser.parse(flamePath, root, patternMap);
-                Markdown profileResult = new Markdown(item.getCost(), root,
-                        Optional.ofNullable(reportPath).orElse(
-                                Paths.get(System.getProperty("user.dir"))).resolve(item.getProfileName() + ".md"));
-                profileResult.setFrames(parse);
-                profileResult.setTheoreticalCost(theoreticalCost);
-                profileResult.output();
+                Set<String> warnings = new HashSet<>();
+                Set<String> errors = new HashSet<>();
+                Report.builder().setTitle(Title.builder().setTitle(item.getProfileName()).build())
+                        .addContents(new AtomPlugin(root),
+                                StepPlugin.builder(root, warnings, errors).setCost(item.getCost())
+                                        .setTheoreticalCost(theoreticalCost)
+                                        .setFrames(() -> FlameParser.parse(flamePath, root, patternMap)).build(), new ConclusionPlugin(warnings, errors))
+                        .build().output(Optional.ofNullable(reportPath).orElse(
+                        Paths.get(System.getProperty("user.dir"))).resolve(item.getProfileName() + ".md"));
             }
         }
     }

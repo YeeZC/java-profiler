@@ -3,9 +3,12 @@ package me.zyee.java.profiler.agent.utils;
 import com.google.common.reflect.Reflection;
 import java.io.IOException;
 import java.util.Optional;
+import me.zyee.java.profiler.agent.Injector;
 import me.zyee.java.profiler.agent.config.AgentConfigure;
 import me.zyee.java.profiler.agent.enhancer.Enhancer;
 import me.zyee.java.profiler.agent.enhancer.EventEnhancer;
+import me.zyee.java.profiler.agent.hardware.Hardware;
+import me.zyee.java.profiler.agent.hardware.OshiHardware;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 /**
@@ -19,7 +22,7 @@ public class Initializer {
     private static Enhancer ENHANCER;
 
     public static void init(String args) throws IOException {
-        final AgentConfigure configure = AgentConfigure.fromArgs(args);
+        final AgentConfigure configure = Injector.fromArgs(args, new AgentConfigure());
         ENHANCER = new EventEnhancer(configure.isDumpClassFile());
         if (null != configure.getLibPath()) {
             PROFILER_LOADER = ProfilerClassLoader.newInstance(configure.getLibPath());
@@ -45,7 +48,7 @@ public class Initializer {
 
     public static Hardware newHardware() {
         try {
-            final Class<?> hardware = PROFILER_LOADER.loadClass("me.zyee.java.profiler.agent.utils.OshiHardware");
+            final Class<?> hardware = PROFILER_LOADER.loadClass("me.zyee.java.profiler.agent.hardware.OshiHardware");
             final Object delegate = hardware.newInstance();
             return Reflection.newProxy(Hardware.class,
                     (proxy, method, args) -> MethodUtils.invokeMethod(delegate,

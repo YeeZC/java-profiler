@@ -1,8 +1,8 @@
 package me.zyee.java.profiler.flame;
 
-import java.io.IOException;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -21,19 +21,23 @@ import org.jsoup.select.Elements;
  * Create by yee on 2020/8/6
  */
 public class FlameParser {
-    public static Map<String, Frame> parse(Path path, ProfileNode node, Map<String, Matcher<String>> patterns) throws IOException {
-        if (OS.getOSType() == OS.OSType.Windows) {
-            throw new UnsupportedOperationException();
-        }
-        final Document parse = Jsoup.parse(path.toFile(), "UTF-8");
-        final Elements select = parse.select("ul.tree>li");
-        final FlameNode simple = ForkJoiner.invoke(new FlameNodeTask(1, select,
-                span -> patterns.values().stream().anyMatch(matcher -> matcher.matching(span))));
-        final Frame root = new Frame();
-        root.setName("Profile");
+    public static Map<String, Frame> parse(Path path, ProfileNode node, Map<String, Matcher<String>> patterns) {
+        try {
+            if (OS.getOSType() == OS.OSType.Windows) {
+                throw new UnsupportedOperationException();
+            }
+            final Document parse = Jsoup.parse(path.toFile(), "UTF-8");
+            final Elements select = parse.select("ul.tree>li");
+            final FlameNode simple = ForkJoiner.invoke(new FlameNodeTask(1, select,
+                    span -> patterns.values().stream().anyMatch(matcher -> matcher.matching(span))));
+            final Frame root = new Frame();
+            root.setName("Profile");
 
-        ProfileNode simple1 = simple(node);
-        return build(simple1, simple, patterns);
+            ProfileNode simple1 = simple(node);
+            return build(simple1, simple, patterns);
+        } catch (Exception e) {
+            return Collections.emptyMap();
+        }
     }
 
     private static List<FlameNode> findMatched(FlameNode current, Matcher<String> matcher) {

@@ -39,4 +39,8 @@ public class OS {
         return osType;
     }
 
+    public static int getBitWidth() {
+        final String property = System.getProperty("os.arch");
+        return property.contains("64") ? 64 : 32;
+    }
 }

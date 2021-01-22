@@ -9,6 +9,7 @@ import me.zyee.java.profiler.utils.FormatUtil;
  * created by yee on 2021/1/11
  */
 public class Cpu {
+    private final String vendor;
     private final long freq;
     private final int logical;
     private final int physical;
@@ -17,6 +18,7 @@ public class Cpu {
         this.freq = Objects.requireNonNull(builder.freq, "freq");
         this.logical = Objects.requireNonNull(builder.logical, "logical");
         this.physical = Objects.requireNonNull(builder.physical, "physical");
+        this.vendor = Objects.requireNonNull(builder.vendor, "vendor");
     }
 
     public static Builder builder() {
@@ -36,10 +38,15 @@ public class Cpu {
         return physical;
     }
 
+    public String getVendor() {
+        return vendor;
+    }
+
     public static class Builder {
         private Long freq;
         private Integer logical;
         private Integer physical;
+        private String vendor;
 
         private Builder() {
         }
@@ -59,10 +66,16 @@ public class Cpu {
             return this;
         }
 
+        public Builder setVendor(String vendor) {
+            this.vendor = vendor;
+            return this;
+        }
+
         public Builder of(Cpu cpu) {
             this.freq = cpu.freq;
             this.logical = cpu.logical;
             this.physical = cpu.physical;
+            this.vendor = cpu.vendor;
             return this;
         }
 

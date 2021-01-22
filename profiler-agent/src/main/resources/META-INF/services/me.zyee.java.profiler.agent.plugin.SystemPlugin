@@ -1,0 +1,3 @@
+me.zyee.java.profiler.agent.plugin.CpuPlugin
+me.zyee.java.profiler.agent.plugin.MemoryPlugin
+me.zyee.java.profiler.agent.plugin.NetPlugin

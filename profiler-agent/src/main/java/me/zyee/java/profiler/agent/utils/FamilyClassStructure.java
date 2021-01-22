@@ -5,6 +5,7 @@ import java.lang.annotation.Inherited;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import me.zyee.java.profiler.utils.LazyGet;
 
 public abstract class FamilyClassStructure implements ClassStructure {
 

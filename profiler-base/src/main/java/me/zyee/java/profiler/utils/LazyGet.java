@@ -1,4 +1,6 @@
-package me.zyee.java.profiler.agent.utils;
+package me.zyee.java.profiler.utils;
+
+import java.util.function.Supplier;
 
 /**
  * 懒加载
@@ -36,4 +38,16 @@ public abstract class LazyGet<T> {
         }
     }
 
+    public static class SupplierLazyGet<T> extends LazyGet<T> {
+        private final Supplier<T> supplier;
+
+        public SupplierLazyGet(Supplier<T> supplier) {
+            this.supplier = supplier;
+        }
+
+        @Override
+        protected T initialValue() throws Throwable {
+            return supplier.get();
+        }
+    }
 }
