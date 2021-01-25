@@ -3,6 +3,7 @@ package me.zyee.java.profiler.event.watcher;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.filter.BehaviorFilter;
+import me.zyee.java.profiler.filter.CallBeforeFilter;
 
 /**
  * @author yee
@@ -28,6 +29,10 @@ public interface EventWatcher {
      * @return id
      */
     int watch(BehaviorFilter pattern, EventListener listener);
+
+    int watch(BehaviorFilter filler, CallBeforeFilter callBefore, EventListener listener);
+
+    int watch(BehaviorFilter filler, CallBeforeFilter callBefore, EventListener listener, Event.Type... types);
 
     /**
      * 移除观察

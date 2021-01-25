@@ -1,6 +1,7 @@
 package me.zyee.java.profiler.agent.plugin;
 
 import java.util.List;
+import java.util.StringJoiner;
 import me.zyee.java.profiler.bean.Memory;
 import me.zyee.java.profiler.report.markdown.Table;
 import me.zyee.java.profiler.report.markdown.Title;
@@ -26,7 +27,10 @@ public class MemoryPlugin implements SystemPlugin {
                 FormatUtil.formatHertz(memory.getClockSpeed()),
                 FormatUtil.formatValue(memory.getClockSpeed() * OS.getBitWidth() / 8, "B/s")
         ));
-        return builder.build().render();
+
+        StringJoiner joiner = new StringJoiner("\n");
+        joiner.add(builder.build().render()).add("` 理论带宽 = 时钟频率 x 系统位数 / 8 `").add("");
+        return joiner.toString();
     }
 
     @Override

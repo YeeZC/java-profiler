@@ -12,6 +12,7 @@ import me.zyee.java.profiler.agent.utils.Structure;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.filter.BehaviorFilter;
+import me.zyee.java.profiler.filter.CallBeforeFilter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -24,13 +25,15 @@ public class ProfilerTransformer implements ClassFileTransformer {
     private final Logger logger = LoggerFactory.getLogger(ProfilerTransformer.class);
     private final Event.Type[] listenEvents;
     private final BehaviorFilter filter;
+    private final CallBeforeFilter callBeforeFilter;
     private final int id;
     private final Set<String> transformed = new HashSet<>();
 
-    public ProfilerTransformer(BehaviorFilter filter, EventListener listener, Event.Type[] listenEvents) {
+    public ProfilerTransformer(BehaviorFilter filter, CallBeforeFilter callBeforeFilter, EventListener listener, Event.Type[] listenEvents) {
         this.listenEvents = listenEvents;
         this.id = ObjectIds.instance.identity(listener);
         this.filter = filter;
+        this.callBeforeFilter = callBeforeFilter;
     }
 
     @Override
@@ -55,7 +58,7 @@ public class ProfilerTransformer implements ClassFileTransformer {
             logger.debug("matched behaviors {}", behaviorSignCodes);
         }
 
-        byte[] bytes = Initializer.getEnhancer().toByteCodeArray(loader,
+        byte[] bytes = Initializer.getEnhancer(callBeforeFilter).toByteCodeArray(loader,
                 classfileBuffer, behaviorSignCodes, id, listenEvents);
         if (null == bytes) {
             return null;

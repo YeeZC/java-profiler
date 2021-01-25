@@ -13,8 +13,11 @@ import org.openjdk.jmh.runner.options.OptionsBuilder;
 public class Main {
     public static void main(String[] args) throws RunnerException, InterruptedException {
         final Options build = new OptionsBuilder()
-                .include(DirectMemoryReadBenchmark.class.getName())
-                .include(DirectMemoryWriteBenchmark.class.getName())
+//                .include(UnsafeCopyBenchmark.class.getName())
+                .include(ByteArrayCopyBenchmark.class.getName())
+//                .include(IntArrayCopyBenchmark.class.getName())
+//                .include(LongArrayCopyBenchmark.class.getName())
+//                .include(DoubleArrayCopyBenchmark.class.getName())
                 .build();
         new Runner(build).run();
     }

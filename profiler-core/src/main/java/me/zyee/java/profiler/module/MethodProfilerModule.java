@@ -66,6 +66,11 @@ public class MethodProfilerModule implements Module {
         watcher.delete(watchId);
     }
 
+    @Override
+    public EventWatcher getWatcher() {
+        return watcher;
+    }
+
     protected boolean onBefore(Before before) {
         if (!CoreModule.isWarmup()) {
             context = ContextHelper.getContext()

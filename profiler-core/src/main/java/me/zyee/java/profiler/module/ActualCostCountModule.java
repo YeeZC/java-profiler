@@ -1,12 +1,11 @@
 package me.zyee.java.profiler.module;
 
+import java.util.concurrent.atomic.LongAdder;
+import java.util.function.Supplier;
+import javax.annotation.Resource;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.DefaultBehaviorFilter;
-
-import javax.annotation.Resource;
-import java.util.concurrent.atomic.LongAdder;
-import java.util.function.Supplier;
 
 /**
  * @author yee
@@ -40,6 +39,11 @@ public class ActualCostCountModule implements Module {
     @Override
     public void disable() {
         watcher.delete(watchId);
+    }
+
+    @Override
+    public EventWatcher getWatcher() {
+        return watcher;
     }
 
     public String getPattern() {

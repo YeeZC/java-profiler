@@ -2,6 +2,7 @@ package me.zyee.java.profiler.agent.advice;
 
 import java.util.function.Predicate;
 import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.filter.CallBeforeFilter;
 import me.zyee.java.profiler.spy.Spy;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -22,6 +23,7 @@ public class ProfilerAdviceAdapter extends AdviceAdapter {
     private final String descriptor;
     private final String superName;
     private final Predicate<Event.Type> eventSwitch;
+    private final CallBeforeFilter filter;
 
 
     ProfilerAdviceAdapter(MethodVisitor methodVisitor,
@@ -31,13 +33,14 @@ public class ProfilerAdviceAdapter extends AdviceAdapter {
                           int adviceId,
                           String targetJavaClassName,
                           String superName,
-                          Predicate<Event.Type> enable) {
+                          Predicate<Event.Type> enable, CallBeforeFilter filter) {
         super(Opcodes.ASM7, methodVisitor, access, name, descriptor);
         this.adviceId = adviceId;
         this.targetJavaClassName = targetJavaClassName;
         this.descriptor = descriptor;
         this.superName = superName;
         this.eventSwitch = enable;
+        this.filter = filter;
     }
 
     private final Label beginLabel = new Label();
@@ -205,7 +208,8 @@ public class ProfilerAdviceAdapter extends AdviceAdapter {
             return;
         }
 
-        if (eventSwitch.test(Event.Type.CALL_BEFORE)) {
+        if (eventSwitch.test(Event.Type.CALL_BEFORE)
+                && filter.methodFilter(toJavaClassName(owner), name, descriptor)) {
             codeLockForTracing.lock(() -> {
                 push(adviceId);
                 push(toJavaClassName(owner));
@@ -216,10 +220,11 @@ public class ProfilerAdviceAdapter extends AdviceAdapter {
             });
         }
 
-        final boolean enableThrows = eventSwitch.test(Event.Type.CALL_THROWS);
+        final boolean enableThrows = eventSwitch.test(Event.Type.CALL_THROWS) &&
+                filter.methodFilter(toJavaClassName(owner), name, descriptor);
         if (!enableThrows) {
             super.visitMethodInsn(opcodeAndSource, owner, name, descriptor, isInterface);
-            traceCallReturn();
+            traceCallReturn(owner, name, descriptor);
             return;
         }
 
@@ -235,7 +240,7 @@ public class ProfilerAdviceAdapter extends AdviceAdapter {
         super.visitMethodInsn(opcodeAndSource, owner, name, descriptor, isInterface);
         mark(tracingEndLabel);
 
-        traceCallReturn();
+        traceCallReturn(owner, name, descriptor);
 
         goTo(tracingFinallyLabel);
 
@@ -251,8 +256,8 @@ public class ProfilerAdviceAdapter extends AdviceAdapter {
         mark(tracingFinallyLabel);
     }
 
-    private void traceCallReturn() {
-        if (eventSwitch.test(Event.Type.CALL_RETURN)) {
+    private void traceCallReturn(String owner, String name, String descriptor) {
+        if (eventSwitch.test(Event.Type.CALL_RETURN) && filter.methodFilter(toJavaClassName(owner), name, descriptor)) {
             codeLockForTracing.lock(() -> {
                 push(adviceId);
                 push(lineNumber);

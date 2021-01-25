@@ -2,13 +2,13 @@ package me.zyee.java.profiler.agent.utils;
 
 import com.google.common.reflect.Reflection;
 import java.io.IOException;
-import java.util.Optional;
 import me.zyee.java.profiler.agent.Injector;
 import me.zyee.java.profiler.agent.config.AgentConfigure;
 import me.zyee.java.profiler.agent.enhancer.Enhancer;
 import me.zyee.java.profiler.agent.enhancer.EventEnhancer;
 import me.zyee.java.profiler.agent.hardware.Hardware;
 import me.zyee.java.profiler.agent.hardware.OshiHardware;
+import me.zyee.java.profiler.filter.CallBeforeFilter;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 /**
@@ -19,18 +19,18 @@ import org.apache.commons.lang3.reflect.MethodUtils;
 public class Initializer {
 
     private static ProfilerClassLoader PROFILER_LOADER;
-    private static Enhancer ENHANCER;
+    private static boolean dump = true;
 
     public static void init(String args) throws IOException {
         final AgentConfigure configure = Injector.fromArgs(args, new AgentConfigure());
-        ENHANCER = new EventEnhancer(configure.isDumpClassFile());
+        dump = configure.isDumpClassFile();
         if (null != configure.getLibPath()) {
             PROFILER_LOADER = ProfilerClassLoader.newInstance(configure.getLibPath());
         }
     }
 
-    public static Enhancer getEnhancer() {
-        return Optional.ofNullable(ENHANCER).orElseGet(() -> new EventEnhancer(false));
+    public static Enhancer getEnhancer(CallBeforeFilter callBeforeFilter) {
+        return new EventEnhancer(dump, callBeforeFilter);
     }
 
     public static Structure newStructure(final ClassLoader loader,

@@ -6,6 +6,7 @@ import me.zyee.java.profiler.agent.event.handler.DefaultEventHandler;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
+import me.zyee.java.profiler.filter.CallBeforeFilter;
 import me.zyee.java.profiler.filter.DefaultBehaviorFilter;
 import me.zyee.java.profiler.spy.Spy;
 import net.bytebuddy.agent.ByteBuddyAgent;
@@ -27,16 +28,22 @@ public class DefaultEventWatcherTest {
         EventWatcher watcher = new DefaultEventWatcher(install, handler);
         AtomicInteger counter = new AtomicInteger();
         try {
-            final int watch = watcher.watch(new DefaultBehaviorFilter("me.zyee.profiler.agent.event.watcher.TestCase#print"), new EventListener() {
-                @Override
-                public boolean onEvent(Event event) throws Throwable {
-                    if (event.type() == Event.Type.BEFORE) {
-                        counter.incrementAndGet();
-                    }
-                    System.out.println(event);
-                    return true;
-                }
-            }, Event.Type.BEFORE, Event.Type.RETURN, Event.Type.THROWS, Event.Type.CALL_BEFORE, Event.Type.CALL_RETURN);
+            final int watch = watcher.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.agent.event.watcher.TestCase#print"), new CallBeforeFilter() {
+                        @Override
+                        public boolean methodFilter(String caller, String name, String descriptor) {
+                            return "me.zyee.java.profiler.agent.event.watcher.TestCase#plusRandom".equals(caller + "#" + name);
+                        }
+                    },
+                    new EventListener() {
+                        @Override
+                        public boolean onEvent(Event event) throws Throwable {
+                            if (event.type() == Event.Type.BEFORE) {
+                                counter.incrementAndGet();
+                            }
+                            System.out.println(event);
+                            return true;
+                        }
+                    }, Event.Type.BEFORE, Event.Type.RETURN, Event.Type.THROWS, Event.Type.CALL_BEFORE, Event.Type.CALL_RETURN);
         } catch (Throwable t) {
             t.printStackTrace();
         }

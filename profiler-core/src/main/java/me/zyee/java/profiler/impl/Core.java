@@ -46,6 +46,7 @@ public class Core implements ProfilerCore {
     private final Set<String> excludes;
     private final boolean dumpClassFile;
     private final int warmups;
+    private final int collectMinPercent;
 
     private Core(Builder builder) {
         this.reportPath = builder.reportPath;
@@ -53,6 +54,7 @@ public class Core implements ProfilerCore {
         this.dumpClassFile = Optional.ofNullable(builder.dumpClassFile)
                 .orElse(false);
         this.warmups = Optional.ofNullable(builder.warmups).orElse(0);
+        this.collectMinPercent = builder.collectMinPercent;
         try {
             Attach.attach(this.dumpClassFile);
         } catch (Exception e) {
@@ -106,9 +108,12 @@ public class Core implements ProfilerCore {
                             }
 
                             String target = methodPattern;
-                            final List<Matcher<String>> matchers = classes.stream().map(clazz -> clazz.getName() + "." + target)
-                                    .map((Function<String, Matcher<String>>) Matcher::classNameMatcher).collect(Collectors.toList());
-                            return new GroupMatcher.Or<>(matchers);
+                            if (!classes.isEmpty()) {
+                                final List<Matcher<String>> matchers = classes.stream().map(clazz -> clazz.getName() + "." + target)
+                                        .map((Function<String, Matcher<String>>) Matcher::classNameMatcher).collect(Collectors.toList());
+                                return new GroupMatcher.Or<>(matchers);
+                            }
+                            return Matcher.classNameMatcher(pattern);
                         }));
                 root.merge();
                 Set<String> warnings = new HashSet<>();
@@ -194,6 +199,7 @@ public class Core implements ProfilerCore {
         private Set<String> excludes;
         private Boolean dumpClassFile;
         private Integer warmups;
+        private Integer collectMinPercent = 1;
 
         private Builder() {
             this.excludes = new HashSet<>();
@@ -220,11 +226,17 @@ public class Core implements ProfilerCore {
             return this;
         }
 
+        public Builder setCollectMinPercent(int collectMinPercent) {
+            this.collectMinPercent = collectMinPercent;
+            return this;
+        }
+
         public Builder of(Core core) {
             this.reportPath = core.reportPath;
             this.excludes = core.excludes;
             this.dumpClassFile = core.dumpClassFile;
             this.warmups = core.warmups;
+            this.collectMinPercent = core.collectMinPercent;
             return this;
         }
 

@@ -23,7 +23,8 @@ public class TestCase {
 
     @Profile
     public void print(int i) {
-        System.out.println(plusRandom(i));
+        int x = i + 100;
+        System.out.println(plusRandom(x));
     }
 
     private double plusRandom(int i) {

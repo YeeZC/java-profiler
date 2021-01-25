@@ -7,6 +7,7 @@ import java.util.Set;
 import me.zyee.java.profiler.agent.advice.AdviceWeaver;
 import me.zyee.java.profiler.agent.utils.AsmUtils;
 import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.filter.CallBeforeFilter;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassWriter;
 
@@ -23,9 +24,11 @@ public class EventEnhancer implements Enhancer {
 
 
     private final boolean isDumpClass;
+    private final CallBeforeFilter callBeforeFilter;
 
-    public EventEnhancer(boolean isDumpClass) {
+    public EventEnhancer(boolean isDumpClass, CallBeforeFilter callBeforeFilter) {
         this.isDumpClass = isDumpClass;
+        this.callBeforeFilter = callBeforeFilter;
     }
 
     /**
@@ -91,7 +94,7 @@ public class EventEnhancer implements Enhancer {
         final ClassReader cr = new ClassReader(byteCodeArray);
         final ClassWriter cw = createClassWriter(targetClassLoader, cr);
         cr.accept(
-                new AdviceWeaver(listenerId, signCodes, cr.getClassName(), cw, events),
+                new AdviceWeaver(listenerId, signCodes, cr.getClassName(), cw, events, callBeforeFilter),
                 EXPAND_FRAMES
         );
 

@@ -18,6 +18,7 @@ import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.BehaviorFilter;
+import me.zyee.java.profiler.filter.CallBeforeFilter;
 import me.zyee.java.profiler.fork.ForkJoiner;
 import me.zyee.java.profiler.fork.SearchTask;
 import org.apache.commons.lang3.ClassUtils;
@@ -39,7 +40,22 @@ public class DefaultEventWatcher implements EventWatcher {
 
     @Override
     public int watch(BehaviorFilter filter, EventListener listener, Event.Type... types) {
-        final ProfilerTransformer transformer = new ProfilerTransformer(filter, listener, types);
+        return watch(filter, CallBeforeFilter.TRUE, listener, types);
+    }
+
+    @Override
+    public int watch(BehaviorFilter pattern, EventListener listener) {
+        return watch(pattern, listener, Event.Type.values());
+    }
+
+    @Override
+    public int watch(BehaviorFilter filter, CallBeforeFilter callBefore, EventListener listener) {
+        return watch(filter, callBefore, listener, Event.Type.values());
+    }
+
+    @Override
+    public int watch(BehaviorFilter filter, CallBeforeFilter callBefore, EventListener listener, Event.Type... types) {
+        final ProfilerTransformer transformer = new ProfilerTransformer(filter, callBefore, listener, types);
         transformers.add(transformer);
         Set<Class<?>> classes = ForkJoiner.invoke(new SearchTask(filter(inst.getAllLoadedClasses()),
                 transformer.getFilter()::classFilter))
@@ -52,7 +68,6 @@ public class DefaultEventWatcher implements EventWatcher {
                             ));
                 }).collect(Collectors.toSet());
         final int id = transformer.getId();
-//        if (!classes.isEmpty()) {
         inst.addTransformer(transformer, true);
         handler.register(id, listener, types);
         try {
@@ -60,15 +75,8 @@ public class DefaultEventWatcher implements EventWatcher {
                 inst.retransformClasses(classes.toArray(new Class[0]));
             }
         } catch (Throwable ignore) {
-            ignore.printStackTrace();
         }
-//        }
         return id;
-    }
-
-    @Override
-    public int watch(BehaviorFilter pattern, EventListener listener) {
-        return watch(pattern, listener, Event.Type.values());
     }
 
     @Override

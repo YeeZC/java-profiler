@@ -3,6 +3,7 @@ package me.zyee.java.profiler.agent.advice;
 import java.util.HashSet;
 import java.util.Set;
 import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.filter.CallBeforeFilter;
 import org.apache.commons.lang3.ArrayUtils;
 import org.objectweb.asm.ClassVisitor;
 import org.objectweb.asm.MethodVisitor;
@@ -21,13 +22,15 @@ public class AdviceWeaver extends ClassVisitor implements Opcodes {
     private final String targetJavaClassName;
     private String superName;
     private final Event.Type[] types;
+    private final CallBeforeFilter filter;
 
-    public AdviceWeaver(int adviceId, Set<String> signCodes, String targetJavaClassName, ClassVisitor cv, Event.Type[] types) {
+    public AdviceWeaver(int adviceId, Set<String> signCodes, String targetJavaClassName, ClassVisitor cv, Event.Type[] types, CallBeforeFilter callBeforeFilter) {
         super(Opcodes.ASM7, cv);
         this.adviceId = adviceId;
         this.signCodes = new HashSet<>(signCodes);
         this.targetJavaClassName = targetJavaClassName;
         this.types = types;
+        this.filter = callBeforeFilter;
     }
 
     private String getBehaviorSignCode(final String name,
@@ -66,7 +69,7 @@ public class AdviceWeaver extends ClassVisitor implements Opcodes {
 
         return new ProfilerAdviceAdapter(
                 new JSRInlinerAdapter(mv, access, name, descriptor, signature, exceptions),
-                access, name, descriptor, adviceId, targetJavaClassName, superName, type -> ArrayUtils.contains(types, type));
+                access, name, descriptor, adviceId, targetJavaClassName, superName, type -> ArrayUtils.contains(types, type), filter);
     }
 
 }
