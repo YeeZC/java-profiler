@@ -46,6 +46,7 @@ public interface PluginInjector {
             @Override
             protected List<Net> initialValue() throws Throwable {
                 return hardware.getNetIfs().entrySet().stream()
+                        .filter(entry -> entry.getValue() > 0)
                         .map(entry -> Net.builder().setName(entry.getKey()).setSpeed(entry.getValue()).build())
                         .collect(Collectors.toList());
             }

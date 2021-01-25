@@ -5,6 +5,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Resource;
 import me.zyee.java.profiler.bean.Cpu;
 import me.zyee.java.profiler.bean.IOSpeed;
@@ -35,6 +36,8 @@ public class CoreModule {
     private List<IOSpeed> speeds;
     @Resource
     private Cpu cpu;
+
+    private final AtomicBoolean warmup = new AtomicBoolean(false);
 
     private final List<Integer> watches = new ArrayList<>();
 
@@ -98,5 +101,17 @@ public class CoreModule {
         }
         module.enable();
         return module;
+    }
+
+    public static boolean entryWarmup() {
+        return getInstance().warmup.compareAndSet(false, true);
+    }
+
+    public static boolean exitWarmup() {
+        return getInstance().warmup.compareAndSet(true, false);
+    }
+
+    public static boolean isWarmup() {
+        return getInstance().warmup.get();
     }
 }

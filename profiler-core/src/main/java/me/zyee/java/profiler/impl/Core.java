@@ -45,12 +45,14 @@ public class Core implements ProfilerCore {
     private final Path reportPath;
     private final Set<String> excludes;
     private final boolean dumpClassFile;
+    private final int warmups;
 
     private Core(Builder builder) {
         this.reportPath = builder.reportPath;
         this.excludes = builder.excludes;
         this.dumpClassFile = Optional.ofNullable(builder.dumpClassFile)
                 .orElse(false);
+        this.warmups = Optional.ofNullable(builder.warmups).orElse(0);
         try {
             Attach.attach(this.dumpClassFile);
         } catch (Exception e) {
@@ -67,6 +69,13 @@ public class Core implements ProfilerCore {
         final Context context = ContextHelper.newContext(runner.name(), Events.CPU, excludes);
         if (null == context) {
             throw new UnsupportedOperationException();
+        }
+
+        if (CoreModule.entryWarmup()) {
+            for (int i = 0; i < warmups; i++) {
+                runner.apply(context);
+            }
+            CoreModule.exitWarmup();
         }
 
         final Result apply = runner.apply(context);
@@ -184,6 +193,7 @@ public class Core implements ProfilerCore {
         private Path reportPath;
         private Set<String> excludes;
         private Boolean dumpClassFile;
+        private Integer warmups;
 
         private Builder() {
             this.excludes = new HashSet<>();
@@ -205,10 +215,16 @@ public class Core implements ProfilerCore {
             return this;
         }
 
+        public Builder setWarmups(int warmups) {
+            this.warmups = warmups;
+            return this;
+        }
+
         public Builder of(Core core) {
             this.reportPath = core.reportPath;
             this.excludes = core.excludes;
             this.dumpClassFile = core.dumpClassFile;
+            this.warmups = core.warmups;
             return this;
         }
 

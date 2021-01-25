@@ -49,6 +49,7 @@ public class StepPlugin implements Plugin {
         final Table.Builder builder = Table.builder().setTitle(Title.builder().setTitle("详细步骤").setLevel(2).build())
                 .setHeader("步骤名称", "表达式", "原子操作", "原子表达式", "理论耗时", "实际耗时", "步骤百分比", "总百分比", "总耗时", "警告");
         makeRowData(root, root.getName()).stream()
+                .filter(data -> data.totalPercent > 0)
                 .peek(this::handleWarning)
                 .map(StepRowData::toRow).forEach(builder::addRow);
         return builder.build().render();
