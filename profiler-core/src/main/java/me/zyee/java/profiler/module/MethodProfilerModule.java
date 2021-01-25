@@ -72,66 +72,60 @@ public class MethodProfilerModule implements Module {
     }
 
     protected boolean onBefore(Before before) {
-        if (!CoreModule.isWarmup()) {
-            context = ContextHelper.getContext()
-                    .resolve(transferProfileName(before));
-            item = new ProfileItem(before.getTriggerMethod());
-            profiler = context.getProfiler();
-            if (null != profiler) {
-                try {
-                    final Class<?> clazz = before.getTriggerLoader().loadClass(before.getTriggerClass());
-                    final MethodType methodType = MethodType.fromMethodDescriptorString(before.getTriggerMethodSign(), before.getTriggerLoader());
-                    final Method method = MethodUtils.getMatchingMethod(clazz, before.getTriggerMethod(), methodType.parameterArray());
-                    final Profile profile = method.getAnnotation(Profile.class);
-                    if (null != profile) {
-                        final String[] patterns = profile.strictCount();
-                        if (patterns.length > 0) {
-                            Stream.of(patterns).distinct().map(ActualCostCountModule::new)
-                                    .map(CoreModule::enableModule)
-                                    .forEach(modules::add);
-                        }
+        context = ContextHelper.getContext()
+                .resolve(transferProfileName(before));
+        item = new ProfileItem(before.getTriggerMethod());
+        profiler = context.getProfiler();
+        if (null != profiler) {
+            try {
+                final Class<?> clazz = before.getTriggerLoader().loadClass(before.getTriggerClass());
+                final MethodType methodType = MethodType.fromMethodDescriptorString(before.getTriggerMethodSign(), before.getTriggerLoader());
+                final Method method = MethodUtils.getMatchingMethod(clazz, before.getTriggerMethod(), methodType.parameterArray());
+                final Profile profile = method.getAnnotation(Profile.class);
+                if (null != profile) {
+                    final String[] patterns = profile.strictCount();
+                    if (patterns.length > 0) {
+                        Stream.of(patterns).distinct().map(ActualCostCountModule::new)
+                                .map(CoreModule::enableModule)
+                                .forEach(modules::add);
                     }
-                    getActualCountPatterns().stream().map(ActualCostCountModule::new)
-                            .map(CoreModule::enableModule)
-                            .forEach(modules::add);
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
                 }
-                profiler.start();
-                start = System.currentTimeMillis();
+                getActualCountPatterns().stream().map(ActualCostCountModule::new)
+                        .map(CoreModule::enableModule)
+                        .forEach(modules::add);
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
             }
+            profiler.start();
+            start = System.currentTimeMillis();
         }
         return false;
     }
 
     protected boolean onReturn() {
-        if (!CoreModule.isWarmup()) {
-            if (null != profiler) {
-                try {
-                    final ProfileHandler handler = ProfileHandlerRegistry.getHandler();
-                    item.offer(handler.next());
-                    item.setCost(System.currentTimeMillis() - start);
-                    final Path stop = profiler.stop();
-                    item.setFlamePath(stop);
-                    Optional.ofNullable(context.getProfileItems()).ifPresent(queue -> queue.offer(item));
-                    System.out.println("profile tree 输出路径 " + stop);
-                } catch (NullPointerException e) {
-                    item.setThrowable(e);
-                } finally {
-                    final Map<String, Supplier<Long>> costs = modules.stream().peek(Module::disable)
-                            .collect(Collectors.toMap(ActualCostCountModule::getPattern,
-                                    ActualCostCountModule::getReference));
-                    item.setActualCost(costs);
-                }
+        if (null != profiler) {
+            try {
+                final ProfileHandler handler = ProfileHandlerRegistry.getHandler();
+                item.offer(handler.next());
+                item.setCost(System.currentTimeMillis() - start);
+                final Path stop = profiler.stop();
+                item.setFlamePath(stop);
+                Optional.ofNullable(context.getProfileItems()).ifPresent(queue -> queue.offer(item));
+                System.out.println("profile tree 输出路径 " + stop);
+            } catch (NullPointerException e) {
+                item.setThrowable(e);
+            } finally {
+                final Map<String, Supplier<Long>> costs = modules.stream().peek(Module::disable)
+                        .collect(Collectors.toMap(ActualCostCountModule::getPattern,
+                                ActualCostCountModule::getReference));
+                item.setActualCost(costs);
             }
         }
         return false;
     }
 
     protected boolean onThrows(Throws throwsEvent) {
-        if (!CoreModule.isWarmup()) {
-            item.setThrowable(throwsEvent.getThrowable());
-        }
+        item.setThrowable(throwsEvent.getThrowable());
         return onReturn();
     }
 

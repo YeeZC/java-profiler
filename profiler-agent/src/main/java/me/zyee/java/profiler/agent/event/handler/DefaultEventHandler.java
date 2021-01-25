@@ -27,10 +27,7 @@ public class DefaultEventHandler implements EventHandler {
 
     @Override
     public void register(int id, EventListener listener, Event.Type[] types) {
-        listeners.putIfAbsent(id, EventListenerWrapper.builder()
-                .setDelegate(listener)
-                .setTypes(types)
-                .build());
+        listeners.putIfAbsent(id, new EventListenerWrapper(listener));
     }
 
     @Override

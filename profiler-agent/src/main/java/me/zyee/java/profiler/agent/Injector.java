@@ -9,6 +9,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
+import java.util.function.Supplier;
 import javax.annotation.Resource;
 import me.zyee.java.profiler.agent.converter.Converters;
 import me.zyee.java.profiler.agent.converter.string.FromStringConverter;
@@ -31,10 +32,18 @@ import org.apache.commons.lang3.reflect.MethodUtils;
  */
 public class Injector {
     private static final String CLASS_CORE_MODULE = "me.zyee.java.profiler.module.CoreModule";
+    public static Supplier<Boolean> isWarmup;
 
     public static void init(Instrumentation inst) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Class<?> core = ClassUtils.getClass(CLASS_CORE_MODULE);
         if (null != core) {
+            isWarmup = () -> {
+                try {
+                    return (Boolean) MethodUtils.invokeStaticMethod(core, "isWarmup");
+                } catch (Throwable e) {
+                    return false;
+                }
+            };
             final Object instance = MethodUtils.invokeStaticMethod(core, "getInstance");
             final List<Field> fields = FieldUtils.getFieldsListWithAnnotation(core, Resource.class);
             final DefaultEventHandler handler = new DefaultEventHandler();
