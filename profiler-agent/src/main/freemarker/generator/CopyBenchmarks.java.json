@@ -1,0 +1,32 @@
+{
+  "templateName": "CopyBenchmarks.ftl",
+  "dataModel": {
+    "subClasses": [
+      {
+        "type": "Byte",
+        "unsafe": false,
+        "bytes": true
+      },
+      {
+        "type": "Int",
+        "unsafe": false,
+        "bytes": false
+      },
+      {
+        "type": "Long",
+        "unsafe": false,
+        "bytes": false
+      },
+      {
+        "type": "Double",
+        "unsafe": false,
+        "bytes": false
+      },
+      {
+        "type": "Unsafe",
+        "unsafe": true,
+        "bytes": true
+      }
+    ]
+  }
+}

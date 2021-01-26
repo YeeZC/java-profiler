@@ -1,6 +1,7 @@
-package me.zyee.java.profiler;
+package me.zyee.java.profiler.operation;
 
 import java.util.function.Supplier;
+import me.zyee.java.profiler.Operation;
 
 /**
  * @author yee

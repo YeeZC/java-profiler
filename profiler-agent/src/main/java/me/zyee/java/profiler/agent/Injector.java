@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Properties;
@@ -37,9 +38,10 @@ public class Injector {
     public static void init(Instrumentation inst) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Class<?> core = ClassUtils.getClass(CLASS_CORE_MODULE);
         if (null != core) {
-            isWarmup = () -> {
+            Method isWarmup = MethodUtils.getMatchingMethod(core, "isWarmup");
+            Injector.isWarmup = () -> {
                 try {
-                    return (Boolean) MethodUtils.invokeStaticMethod(core, "isWarmup");
+                    return (Boolean) isWarmup.invoke(null);
                 } catch (Throwable e) {
                     return false;
                 }

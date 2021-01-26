@@ -1,8 +1,8 @@
-package me.zyee.java.profiler.impl;
+package me.zyee.java.profiler.operation.impl;
 
 import java.util.Objects;
 import java.util.function.Supplier;
-import me.zyee.java.profiler.AtomOperation;
+import me.zyee.java.profiler.operation.AtomOperation;
 
 /**
  * @author yee
@@ -74,5 +74,14 @@ public class DefaultAtomOperation extends BaseOperation implements AtomOperation
         public DefaultAtomOperation build() {
             return new DefaultAtomOperation(this);
         }
+    }
+
+    @Override
+    public String toString() {
+        return super.toString() + "DefaultAtomOperation{" +
+                "when=" + when +
+                ", expect=" + expect +
+                ", actual=" + actual +
+                '}';
     }
 }

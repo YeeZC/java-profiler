@@ -59,19 +59,13 @@
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
             <version>5.3.7</version>
-            <!--            <scope>provided</scope>-->
-        </dependency>
-        <dependency>
-            <groupId>org.openjdk.jmh</groupId>
-            <artifactId>jmh-core</artifactId>
-            <version>1.26</version>
-<!--            <scope>provided</scope>-->
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>org.openjdk.jmh</groupId>
             <artifactId>jmh-generator-annprocess</artifactId>
             <version>1.26</version>
-            <!--            <scope>provided</scope>-->
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 
@@ -167,6 +161,27 @@
                             <descriptors>
                                 <descriptor>src/main/assembly/assembly.xml</descriptor>
                             </descriptors>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- 使用文档见 https://github.com/fugerit-org/freemarker-maven-plugin-->
+                <groupId>org.fugerit.java</groupId>
+                <artifactId>freemarker-maven-plugin</artifactId>
+                <version>1.0.4</version>
+                <configuration>
+                    <freeMarkerVersion>2.3.29</freeMarkerVersion>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>freemarker</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>src/main/freemarker</sourceDirectory>
                         </configuration>
                     </execution>
                 </executions>

@@ -1,0 +1,27 @@
+{
+  "templateName": "CopyAtomGroups.ftl",
+  "dataModel": {
+    "subClasses": [
+      {
+        "type": "Byte",
+        "unsafe": false
+      },
+      {
+        "type": "Int",
+        "unsafe": false
+      },
+      {
+        "type": "Long",
+        "unsafe": false
+      },
+      {
+        "type": "Double",
+        "unsafe": false
+      },
+      {
+        "type": "Unsafe",
+        "unsafe": true
+      }
+    ]
+  }
+}

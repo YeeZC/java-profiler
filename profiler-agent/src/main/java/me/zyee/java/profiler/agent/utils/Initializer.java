@@ -18,7 +18,7 @@ import org.apache.commons.lang3.reflect.MethodUtils;
  */
 public class Initializer {
 
-    private static ProfilerClassLoader PROFILER_LOADER;
+    public static ProfilerClassLoader PROFILER_LOADER;
     private static boolean dump = true;
 
     public static void init(String args) throws IOException {
@@ -26,6 +26,11 @@ public class Initializer {
         dump = configure.isDumpClassFile();
         if (null != configure.getLibPath()) {
             PROFILER_LOADER = ProfilerClassLoader.newInstance(configure.getLibPath());
+            try {
+                Class.forName("me.zyee.java.profiler.agent.operation.CopyAtomGroups");
+            } catch (ClassNotFoundException e) {
+                e.printStackTrace();
+            }
         }
     }
 

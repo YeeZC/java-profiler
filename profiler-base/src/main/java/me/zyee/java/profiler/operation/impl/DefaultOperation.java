@@ -1,9 +1,9 @@
-package me.zyee.java.profiler.impl;
+package me.zyee.java.profiler.operation.impl;
 
 import java.util.ArrayList;
 import java.util.List;
-import me.zyee.java.profiler.NormalOperation;
 import me.zyee.java.profiler.Operation;
+import me.zyee.java.profiler.operation.NormalOperation;
 
 /**
  * @author yee

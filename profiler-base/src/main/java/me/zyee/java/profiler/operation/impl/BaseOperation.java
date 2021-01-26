@@ -1,4 +1,4 @@
-package me.zyee.java.profiler.impl;
+package me.zyee.java.profiler.operation.impl;
 
 import me.zyee.java.profiler.Operation;
 
@@ -52,5 +52,14 @@ class BaseOperation implements Operation {
             this.pattern = pattern;
             return (T) this;
         }
+    }
+
+    @Override
+    public String toString() {
+        return "BaseOperation{" +
+                "name='" + name + '\'' +
+                ", cost=" + cost +
+                ", pattern='" + pattern + '\'' +
+                '}';
     }
 }
