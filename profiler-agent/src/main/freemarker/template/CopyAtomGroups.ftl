@@ -21,8 +21,7 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.MethodUtils;
 public class CopyAtomGroups {
 
-static {
-Optional.ofNullable((ClassLoader) Initializer.PROFILER_LOADER).ifPresent(loader -> {
+public static void register(ClassLoader loader) {
 try {
 <#list subClasses as subClass >
     <#assign item>${subClass.type?upper_case}_ARRAY</#assign>
@@ -40,7 +39,6 @@ try {
 </#list>
 } catch (Throwable ignore) {
 }
-});
 }
 
 
