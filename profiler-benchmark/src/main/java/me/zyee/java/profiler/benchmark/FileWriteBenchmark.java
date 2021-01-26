@@ -1,4 +1,4 @@
-package me.zyee.java.profiler.agent.benchmark;
+package me.zyee.java.profiler.benchmark;
 
 import java.io.BufferedOutputStream;
 import java.io.File;

@@ -1,7 +1,6 @@
 package me.zyee.java.profiler.agent.utils;
 
 import com.google.common.reflect.Reflection;
-import java.io.IOException;
 import me.zyee.java.profiler.agent.Injector;
 import me.zyee.java.profiler.agent.config.AgentConfigure;
 import me.zyee.java.profiler.agent.enhancer.Enhancer;
@@ -9,7 +8,13 @@ import me.zyee.java.profiler.agent.enhancer.EventEnhancer;
 import me.zyee.java.profiler.agent.hardware.Hardware;
 import me.zyee.java.profiler.agent.hardware.OshiHardware;
 import me.zyee.java.profiler.filter.CallBeforeFilter;
+import me.zyee.java.profiler.operation.AtomGroupType;
+import me.zyee.java.profiler.operation.AtomGroups;
+import me.zyee.java.profiler.operation.CopyAtomGroup;
+import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
+
+import java.io.IOException;
 
 /**
  * @author yee
@@ -18,7 +23,7 @@ import org.apache.commons.lang3.reflect.MethodUtils;
  */
 public class Initializer {
 
-    public static ProfilerClassLoader PROFILER_LOADER;
+    private static ProfilerClassLoader PROFILER_LOADER;
     private static boolean dump = true;
 
     public static void init(String args) throws IOException {
@@ -26,11 +31,6 @@ public class Initializer {
         dump = configure.isDumpClassFile();
         if (null != configure.getLibPath()) {
             PROFILER_LOADER = ProfilerClassLoader.newInstance(configure.getLibPath());
-            try {
-                Class.forName("me.zyee.java.profiler.agent.operation.CopyAtomGroups");
-            } catch (ClassNotFoundException e) {
-                e.printStackTrace();
-            }
         }
     }
 

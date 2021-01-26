@@ -1,11 +1,11 @@
-package me.zyee.java.profiler.agent.operation;
+package me.zyee.java.profiler.benchmark.opertaion;
 
 import java.util.Collection;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Stream;
-import me.zyee.java.profiler.agent.benchmark.BenchmarkInfo;
+import me.zyee.java.profiler.benchmark.BenchmarkInfo;
 import me.zyee.java.profiler.operation.AtomOperation;
 import me.zyee.java.profiler.operation.impl.BaseAtomGroup;
 import org.openjdk.jmh.results.RunResult;

@@ -1,4 +1,4 @@
-package me.zyee.java.profiler.agent.benchmark;
+package me.zyee.java.profiler.benchmark;
 
 import java.nio.ByteBuffer;
 import java.util.Random;
@@ -27,17 +27,16 @@ import org.openjdk.jmh.annotations.Warmup;
 @Warmup(iterations = 0)
 @Fork(1)
 @Measurement(iterations = 1, time = 5)
-public class MemoryReadBenchmark {
+public class MemoryWriteBenchmark {
 
     private byte[] data;
     private ByteBuffer heap;
     private Random random;
-    private byte current;
 
     @Setup(Level.Iteration)
     public void init() {
         random = new Random(System.currentTimeMillis());
-        data = new byte[50 * (1 << 20)];
+        data = new byte[10 * (1 << 20)];
         random.nextBytes(data);
         heap = ByteBuffer.wrap(data);
     }
@@ -46,7 +45,7 @@ public class MemoryReadBenchmark {
     @Benchmark
     public void heapByteBufferRead() {
         for (int i = 0; i < data.length; i++) {
-            current = heap.get(i);
+            heap.put(i, data[i]);
         }
     }
 

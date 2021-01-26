@@ -1,4 +1,4 @@
-package me.zyee.java.profiler.agent.benchmark;
+package me.zyee.java.profiler.benchmark;
 
 import java.nio.ByteBuffer;
 import java.util.Random;
@@ -6,7 +6,6 @@ import java.util.concurrent.TimeUnit;
 import org.openjdk.jmh.annotations.Benchmark;
 import org.openjdk.jmh.annotations.BenchmarkMode;
 import org.openjdk.jmh.annotations.Fork;
-import org.openjdk.jmh.annotations.Level;
 import org.openjdk.jmh.annotations.Measurement;
 import org.openjdk.jmh.annotations.Mode;
 import org.openjdk.jmh.annotations.OutputTimeUnit;
@@ -27,35 +26,30 @@ import org.openjdk.jmh.annotations.Warmup;
 @Warmup(iterations = 0)
 @Fork(1)
 @Measurement(iterations = 1, time = 5)
-public class MemoryWriteBenchmark {
-
+public class DirectMemoryWriteBenchmark {
     private byte[] data;
-    private ByteBuffer heap;
-    private Random random;
+    private ByteBuffer dir;
 
-    @Setup(Level.Iteration)
+
+    @Setup
     public void init() {
-        random = new Random(System.currentTimeMillis());
-        data = new byte[10 * (1 << 20)];
-        random.nextBytes(data);
-        heap = ByteBuffer.wrap(data);
+        data = new byte[50 * (1 << 20)];
+        new Random().nextBytes(data);
+        dir = ByteBuffer.allocateDirect(data.length);
     }
-
 
     @Benchmark
-    public void heapByteBufferRead() {
+    public void read() {
         for (int i = 0; i < data.length; i++) {
-            heap.put(i, data[i]);
+            dir.put(i, data[i]);
         }
     }
 
-    @TearDown(Level.Iteration)
+    @TearDown
     public void tearDown() {
         data = null;
-        if (null != heap) {
-            heap.clear();
+        if (null != dir) {
+            DirectMemoryReadBenchmark.release(dir);
         }
     }
-
-
 }

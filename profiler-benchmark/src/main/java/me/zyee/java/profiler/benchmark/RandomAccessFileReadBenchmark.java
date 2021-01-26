@@ -1,4 +1,4 @@
-package me.zyee.java.profiler.agent.benchmark;
+package me.zyee.java.profiler.benchmark;
 
 import java.io.File;
 import java.io.IOException;
@@ -30,11 +30,12 @@ import org.openjdk.jmh.annotations.Warmup;
 @Warmup(iterations = 0)
 @Fork(1)
 @Measurement(iterations = 1, time = 5)
-public class RandomAccessFileWriteBenchmark {
+public class RandomAccessFileReadBenchmark {
     private File file;
     private byte[] data;
     private FileChannel channel;
     private ByteBuffer buffer;
+    private byte current;
 
     @Setup
     public void init() {
@@ -42,20 +43,29 @@ public class RandomAccessFileWriteBenchmark {
             file = File.createTempFile("java-profiler.write", ".benchmark");
             data = new byte[128 * (1 << 20)];
             new Random().nextBytes(data);
-            channel = new RandomAccessFile(file, "rw")
-                    .getChannel();
-            buffer = channel.map(FileChannel.MapMode.READ_WRITE, 0, data.length);
+            ByteBuffer buf;
+            try (FileChannel channel = new RandomAccessFile(file, "rw")
+                    .getChannel()) {
+                buf = channel.map(FileChannel.MapMode.READ_WRITE, 0, data.length);
+                for (byte datum : data) {
+                    buf.put(datum);
+                }
+            }
+            DirectMemoryReadBenchmark.release(buf);
+            channel = new RandomAccessFile(file, "rw").getChannel();
+            buffer = channel.map(FileChannel.MapMode.READ_ONLY, 0, data.length);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
     @Benchmark
-    public void write() throws IOException {
+    public byte[] write() throws IOException {
         for (int i = 0; i < data.length; i++) {
-            buffer.put(i, data[i]);
+            current = buffer.get(i);
         }
         channel.close();
+        return data;
     }
 
     @TearDown
