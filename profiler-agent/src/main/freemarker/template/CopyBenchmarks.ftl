@@ -29,58 +29,57 @@ public class CopyBenchmarks {
     @Fork(1)
     @Measurement(iterations = 1, time = 5)
     public static class ${className} {
-    @Param({"10", "100", "1000", "10000", "50000"})
-    private int length;
+        @Param({"10", "100", "1000", "10000", "50000"})
+        private int length;
 
-    private ${typeName}[] data;
-    private int start;
+        private ${typeName}[] data;
+        private int start;
 
-    <#if subClass.unsafe>
-        private static final Unsafe UNSAFE;
+        <#if subClass.unsafe>
+            private static final Unsafe UNSAFE;
 
-        static {
-        Unsafe unsafe;
-        try {
-        Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
-        unsafeField.setAccessible(true);
-        unsafe = (Unsafe) unsafeField.get(null);
-        } catch (Throwable cause) {
-        unsafe = null;
+            static {
+                Unsafe unsafe;
+                try {
+                    Field unsafeField = Unsafe.class.getDeclaredField("theUnsafe");
+                    unsafeField.setAccessible(true);
+                    unsafe = (Unsafe) unsafeField.get(null);
+                } catch (Throwable cause) {
+                    unsafe = null;
+                }
+                UNSAFE = unsafe;
+            }
+        </#if>
+
+        @Setup
+        public void init() {
+            Random random = new Random();
+            data = new ${typeName}[random.nextInt(length) + 1];
+            <#if subClass.bytes>
+            random.nextBytes(data);
+            <#else >
+            for (int i = 0; i < length; i++) {
+                data[i] = random.next${subClass.type}();
+            }
+            </#if>
+
+            start = random.nextInt(data.length);
         }
-        UNSAFE = unsafe;
+        @Benchmark
+        public ${typeName}[] test() {
+            ${typeName}[] result = new ${typeName}[data.length * 2];
+            <#if !subClass.unsafe>
+            System.arraycopy(data, 0, result, start, data.length);
+            <#else >
+            UNSAFE.copyMemory(data, Unsafe.ARRAY_BYTE_BASE_OFFSET, result, Unsafe.ARRAY_BYTE_BASE_OFFSET + start, data.length);
+            </#if>
+            return result;
         }
-    </#if>
 
-    @Setup
-    public void init() {
-    Random random = new Random();
-    data = new ${typeName}[random.nextInt(length) + 1];
-    <#if subClass.bytes>
-        random.nextBytes(data);
-    <#else >
-        for (int i = 0; i < length; i++) {
-        data[i] = random.next${subClass.type}();
+        @TearDown
+        public void destroy() {
+            data = null;
         }
-    </#if>
-
-    start = random.nextInt(data.length);
-    }
-    @Benchmark
-    public ${typeName}[] test() {
-    ${typeName}[] result = new ${typeName}[data.length * 2];
-    <#if !subClass.unsafe>
-        System.arraycopy(data, 0, result, start, data.length);
-    <#else >
-        UNSAFE.copyMemory(data, Unsafe.ARRAY_BYTE_BASE_OFFSET, result, Unsafe.ARRAY_BYTE_BASE_OFFSET + start, data.length);
-    </#if>
-
-    return result;
-    }
-
-    @TearDown
-    public void destroy() {
-    data = null;
-    }
     }
 </#list>
 }

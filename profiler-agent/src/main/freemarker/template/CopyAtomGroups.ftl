@@ -21,25 +21,25 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.reflect.MethodUtils;
 public class CopyAtomGroups {
 
-public static void register(ClassLoader loader) {
-try {
-<#list subClasses as subClass >
-    <#assign item>${subClass.type?upper_case}_ARRAY</#assign>
-    <#assign className>${subClass.type}<#if !subClass.unsafe>Array</#if>CopyAtomGroup</#assign>
-    final Class<?> ${subClass.type?lower_case}_clazz = loader.loadClass(CopyAtomGroups.class.getName() + "$" + ${className}.class.getSimpleName());
-    final Object ${subClass.type?lower_case}_obj = ${subClass.type?lower_case}_clazz.newInstance();
-    AtomGroups.register(AtomGroupType.COPY_${item}, (AtomGroup) Proxy.newProxyInstance(CopyAtomGroup.class.getClassLoader(),
-    new Class[]{CopyAtomGroup.class},
-    new InvocationHandler() {
-    @Override
-    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-    return MethodUtils.invokeMethod(${subClass.type?lower_case}_obj, true, method.getName(), args);
+    public static void register(ClassLoader loader) {
+        <#list subClasses as subClass >
+            <#assign item>${subClass.type?upper_case}_ARRAY</#assign>
+            <#assign className>${subClass.type}<#if !subClass.unsafe>Array</#if>CopyAtomGroup</#assign>
+        create(loader, "${className}").ifPresent(group -> AtomGroups.register(AtomGroupType.COPY_${item}, group));
+        </#list>
     }
-    }));
-</#list>
-} catch (Throwable ignore) {
-}
-}
+
+    private static Optional<CopyAtomGroup> create(ClassLoader loader, String className) {
+        try {
+            Class<?> clazz = loader.loadClass(String.format("%s$%s", CopyAtomGroups.class.getName(), className));
+            Object o = clazz.newInstance();
+            return Optional.of((CopyAtomGroup) Proxy.newProxyInstance(CopyAtomGroup.class.getClassLoader(), new Class[] {CopyAtomGroup.class},
+                (proxy, method, args) -> MethodUtils.invokeMethod(o, true, method.getName(), args)));
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+        return Optional.empty();
+    }
 
 
 <#list subClasses as subClass >
@@ -48,38 +48,35 @@ try {
 <#assign pattern><#if !subClass.unsafe>j</#if>${subClass.type?lower_case}*arraycopy</#assign>
 <#assign name>${subClass.type}数组拷贝</#assign>
 
-static class ${className} extends CopyBenchmarkAtomGroup {
-${className}() {
-super("${name}", "${pattern}", ${benchmark});
+    static class ${className} extends CopyBenchmarkAtomGroup {
+        ${className}() {
+            super("${name}", "${pattern}", ${benchmark});
+        }
+
+        @Override
+        protected void build(Stream<BenchmarkInfo> stream) {
+            stream.forEach(info -> {
+                BenchmarkInfo.Param param = info.getParams().get(0);
+                long value = Long.valueOf(param.value);
+                long cost = 0L;
+                switch (info.getMode()) {
+                    case Throughput:
+                        cost = (long)(info.getUnit().toMillis(1) * (10000000L * (1 / info.getScore())));
+                        break;
+                    case AverageTime:
+                        cost = (long) (info.getUnit().toMillis(1) * info.getScore());
+                        break;
+                }
+                operations.put(value, DefaultAtomOperation.builder()
+                    .setName(String.format("${name} (%d)", value))
+                    .setPattern("${pattern}")
+                    .setCost(cost)
+                    .build());
+            });
+        }
+    }
+            </#list>
 }
-
-@Override
-protected void build(Stream
-<BenchmarkInfo> stream) {
-    stream.forEach(info -> {
-    BenchmarkInfo.Param param = info.getParams().get(0);
-    long value = Long.valueOf(param.value);
-    long cost = 0L;
-    switch (info.getMode()) {
-    case Throughput:
-    cost = (long)(info.getUnit().toMillis(1) * (10000000L * (1 / info.getScore())));
-    break;
-    case AverageTime:
-    cost = (long) (info.getUnit().toMillis(1) * info.getScore());
-    break;
-    }
-    operations.put(value, DefaultAtomOperation.builder()
-    .setName(String.format("${name} (%d)", value))
-    .setPattern("${pattern}")
-    .setCost(cost)
-    .build());
-    });
-    }
-    }
-
-    </#list>
-
-    }
 
 
 
