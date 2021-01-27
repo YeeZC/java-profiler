@@ -20,6 +20,7 @@ public class AtomPlugin implements Plugin {
 
     public AtomPlugin(ProfileNode root) {
         this.root = root;
+        System.err.println("Node------ " + root);
     }
 
     @Override

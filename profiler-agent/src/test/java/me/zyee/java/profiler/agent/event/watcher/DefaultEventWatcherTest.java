@@ -43,7 +43,7 @@ public class DefaultEventWatcherTest {
                             System.out.println(event);
                             return true;
                         }
-                    }, Event.Type.BEFORE, Event.Type.RETURN, Event.Type.THROWS, Event.Type.CALL_BEFORE, Event.Type.CALL_RETURN);
+                    }, Event.Type.ENTRY, Event.Type.CALL_BEFORE);
         } catch (Throwable t) {
             t.printStackTrace();
         }

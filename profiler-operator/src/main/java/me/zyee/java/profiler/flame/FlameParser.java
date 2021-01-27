@@ -21,20 +21,26 @@ import org.jsoup.select.Elements;
  * Create by yee on 2020/8/6
  */
 public class FlameParser {
-    public static Map<String, Frame> parse(Path path, ProfileNode node, Map<String, Matcher<String>> patterns) {
+    public static final String SELF_PATTERN = "*me.zyee.java.profiler*";
+    public static final Matcher<String> SELF_MATCHER = Matcher.classNameMatcher(SELF_PATTERN);
+
+    public static Map<String, Frame> parse(Path path, ProfileNode node, Map<String, Matcher<String>> patterns, double min) {
         try {
             if (OS.getOSType() == OS.OSType.Windows) {
                 throw new UnsupportedOperationException();
             }
+            patterns.put(SELF_PATTERN, SELF_MATCHER);
             final Document parse = Jsoup.parse(path.toFile(), "UTF-8");
             final Elements select = parse.select("ul.tree>li");
-            final FlameNode simple = ForkJoiner.invoke(new FlameNodeTask(1, select,
+            final FlameNode simple = ForkJoiner.invoke(new FlameNodeTask(min, select,
                     span -> patterns.values().stream().anyMatch(matcher -> matcher.matching(span))));
             final Frame root = new Frame();
             root.setName("Profile");
 
             ProfileNode simple1 = simple(node);
-            return build(simple1, simple, patterns);
+            final Map<String, Frame> build = build(simple1, simple, patterns);
+            computeFrame(simple, build, SELF_PATTERN, SELF_MATCHER);
+            return build;
         } catch (Exception e) {
             return Collections.emptyMap();
         }
@@ -57,23 +63,7 @@ public class FlameParser {
         final String pattern = node.getPattern();
         if (StringUtils.isNotEmpty(pattern)) {
             final Matcher<String> matcher = patterns.get(pattern);
-            final List<FlameNode> matched = findMatched(flameNode, matcher);
-            if (!matched.isEmpty()) {
-                for (FlameNode c : matched) {
-                    result.compute(pattern, (k, f) -> {
-                        Frame target = new Frame();
-                        if (null == f) {
-                            target.setPercent(c.getPercent());
-                            target.setName(c.getName());
-                        } else {
-                            target.setPercent(c.getPercent() + f.getPercent());
-                            target.setName(f.getName());
-                        }
-                        return target;
-                    });
-
-                }
-            }
+            computeFrame(flameNode, result, pattern, matcher);
         }
         for (ProfileNode child : node.getChildren()) {
             final Map<String, Frame> tmp = build(child, flameNode, patterns);
@@ -85,6 +75,26 @@ public class FlameParser {
             });
         }
         return result;
+    }
+
+    private static void computeFrame(FlameNode flameNode, Map<String, Frame> result, String pattern, Matcher<String> matcher) {
+        final List<FlameNode> matched = findMatched(flameNode, matcher);
+        if (!matched.isEmpty()) {
+            for (FlameNode c : matched) {
+                result.compute(pattern, (k, f) -> {
+                    Frame target = new Frame();
+                    if (null == f) {
+                        target.setPercent(c.getPercent());
+                        target.setName(c.getName());
+                    } else {
+                        target.setPercent(c.getPercent() + f.getPercent());
+                        target.setName(f.getName());
+                    }
+                    return target;
+                });
+
+            }
+        }
     }
 
     private static ProfileNode simple(ProfileNode node) {

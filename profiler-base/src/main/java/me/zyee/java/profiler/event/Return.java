@@ -8,8 +8,7 @@ import me.zyee.java.profiler.event.annotation.AutoClear;
  * Create by yee on 2021/1/6
  */
 public class Return extends BaseEvent {
-    @AutoClear
-    private final Object returnObject;
+    private Object returnObject;
 
 
     private Return(Builder builder) {
@@ -24,6 +23,11 @@ public class Return extends BaseEvent {
 
     public Object getReturnObject() {
         return returnObject;
+    }
+
+    @Override
+    public void destroy() {
+        returnObject = null;
     }
 
     public static class Builder extends BaseEvent.Builder<Builder> {

@@ -6,7 +6,6 @@ package me.zyee.java.profiler.event;
  * Create by yee on 2021/1/11
  */
 public class CallBefore extends BaseEvent {
-    private final Before before;
     private final String triggerClass;
     private final String triggerMethod;
     private final String triggerMethodSign;
@@ -18,7 +17,6 @@ public class CallBefore extends BaseEvent {
         this.triggerMethod = builder.triggerMethod;
         this.triggerMethodSign = builder.triggerMethodSign;
         this.lineNumber = builder.lineNumber;
-        this.before = builder.before;
     }
 
     public static Builder builder() {
@@ -43,7 +41,6 @@ public class CallBefore extends BaseEvent {
     }
 
     public static class Builder extends BaseEvent.Builder<Builder> {
-        private Before before;
         private String triggerClass;
         private String triggerMethod;
         private String triggerMethodSign;
@@ -72,17 +69,11 @@ public class CallBefore extends BaseEvent {
             return this;
         }
 
-        public Builder setBefore(Before before) {
-            this.before = before;
-            return this;
-        }
-
         public Builder of(CallBefore callBefore) {
             this.triggerClass = callBefore.triggerClass;
             this.triggerMethod = callBefore.triggerMethod;
             this.triggerMethodSign = callBefore.triggerMethodSign;
             this.lineNumber = callBefore.lineNumber;
-            this.before = callBefore.before;
             return this;
         }
 

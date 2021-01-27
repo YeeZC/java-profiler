@@ -8,8 +8,7 @@ import me.zyee.java.profiler.event.annotation.AutoClear;
  * Create by yee on 2021/1/6
  */
 public class Throws extends BaseEvent {
-    @AutoClear
-    private final Throwable throwable;
+    private Throwable throwable;
 
     private Throws(Builder builder) {
         super(builder.setType(Type.THROWS));
@@ -22,6 +21,11 @@ public class Throws extends BaseEvent {
 
     public Throwable getThrowable() {
         return throwable;
+    }
+
+    @Override
+    public void destroy() {
+        throwable = null;
     }
 
     public static class Builder extends BaseEvent.Builder<Builder> {

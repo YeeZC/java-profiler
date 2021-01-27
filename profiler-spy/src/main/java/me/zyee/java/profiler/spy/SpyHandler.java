@@ -20,4 +20,6 @@ public interface SpyHandler {
     void onCallThrows(int listenId, int lineNumber, Throwable throwMsg) throws Throwable;
 
     void onLine(int listenId, int lineNumber) throws Throwable;
+
+    void onEntry(int listenId) throws Throwable;
 }

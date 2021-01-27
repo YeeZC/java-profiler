@@ -14,10 +14,8 @@ public class Before extends BaseEvent {
     private final String triggerClass;
     private final String triggerMethod;
     private final String triggerMethodSign;
-    @AutoClear
-    private final Object trigger;
-    @AutoClear
-    private final Object[] args;
+    private Object trigger;
+    private Object[] args;
 
     private Before(Builder builder) {
         super(builder.setType(Type.BEFORE));
@@ -56,6 +54,12 @@ public class Before extends BaseEvent {
 
     public Object[] getArgs() {
         return args;
+    }
+
+    @Override
+    public void destroy() {
+        trigger = null;
+        args = null;
     }
 
     public static class Builder extends BaseEvent.Builder<Builder> {

@@ -7,12 +7,12 @@ import me.zyee.java.profiler.Operation;
  * @version 1.0
  * Create by yee on 2020/12/17
  */
-class BaseOperation implements Operation {
+public class BaseOperation implements Operation {
     private final String name;
     private final long cost;
     private final String pattern;
 
-    BaseOperation(BaseBuilder<?> builder) {
+    protected BaseOperation(BaseBuilder<?> builder) {
         this.name = builder.name;
         this.cost = builder.cost;
         this.pattern = builder.pattern;
@@ -33,7 +33,7 @@ class BaseOperation implements Operation {
         return pattern;
     }
 
-    static class BaseBuilder<T extends BaseBuilder<?>> {
+    protected static class BaseBuilder<T extends BaseBuilder<?>> {
         private String name;
         private long cost;
         private String pattern;

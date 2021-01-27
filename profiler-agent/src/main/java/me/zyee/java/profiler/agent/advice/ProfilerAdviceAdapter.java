@@ -55,6 +55,13 @@ public class ProfilerAdviceAdapter extends AdviceAdapter {
 
     @Override
     protected void onMethodEnter() {
+        if (eventSwitch.test(Event.Type.ENTRY)) {
+            codeLockForTracing.lock(() -> {
+                push(adviceId);
+                invokeStatic(ASM_TYPE_SPY, AsmMethods.ON_ENTRY);
+                methodEnter = true;
+            });
+        }
         if (eventSwitch.test(Event.Type.BEFORE)) {
             codeLockForTracing.lock(() -> {
                 mark(beginLabel);

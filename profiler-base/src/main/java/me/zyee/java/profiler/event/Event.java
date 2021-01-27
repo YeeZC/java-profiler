@@ -1,5 +1,7 @@
 package me.zyee.java.profiler.event;
 
+import com.sun.org.apache.bcel.internal.generic.RETURN;
+
 /**
  * @author yee
  * @version 1.0
@@ -8,7 +10,15 @@ package me.zyee.java.profiler.event;
 public interface Event {
     Type type();
 
+    Event Entry = () -> Type.ENTRY;
+
+    default void destroy() {}
+
     enum Type {
+        /**
+         * Entry
+         */
+        ENTRY,
         /**
          * 调用:BEFORE
          */

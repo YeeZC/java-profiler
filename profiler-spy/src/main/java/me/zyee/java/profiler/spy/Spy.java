@@ -24,6 +24,12 @@ public class Spy {
         handler = null;
     }
 
+    public static void onEntry(int listenId) throws Throwable {
+        if (null != handler) {
+            handler.onEntry(listenId);
+        }
+    }
+
     public static void onBefore(Object[] args,
                                 int listenId,
                                 ClassLoader loader,
@@ -54,6 +60,13 @@ public class Spy {
             handler.onCallBefore(listenId, className, methodName, methodDesc, lineNumber);
         }
     }
+    public static void onCallBefore(Object[] args, int listenId, String className, String methodName, String methodDesc, int lineNumber) throws Throwable {
+        if (null != handler) {
+            handler.onCallBefore(listenId, className, methodName, methodDesc, lineNumber);
+        }
+    }
+
+
 
     public static void onCallReturn(int listenId, int lineNumber) throws Throwable {
         if (null != handler) {

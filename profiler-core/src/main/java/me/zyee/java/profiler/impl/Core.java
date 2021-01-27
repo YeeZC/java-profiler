@@ -1,5 +1,6 @@
 package me.zyee.java.profiler.impl;
 
+import com.google.common.collect.Sets;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -24,8 +25,11 @@ import me.zyee.java.profiler.Runner;
 import me.zyee.java.profiler.attach.Attach;
 import me.zyee.java.profiler.flame.FlameParser;
 import me.zyee.java.profiler.module.CoreModule;
+import me.zyee.java.profiler.operation.AtomGroup;
 import me.zyee.java.profiler.operation.AtomOperation;
 import me.zyee.java.profiler.operation.NormalOperation;
+import me.zyee.java.profiler.operation.impl.DefaultAtomOperation;
+import me.zyee.java.profiler.operation.impl.DefaultOperation;
 import me.zyee.java.profiler.report.Report;
 import me.zyee.java.profiler.report.markdown.Title;
 import me.zyee.java.profiler.report.plugin.AtomPlugin;
@@ -46,7 +50,7 @@ public class Core implements ProfilerCore {
     private final Set<String> excludes;
     private final boolean dumpClassFile;
     private final int warmups;
-    private final int collectMinPercent;
+    private final double collectMinPercent;
 
     private Core(Builder builder) {
         this.reportPath = builder.reportPath;
@@ -91,10 +95,8 @@ public class Core implements ProfilerCore {
                 ProfileNode root = new ProfileNode();
                 final Set<String> patterns = new HashSet<>();
                 while (null != nodes.peek()) {
-                    ProfileNode child = new ProfileNode();
                     final Operation node = nodes.poll();
-                    makeProfileNode(patterns, child, node);
-                    root.addChild(child);
+                    makeProfileNode(patterns, node).forEach(root::addChild);
                     calculateTheoreticalCost(item, theoreticalCost, node);
                 }
 
@@ -122,18 +124,26 @@ public class Core implements ProfilerCore {
                         .addContents(new AtomPlugin(root),
                                 StepPlugin.builder(root, warnings, errors).setCost(item.getCost())
                                         .setTheoreticalCost(theoreticalCost)
-                                        .setFrames(() -> FlameParser.parse(flamePath, root, patternMap)).build(), new ConclusionPlugin(warnings, errors))
+                                        .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent)).build(), new ConclusionPlugin(warnings, errors))
                         .build().output(Optional.ofNullable(reportPath).orElse(
                         Paths.get(System.getProperty("user.dir"))).resolve(item.getProfileName() + ".md"));
             }
         }
     }
 
-    private void makeProfileNode(Set<String> patterns, ProfileNode child, Operation node) {
-        child.setName(node.getName());
-        child.setPattern(node.getPattern());
-        child.setChildren(new ArrayList<>());
-        patterns.addAll(getPatterns(node, child));
+    private List<ProfileNode> makeProfileNode(Set<String> patterns, Operation node) {
+        List<ProfileNode> result = new ArrayList<>();
+        if (node instanceof AtomGroup) {
+            ((AtomGroup) node).getAllOperations().stream().map(op -> makeProfileNode(patterns, op)).forEach(result::addAll);
+        } else {
+            ProfileNode child = new ProfileNode();
+            child.setName(node.getName());
+            child.setPattern(node.getPattern());
+            child.setChildren(new ArrayList<>());
+            patterns.addAll(getPatterns(node, child));
+            result.add(child);
+        }
+        return result;
     }
 
     private void calculateTheoreticalCost(ProfileItem item, Map<String, Long> theoreticalCost, Operation node) {
@@ -151,6 +161,8 @@ public class Core implements ProfilerCore {
                 }
                 return eval;
             });
+        } else if (node instanceof AtomGroup) {
+            ((AtomGroup) node).getAllOperations().forEach(op -> calculateTheoreticalCost(item, theoreticalCost, op));
         } else {
             NormalOperation op = (NormalOperation) node;
             for (Operation opChild : op.getChildren()) {
@@ -168,16 +180,29 @@ public class Core implements ProfilerCore {
         }
         if (node instanceof NormalOperation) {
             ((NormalOperation) node).getChildren().stream().map(n -> {
-                ProfileNode child = new ProfileNode();
-                child.setName(n.getName());
-                child.setPattern(n.getPattern());
-                child.setChildren(new ArrayList<>());
-                if (n instanceof AtomOperation) {
-                    child.setAtom((double) n.getCost());
+                if (n instanceof AtomGroup) {
+                    ((AtomGroup) n).getAllOperations().forEach(op -> {
+                        ProfileNode child = new ProfileNode();
+                        child.setName(n.getName());
+                        child.setPattern(n.getPattern());
+                        child.setAtom((double) op.getCost());
+                        profileNode.addChild(child);
+                    });
+                    return Sets.newHashSet(n.getPattern());
+                } else {
+                    ProfileNode child = new ProfileNode();
+                    child.setName(n.getName());
+                    child.setPattern(n.getPattern());
+                    child.setChildren(new ArrayList<>());
+                    if (n instanceof AtomOperation) {
+                        child.setAtom((double) n.getCost());
+                    }
+                    profileNode.addChild(child);
+                    return getPatterns(n, child);
                 }
-                profileNode.addChild(child);
-                return getPatterns(n, child);
             }).forEach(patterns::addAll);
+        } else if (node instanceof AtomOperation) {
+            profileNode.setAtom((double)node.getCost());
         }
         return patterns;
     }
@@ -199,7 +224,7 @@ public class Core implements ProfilerCore {
         private Set<String> excludes;
         private Boolean dumpClassFile;
         private Integer warmups;
-        private Integer collectMinPercent = 1;
+        private Double collectMinPercent = .5D;
 
         private Builder() {
             this.excludes = new HashSet<>();
@@ -226,7 +251,7 @@ public class Core implements ProfilerCore {
             return this;
         }
 
-        public Builder setCollectMinPercent(int collectMinPercent) {
+        public Builder setCollectMinPercent(double collectMinPercent) {
             this.collectMinPercent = collectMinPercent;
             return this;
         }

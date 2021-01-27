@@ -1,4 +1,3 @@
-// DON'T MODIFY !
 package me.zyee.java.profiler.benchmark.operation;
 import static me.zyee.java.profiler.benchmark.CopyBenchmarks.ByteArrayCopyBenchmark;
 import static me.zyee.java.profiler.benchmark.CopyBenchmarks.IntArrayCopyBenchmark;

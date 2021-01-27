@@ -1,7 +1,5 @@
 package me.zyee.java.profiler.event;
 
-import me.zyee.java.profiler.event.annotation.AutoClear;
-
 /**
  * @author yee
  * @version 1.0
@@ -9,8 +7,7 @@ import me.zyee.java.profiler.event.annotation.AutoClear;
  */
 public class CallThrows extends BaseEvent {
     private final int lineNumber;
-    @AutoClear
-    private final Throwable throwable;
+    private Throwable throwable;
 
     private CallThrows(Builder builder) {
         super(builder.setType(Type.CALL_THROWS));
@@ -29,6 +26,11 @@ public class CallThrows extends BaseEvent {
 
     public Throwable getThrowable() {
         return throwable;
+    }
+
+    @Override
+    public void destroy() {
+        throwable = null;
     }
 
     public static class Builder extends BaseEvent.Builder<Builder> {

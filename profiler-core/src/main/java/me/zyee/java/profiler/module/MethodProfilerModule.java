@@ -40,7 +40,7 @@ public class MethodProfilerModule implements Module {
 
     private int watchId;
     private long start;
-    private ProfileItem item;
+    protected ProfileItem item;
     private Context context;
     private Profiler profiler;
     private final List<ActualCostCountModule> modules = new ArrayList<>();

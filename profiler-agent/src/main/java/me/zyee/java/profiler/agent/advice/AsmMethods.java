@@ -11,6 +11,11 @@ import org.objectweb.asm.commons.Method;
  */
 public class AsmMethods {
     /**
+     * @see Spy#onEntry(int)
+     */
+    public static final Method ON_ENTRY = getAsmMethod(Spy.class, "onEntry",
+            int.class);
+    /**
      * @see Spy#onBefore(Object[], int, ClassLoader, String, String, String, Object)
      */
     public static final Method ON_BEFORE = getAsmMethod(Spy.class, "onBefore",
@@ -49,6 +54,14 @@ public class AsmMethods {
      * @see Spy#onCallBefore(int, String, String, String, int)
      */
     public static final Method ON_CALL_BEFORE = getAsmMethod(Spy.class, "onCallBefore",
+            int.class,
+            String.class,
+            String.class,
+            String.class,
+            int.class);
+
+    public static final Method ON_CALL_BEFORE1 = getAsmMethod(Spy.class, "onCallBefore",
+            Object[].class,
             int.class,
             String.class,
             String.class,

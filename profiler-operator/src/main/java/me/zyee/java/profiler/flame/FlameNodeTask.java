@@ -15,25 +15,25 @@ import org.jsoup.select.Elements;
  * Create by yee on 2021/1/14
  */
 class FlameNodeTask extends RecursiveTask<FlameNode> {
-    private final int min;
+    private final double min;
     private final Elements elements;
     private final FlameNode root;
     private final Predicate<String> predicate;
 
 
-    FlameNodeTask(int min, Elements elements) {
+    FlameNodeTask(double min, Elements elements) {
         this(min, elements, (FlameNode) null);
     }
 
-    FlameNodeTask(int min, Elements elements, Predicate<String> predicate) {
+    FlameNodeTask(double min, Elements elements, Predicate<String> predicate) {
         this(min, elements, null, predicate);
     }
 
-    FlameNodeTask(int min, Elements elements, FlameNode root) {
+    FlameNodeTask(double min, Elements elements, FlameNode root) {
         this(min, elements, root, any -> true);
     }
 
-    FlameNodeTask(int min, Elements elements, FlameNode root, Predicate<String> predicate) {
+    FlameNodeTask(double min, Elements elements, FlameNode root, Predicate<String> predicate) {
         this.min = min;
         this.elements = elements;
         this.predicate = predicate;

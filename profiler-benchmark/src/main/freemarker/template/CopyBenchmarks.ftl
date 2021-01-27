@@ -29,7 +29,7 @@ public class CopyBenchmarks {
     @Fork(1)
     @Measurement(iterations = 1, time = 5)
     public static class ${className} {
-        @Param({"10", "100", "1000", "10000", "50000"})
+        @Param({"10"})
         private int length;
 
         private ${typeName}[] data;
@@ -58,7 +58,7 @@ public class CopyBenchmarks {
             <#if subClass.bytes>
             random.nextBytes(data);
             <#else >
-            for (int i = 0; i < length; i++) {
+            for (int i = 0; i < data.length; i++) {
                 data[i] = random.next${subClass.type}();
             }
             </#if>

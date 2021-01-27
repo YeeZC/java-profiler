@@ -15,6 +15,7 @@ public class ProfileNode {
     private String name;
     private Double atom;
     private List<ProfileNode> children;
+    private String strictPattern;
 
     public String getPattern() {
         return pattern;
@@ -62,6 +63,14 @@ public class ProfileNode {
         }
     }
 
+    public String getStrictPattern() {
+        return strictPattern;
+    }
+
+    public void setStrictPattern(String strictPattern) {
+        this.strictPattern = strictPattern;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -78,5 +87,16 @@ public class ProfileNode {
     @Override
     public int hashCode() {
         return Objects.hash(pattern, name);
+    }
+
+    @Override
+    public String toString() {
+        return "ProfileNode{" +
+                "pattern='" + pattern + '\'' +
+                ", name='" + name + '\'' +
+                ", atom=" + atom +
+                ", children=" + children +
+                ", strictPattern='" + strictPattern + '\'' +
+                '}';
     }
 }

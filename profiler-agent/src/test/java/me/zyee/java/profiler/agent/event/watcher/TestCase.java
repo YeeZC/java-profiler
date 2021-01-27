@@ -24,10 +24,10 @@ public class TestCase {
     @Profile
     public void print(int i) {
         int x = i + 100;
-        System.out.println(plusRandom(x));
+        System.out.println(plusRandom(x, this));
     }
 
-    private double plusRandom(int i) {
-        return i + Math.random() * 1000;
+    private String plusRandom(int i, Object str) {
+        return str.toString() + i + Math.random() * 1000;
     }
 }

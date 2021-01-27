@@ -1,7 +1,5 @@
 package me.zyee.java.profiler.agent.event.handler;
 
-import java.lang.reflect.Field;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import me.zyee.java.profiler.agent.event.listener.EventListenerWrapper;
@@ -13,9 +11,7 @@ import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.Line;
 import me.zyee.java.profiler.event.Return;
 import me.zyee.java.profiler.event.Throws;
-import me.zyee.java.profiler.event.annotation.AutoClear;
 import me.zyee.java.profiler.event.listener.EventListener;
-import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**
  * @author yee
@@ -49,7 +45,7 @@ public class DefaultEventHandler implements EventHandler {
             try {
                 listeners.get(listenId).onEvent(event);
             } finally {
-                cleanEvent(event);
+                event.destroy();
             }
         }
     }
@@ -64,7 +60,7 @@ public class DefaultEventHandler implements EventHandler {
             try {
                 listeners.get(listenId).onEvent(event);
             } finally {
-                cleanEvent(event);
+                event.destroy();
             }
         }
     }
@@ -79,7 +75,7 @@ public class DefaultEventHandler implements EventHandler {
             try {
                 listeners.get(listenId).onEvent(event);
             } finally {
-                cleanEvent(event);
+                event.destroy();
             }
         }
     }
@@ -97,7 +93,7 @@ public class DefaultEventHandler implements EventHandler {
             try {
                 listeners.get(listenId).onEvent(event);
             } finally {
-                cleanEvent(event);
+                event.destroy();
             }
         }
     }
@@ -112,7 +108,7 @@ public class DefaultEventHandler implements EventHandler {
             try {
                 listeners.get(listenId).onEvent(event);
             } finally {
-                cleanEvent(event);
+                event.destroy();
             }
         }
     }
@@ -127,7 +123,7 @@ public class DefaultEventHandler implements EventHandler {
             try {
                 listeners.get(listenId).onEvent(event);
             } finally {
-                cleanEvent(event);
+                event.destroy();
             }
         }
     }
@@ -142,19 +138,15 @@ public class DefaultEventHandler implements EventHandler {
             try {
                 listeners.get(listenId).onEvent(event);
             } finally {
-                cleanEvent(event);
+                event.destroy();
             }
         }
     }
 
-    void cleanEvent(Event event) {
-        final List<Field> fields = FieldUtils.getFieldsListWithAnnotation(event.getClass(), AutoClear.class);
-        for (Field field : fields) {
-            try {
-                FieldUtils.writeField(field, event, null, true);
-            } catch (IllegalAccessException ignore) {
-            }
+    @Override
+    public void onEntry(int listenId) throws Throwable {
+        if (listeners.containsKey(listenId)) {
+            listeners.get(listenId).onEvent(Event.Entry);
         }
     }
-
 }

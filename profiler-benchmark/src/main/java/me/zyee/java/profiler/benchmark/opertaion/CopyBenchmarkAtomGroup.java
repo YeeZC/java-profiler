@@ -40,6 +40,7 @@ public abstract class CopyBenchmarkAtomGroup extends BaseBenchmarkAtomGroup impl
 
     @Override
     public List<AtomOperation> getAllOperations() {
+        doRunBenchmarkIfNeed();
         return operations.entrySet().stream().sorted(Map.Entry.comparingByKey())
                 .map(Map.Entry::getValue).collect(Collectors.toList());
     }
