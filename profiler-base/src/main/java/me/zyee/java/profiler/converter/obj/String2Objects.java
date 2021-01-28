@@ -1,10 +1,8 @@
-package me.zyee.java.profiler.agent.converter;
+package me.zyee.java.profiler.converter.obj;
 
+import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.NoSuchElementException;
-import me.zyee.java.profiler.agent.converter.string.ConstructorConverter;
-import me.zyee.java.profiler.agent.converter.string.FromConverter;
-import me.zyee.java.profiler.agent.converter.string.FromStringConverter;
-import me.zyee.java.profiler.agent.converter.string.ValueOfConverter;
 import org.apache.commons.lang3.ClassUtils;
 
 /**
@@ -12,14 +10,24 @@ import org.apache.commons.lang3.ClassUtils;
  * @version 1.0
  * Create by yee on 2021/1/20
  */
-public class Converters {
+public class String2Objects {
 
-    public static <T> FromStringConverter<T> create(Class<T> type) {
+    public static <T> String2ObjectConverter<T> create(Class<T> type, Field field) {
         if (type == String.class) {
             return type::cast;
         }
+        if (type.isEnum()) {
+            return input -> (T) Enum.valueOf((Class) type, input);
+        }
+        String2ObjectConverter<T> converter = null;
         final Class<T> clazz = (Class<T>) ClassUtils.primitiveToWrapper(type);
-        FromStringConverter<T> converter = ValueOfConverter.getIfEligible(clazz);
+        if (null != field && (clazz.isArray() || Collection.class.isAssignableFrom(clazz))) {
+            converter = String2ListConverter.getIfEligible(clazz, field.getGenericType());
+        }
+
+        if (null == converter && field != null) {
+            converter = ValueOfConverter.getIfEligible(clazz);
+        }
         if (null == converter) {
             converter = FromConverter.getIfEligible(type);
         }

@@ -1,19 +1,12 @@
 package me.zyee.java.profiler.agent;
 
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Properties;
 import java.util.function.Supplier;
 import javax.annotation.Resource;
-import me.zyee.java.profiler.agent.converter.Converters;
-import me.zyee.java.profiler.agent.converter.string.FromStringConverter;
 import me.zyee.java.profiler.agent.event.handler.DefaultEventHandler;
 import me.zyee.java.profiler.agent.event.watcher.DefaultEventWatcher;
 import me.zyee.java.profiler.agent.listener.ReportListener;
@@ -22,7 +15,6 @@ import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.DefaultBehaviorFilter;
 import me.zyee.java.profiler.spy.Spy;
 import org.apache.commons.lang3.ClassUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
@@ -67,29 +59,4 @@ public class Injector {
         }
     }
 
-    public static <T> T fromArgs(String arg, T configure) {
-        if (null == arg) {
-            return configure;
-        }
-        final byte[] bytes = arg.replace(";", "\n").getBytes(StandardCharsets.UTF_8);
-        Properties properties = new Properties();
-        try (InputStream is = new ByteArrayInputStream(bytes)) {
-            properties.load(is);
-        } catch (IOException e) {
-            return configure;
-        }
-        final Field[] fields = FieldUtils.getAllFields(configure.getClass());
-        for (Field field : fields) {
-            try {
-                final String property = properties.getProperty(field.getName());
-                if (StringUtils.isNotEmpty(property)) {
-                    final FromStringConverter<?> converter = Converters.create(field.getType());
-                    FieldUtils.writeField(field, configure, converter.convert(property), true);
-                }
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-        }
-        return configure;
-    }
 }

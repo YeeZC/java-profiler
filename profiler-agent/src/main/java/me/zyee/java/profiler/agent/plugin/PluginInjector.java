@@ -2,12 +2,12 @@ package me.zyee.java.profiler.agent.plugin;
 
 import java.util.List;
 import java.util.stream.Collectors;
-import me.zyee.java.profiler.agent.Injector;
 import me.zyee.java.profiler.agent.hardware.Hardware;
 import me.zyee.java.profiler.agent.utils.Initializer;
 import me.zyee.java.profiler.bean.Cpu;
 import me.zyee.java.profiler.bean.Memory;
 import me.zyee.java.profiler.bean.Net;
+import me.zyee.java.profiler.utils.StringHelper;
 import me.zyee.java.profiler.utils.LazyGet;
 
 /**
@@ -38,7 +38,7 @@ public interface PluginInjector {
             @Override
             protected List<Memory> initialValue() throws Throwable {
                 return hardware.getMemories()
-                        .stream().map(args -> Injector.fromArgs(args, Memory.builder().build()))
+                        .stream().map(args -> StringHelper.fromArgs(args, Memory.builder().build()))
                         .collect(Collectors.toList());
             }
         };

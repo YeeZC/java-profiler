@@ -16,8 +16,8 @@ import org.slf4j.LoggerFactory;
  * @version 1.0
  * Created by yee on 2020/2/12
  */
-public class ProcessUtils {
-    private static final Logger log = LoggerFactory.getLogger(ProcessUtils.class);
+public class JstatUtils {
+    private static final Logger log = LoggerFactory.getLogger(JstatUtils.class);
 
     public static List<String> gcStat() {
         final File jstatFile = findJstat();

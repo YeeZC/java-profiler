@@ -1,13 +1,15 @@
 package me.zyee.java.profiler.benchmark;
 
 
+import java.lang.reflect.Array;
+import java.lang.reflect.Field;
+import java.util.Collection;
 import java.util.List;
+import java.util.Optional;
+import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
-import org.openjdk.jmh.annotations.Mode;
-import org.openjdk.jmh.infra.BenchmarkParams;
-import org.openjdk.jmh.results.Result;
-import org.openjdk.jmh.results.RunResult;
+import me.zyee.java.profiler.utils.StringHelper;
+import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**
  * @author yee
@@ -16,7 +18,7 @@ import org.openjdk.jmh.results.RunResult;
  */
 public class BenchmarkInfo {
     private final List<Param> params;
-    private final Mode mode;
+    private final String mode;
     private final long count;
     private final double score;
     private final double error;
@@ -39,8 +41,16 @@ public class BenchmarkInfo {
         return params;
     }
 
-    public Mode getMode() {
-        return mode;
+    public <T> T getMode(Class<T> enumType) {
+        if (null == enumType) {
+            return (T) mode;
+        }
+        if (enumType.isEnum()) {
+            return (T) Enum.valueOf((Class) enumType, mode);
+        } else if (enumType == String.class) {
+            return enumType.cast(mode);
+        }
+        throw new UnsupportedOperationException();
     }
 
     public long getCount() {
@@ -62,20 +72,12 @@ public class BenchmarkInfo {
     public static class Param {
         public String name;
         public String value;
-
-        @Override
-        public String toString() {
-            return "Param{" +
-                    "name='" + name + '\'' +
-                    ", value='" + value + '\'' +
-                    '}';
-        }
     }
 
 
     public static class Builder {
         private List<Param> params;
-        private Mode mode;
+        private String mode;
         private long count;
         private double score;
         private double error;
@@ -89,7 +91,7 @@ public class BenchmarkInfo {
             return this;
         }
 
-        public Builder setMode(Mode mode) {
+        public Builder setMode(String mode) {
             this.mode = mode;
             return this;
         }
@@ -124,37 +126,8 @@ public class BenchmarkInfo {
             return this;
         }
 
-        public Builder of(RunResult result) {
-            final BenchmarkParams params = result.getParams();
-            this.params = params.getParamsKeys().stream().map(key -> {
-                Param param = new Param();
-                param.name = key;
-                param.value = params.getParam(key);
-                return param;
-            }).collect(Collectors.toList());
-            this.mode = params.getMode();
-            final Result pres = result.getPrimaryResult();
-            this.count = pres.getSampleCount();
-            this.score = pres.getScore();
-            this.error = pres.getScoreError();
-            this.unit = params.getTimeUnit();
-            return this;
-        }
-
         public BenchmarkInfo build() {
             return new BenchmarkInfo(this);
         }
-    }
-
-    @Override
-    public String toString() {
-        return "BenchmarkInfo{" +
-                ", params=" + params +
-                ", mode=" + mode +
-                ", count=" + count +
-                ", score=" + score +
-                ", error=" + error +
-                ", unit=" + unit +
-                '}';
     }
 }

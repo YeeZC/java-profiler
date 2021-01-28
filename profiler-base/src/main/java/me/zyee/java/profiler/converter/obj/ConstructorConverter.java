@@ -1,4 +1,4 @@
-package me.zyee.java.profiler.agent.converter.string;
+package me.zyee.java.profiler.converter.obj;
 
 import java.lang.reflect.Constructor;
 
@@ -7,7 +7,7 @@ import java.lang.reflect.Constructor;
  * @version 1.0
  * Create by yee on 2021/1/20
  */
-public class ConstructorConverter<T> extends BaseStringConverter<T> {
+public class ConstructorConverter<T> extends BaseString2ObjectConverter<T> {
     private final Constructor<T> constructor;
 
     public ConstructorConverter(Class<T> clazz, Constructor<T> constructor) {

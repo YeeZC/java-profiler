@@ -17,6 +17,9 @@ import me.zyee.java.profiler.operation.AtomGroups;
 import me.zyee.java.profiler.operation.CopyAtomGroup;
 import me.zyee.java.profiler.operation.impl.DefaultAtomOperation;
 import java.util.stream.Stream;
+
+import org.openjdk.jmh.annotations.Mode;
+
 public class CopyAtomGroups {
 
 <#list subClasses as subClass >
@@ -42,7 +45,7 @@ public class CopyAtomGroups {
                 BenchmarkInfo.Param param = info.getParams().get(0);
                 long value = Long.valueOf(param.value);
                 long cost = 0L;
-                switch (info.getMode()) {
+                switch (info.getMode(Mode.class)) {
                     case Throughput:
                         cost = (long)(info.getUnit().toMillis(1) * (10000000L * (1 / info.getScore())));
                         break;
@@ -50,6 +53,7 @@ public class CopyAtomGroups {
                         cost = (long) (info.getUnit().toMillis(1) * info.getScore());
                         break;
                 }
+                System.out.printf("benchmark %s score %d ms/1kw \n", "${benchmark?split(".")[0]}", cost);
                 operations.put(value, DefaultAtomOperation.builder()
                     .setName(String.format("${name} (%d)", value))
                     .setPattern("${pattern}")

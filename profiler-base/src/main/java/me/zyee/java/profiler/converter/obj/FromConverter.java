@@ -1,4 +1,4 @@
-package me.zyee.java.profiler.agent.converter.string;
+package me.zyee.java.profiler.converter.obj;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -9,11 +9,11 @@ import org.apache.commons.lang3.reflect.MethodUtils;
  * @version 1.0
  * Create by yee on 2021/1/20
  */
-public class ValueOfConverter<T> extends BaseStringConverter<T> {
-    private static final String VALUE_OF = "valueOf";
+public class FromConverter<T> extends BaseString2ObjectConverter<T> {
+    private static final String FROM = "from";
     private final Method method;
 
-    public ValueOfConverter(Class<T> clazz, Method method) {
+    public FromConverter(Class<T> clazz, Method method) {
         super(clazz);
         this.method = method;
     }
@@ -31,13 +31,13 @@ public class ValueOfConverter<T> extends BaseStringConverter<T> {
         }
     }
 
-    public static <T> ValueOfConverter<T> getIfEligible(Class<T> clazz) {
-        final Method method = MethodUtils.getMatchingMethod(clazz, VALUE_OF, String.class);
+    public static <T> FromConverter<T> getIfEligible(Class<T> clazz) {
+        final Method method = MethodUtils.getMatchingMethod(clazz, FROM, String.class);
         if (Modifier.isStatic(method.getModifiers())) {
             if (!method.isAccessible()) {
                 method.setAccessible(true);
             }
-            return new ValueOfConverter<>(clazz, method);
+            return new FromConverter<>(clazz, method);
         } else {
             // The valueOf method is present but it must be static.
             return null;
