@@ -183,8 +183,8 @@ public class Core implements ProfilerCore {
                 if (n instanceof AtomGroup) {
                     ((AtomGroup) n).getAllOperations().forEach(op -> {
                         ProfileNode child = new ProfileNode();
-                        child.setName(n.getName());
-                        child.setPattern(n.getPattern());
+                        child.setName(op.getName());
+                        child.setPattern(op.getPattern());
                         child.setAtom((double) op.getCost());
                         profileNode.addChild(child);
                     });

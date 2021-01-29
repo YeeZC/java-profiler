@@ -26,9 +26,17 @@ public class StringHelper {
         for (String param : params) {
             final String key = StringUtils.substringBefore(param, "=");
             final String value = StringUtils.substringAfter(param, "=");
+            Class<?> clazz = configure.getClass();
             if (StringUtils.isNotEmpty(value)) {
                 try {
-                    final Field field = FieldUtils.getDeclaredField(configure.getClass(), key, true);
+                    Field field = FieldUtils.getDeclaredField(clazz, key, true);
+                    while (null == field && clazz != Object.class) {
+                        clazz = clazz.getSuperclass();
+                        field = FieldUtils.getDeclaredField(clazz, key, true);
+                    }
+                    if (null == field) {
+                        continue;
+                    }
                     final String2ObjectConverter<?> converter = String2Objects.create(field.getType(), field);
                     FieldUtils.writeField(field, configure, converter.convert(value), true);
                 } catch (IllegalAccessException ignore) {
