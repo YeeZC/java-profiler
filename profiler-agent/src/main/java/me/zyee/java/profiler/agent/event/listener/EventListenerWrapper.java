@@ -1,6 +1,5 @@
 package me.zyee.java.profiler.agent.event.listener;
 
-import java.util.Optional;
 import me.zyee.java.profiler.agent.Injector;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
@@ -19,10 +18,11 @@ public class EventListenerWrapper implements EventListener {
 
     @Override
     public boolean onEvent(Event event) throws Throwable {
-        if (!Optional.ofNullable(Injector.isWarmup).orElse(() -> false).get()) {
+        try {
+            return !Injector.isWarmup.get() && delegate.onEvent(event);
+        } catch (NullPointerException e) {
             return delegate.onEvent(event);
         }
-        return true;
     }
 
 

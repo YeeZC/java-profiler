@@ -72,9 +72,9 @@ public class MethodProfilerModule implements Module {
     }
 
     protected boolean onBefore(Before before) {
-        context = ContextHelper.getContext()
-                .resolve(transferProfileName(before));
+        context = ContextHelper.getContext().resolve(transferProfileName(before));
         item = new ProfileItem(before.getTriggerMethod());
+        Optional.ofNullable(context.getProfileItems()).ifPresent(queue -> queue.offer(item));
         profiler = context.getProfiler();
         if (null != profiler) {
             try {
@@ -86,12 +86,12 @@ public class MethodProfilerModule implements Module {
                     final String[] patterns = profile.strictCount();
                     if (patterns.length > 0) {
                         Stream.of(patterns).distinct().map(ActualCostCountModule::new)
-                                .map(CoreModule::enableModule)
+                                .peek(Module::enable)
                                 .forEach(modules::add);
                     }
                 }
                 getActualCountPatterns().stream().map(ActualCostCountModule::new)
-                        .map(CoreModule::enableModule)
+                        .peek(Module::enable)
                         .forEach(modules::add);
             } catch (ClassNotFoundException e) {
                 e.printStackTrace();
@@ -110,7 +110,6 @@ public class MethodProfilerModule implements Module {
                 item.setCost(System.currentTimeMillis() - start);
                 final Path stop = profiler.stop();
                 item.setFlamePath(stop);
-                Optional.ofNullable(context.getProfileItems()).ifPresent(queue -> queue.offer(item));
                 System.out.println("profile tree 输出路径 " + stop);
             } catch (NullPointerException e) {
                 item.setThrowable(e);
@@ -118,6 +117,13 @@ public class MethodProfilerModule implements Module {
                 final Map<String, Supplier<Long>> costs = modules.stream().peek(Module::disable)
                         .collect(Collectors.toMap(ActualCostCountModule::getPattern,
                                 ActualCostCountModule::getReference));
+                final Map<String, Supplier<Long>> collect =
+                        ContextHelper.COUNTER.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
+                                entry -> () -> (long) entry.getValue().get()));
+                ContextHelper.COUNTER.clear();
+                collect.forEach((key, value) -> {
+                    costs.merge(key, value, (s, s1) -> () -> s.get() + s1.get());
+                });
                 item.setActualCost(costs);
             }
         }

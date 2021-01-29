@@ -90,6 +90,9 @@ public class Core implements ProfilerCore {
             Map<String, Long> theoreticalCost = new HashMap<>();
             while (items.peek() != null) {
                 final ProfileItem item = items.poll();
+                if (item.getThrowable() != null) {
+                    continue;
+                }
                 final Path flamePath = item.getFlamePath();
                 final Queue<Operation> nodes = item.getNodes();
                 ProfileNode root = new ProfileNode();

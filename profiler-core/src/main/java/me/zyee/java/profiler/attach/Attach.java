@@ -98,7 +98,8 @@ public class Attach {
                     Attach.attach(agent, dump, PidUtils.currentPid());
                 }
             }
-            final MethodProfilerModule module = CoreModule.enableModule(new MethodProfilerModule());
+            final MethodProfilerModule module = new MethodProfilerModule();
+            module.enable();
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 CoreModule.destroy();
                 module.disable();

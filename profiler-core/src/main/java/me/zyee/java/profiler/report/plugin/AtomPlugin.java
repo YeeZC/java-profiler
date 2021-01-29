@@ -20,7 +20,6 @@ public class AtomPlugin implements Plugin {
 
     public AtomPlugin(ProfileNode root) {
         this.root = root;
-        System.err.println("Node------ " + root);
     }
 
     @Override
@@ -40,7 +39,7 @@ public class AtomPlugin implements Plugin {
                     StringUtils.isEmpty(pattern) ? "" : String.format("`%s`", pattern),
                     FormatUtil.formatMilliseconds((node.getAtom()).longValue()), ""
             ));
-        } else {
+        } else if (null != node.getChildren()) {
             for (ProfileNode child : node.getChildren()) {
                 data.addAll(findAtom(child));
             }

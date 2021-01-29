@@ -58,7 +58,7 @@ public class Initializer {
             structure = new ClassStructureImplByJDK(classBeingRedefined);
         }
 
-        return new StructureWrapper(structure);
+        return new DefaultStructure(structure);
     }
 
     public static Hardware newHardware() {

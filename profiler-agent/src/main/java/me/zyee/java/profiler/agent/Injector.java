@@ -5,10 +5,13 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import javax.annotation.Resource;
 import me.zyee.java.profiler.agent.event.handler.DefaultEventHandler;
 import me.zyee.java.profiler.agent.event.watcher.DefaultEventWatcher;
+import me.zyee.java.profiler.agent.listener.ModuleListener;
 import me.zyee.java.profiler.agent.listener.ReportListener;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
@@ -30,15 +33,15 @@ public class Injector {
     public static void init(Instrumentation inst) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Class<?> core = ClassUtils.getClass(CLASS_CORE_MODULE);
         if (null != core) {
-            Method isWarmup = MethodUtils.getMatchingMethod(core, "isWarmup");
+            final Object instance = MethodUtils.invokeStaticMethod(core, "getInstance");
+            final AtomicBoolean warmup = (AtomicBoolean) FieldUtils.readField(instance, "warmup", true);
             Injector.isWarmup = () -> {
                 try {
-                    return (Boolean) isWarmup.invoke(null);
+                    return warmup.get();
                 } catch (Throwable e) {
                     return false;
                 }
             };
-            final Object instance = MethodUtils.invokeStaticMethod(core, "getInstance");
             final List<Field> fields = FieldUtils.getFieldsListWithAnnotation(core, Resource.class);
             final DefaultEventHandler handler = new DefaultEventHandler();
             EventWatcher watcher = new DefaultEventWatcher(inst, handler);
@@ -53,9 +56,14 @@ public class Injector {
                 }
             }
             Spy.init(handler);
-            final int watchId = watcher.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.report.Report#output"),
+            final int report = watcher.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.report.Report#output"),
                     new ReportListener(), Event.Type.BEFORE);
-            Runtime.getRuntime().addShutdownHook(new Thread(() -> watcher.delete(watchId)));
+            final int module = watcher.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.module.Module#enable"),
+                    new ModuleListener(watcher), Event.Type.BEFORE);
+            Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+                watcher.delete(report);
+                watcher.delete(module);
+            }));
         }
     }
 

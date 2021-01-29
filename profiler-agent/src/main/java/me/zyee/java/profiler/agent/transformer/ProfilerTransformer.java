@@ -43,12 +43,8 @@ public class ProfilerTransformer implements ClassFileTransformer {
                             ProtectionDomain protectionDomain,
                             byte[] classfileBuffer) {
         final Structure structure = Initializer.newStructure(loader, classBeingRedefined, classfileBuffer);
-        final String javaClassName = structure.getJavaClassName();
-        if (!filter.classFilter(javaClassName)) {
+        if (!structure.isNeedTransformer(filter)) {
             return null;
-        }
-        if (logger.isDebugEnabled()) {
-            logger.debug("matched class {}", javaClassName);
         }
         final Set<String> behaviorSignCodes = structure.getMatchesBehaviors(filter::methodFilter);
         if (behaviorSignCodes.isEmpty()) {

@@ -8,7 +8,8 @@ import java.util.concurrent.atomic.AtomicInteger;
  * Create by yee on 2021/1/6
  */
 public class Spy {
-    private static final AtomicInteger sequenceRef = new AtomicInteger(1000);
+    public static final int START = 1000;
+    private static final AtomicInteger sequenceRef = new AtomicInteger(START);
 
     public static int nextSequence() {
         return sequenceRef.getAndIncrement();

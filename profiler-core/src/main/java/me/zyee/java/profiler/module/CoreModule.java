@@ -30,12 +30,6 @@ public class CoreModule {
     private Instrumentation inst;
     @Resource
     private EventWatcher watcher;
-    @Resource(name = "nets")
-    private List<Net> nets;
-    @Resource(name = "speed")
-    private List<IOSpeed> speeds;
-    @Resource
-    private Cpu cpu;
 
     private final AtomicBoolean warmup = new AtomicBoolean(false);
 
@@ -73,34 +67,6 @@ public class CoreModule {
             getInstance().watcher.delete(watch);
         }
         ForkJoiner.shutdown();
-    }
-
-    public List<Net> getNets() {
-        return nets;
-    }
-
-    public Cpu getCpu() {
-        return cpu;
-    }
-
-    public List<IOSpeed> getSpeeds() {
-        return speeds;
-    }
-
-    public static <T extends Module> T enableModule(T module) {
-        final EventWatcher watcher = getInstance().watcher;
-        final List<Field> fields = FieldUtils.getFieldsListWithAnnotation(module.getClass(), Resource.class);
-        for (Field field : fields) {
-            if (ClassUtils.isAssignable(field.getType(), EventWatcher.class)
-                    || ClassUtils.isAssignable(EventWatcher.class, field.getType())) {
-                try {
-                    FieldUtils.writeField(field, module, watcher, true);
-                } catch (IllegalAccessException ignore) {
-                }
-            }
-        }
-        module.enable();
-        return module;
     }
 
     public static boolean entryWarmup() {

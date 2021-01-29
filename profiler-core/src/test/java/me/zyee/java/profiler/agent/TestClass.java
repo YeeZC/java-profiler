@@ -42,7 +42,7 @@ public class TestClass {
         System.out.println(StringUtils.center("", 100, "*"));
     }
 
-    @Profile
+//    @Profile
     public static void print(String x) {
         System.out.println(StringUtils.center(x, 100));
     }

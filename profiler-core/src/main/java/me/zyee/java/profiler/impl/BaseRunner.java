@@ -39,7 +39,7 @@ public abstract class BaseRunner implements Runner, Task {
                 final Profile profile = targetClass.getAnnotation(Profile.class);
                 final String[] strings = profile.strictCount();
                 final List<ActualCostCountModule> collect = Stream.of(strings).distinct().map(ActualCostCountModule::new)
-                        .map(CoreModule::enableModule)
+                        .peek(Module::enable)
                         .collect(Collectors.toList());
                 try {
                     return Optional.ofNullable(context.getProfiler()).map(profiler -> {

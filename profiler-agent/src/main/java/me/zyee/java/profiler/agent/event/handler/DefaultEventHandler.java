@@ -12,6 +12,7 @@ import me.zyee.java.profiler.event.Line;
 import me.zyee.java.profiler.event.Return;
 import me.zyee.java.profiler.event.Throws;
 import me.zyee.java.profiler.event.listener.EventListener;
+import me.zyee.java.profiler.spy.Spy;
 
 /**
  * @author yee
@@ -19,21 +20,27 @@ import me.zyee.java.profiler.event.listener.EventListener;
  * Create by yee on 2021/1/6
  */
 public class DefaultEventHandler implements EventHandler {
-    private final Map<Integer, EventListener> listeners = new ConcurrentHashMap<>();
+    private final EventListener[] listeners = new EventListener[Spy.START];
 
     @Override
     public void register(int id, EventListener listener, Event.Type[] types) {
-        listeners.putIfAbsent(id, new EventListenerWrapper(listener));
+        final int idx = id % Spy.START;
+        if (listeners[idx] == null) {
+            listeners[idx] = new EventListenerWrapper(listener);
+        }
+//        listeners.putIfAbsent(id, new EventListenerWrapper(listener));
     }
 
     @Override
     public void unRegister(int id) {
-        listeners.remove(id);
+        listeners[id % Spy.START] = null;
     }
 
     @Override
     public void onBefore(int listenId, ClassLoader loader, String className, String methodName, String methodDesc, Object target, Object[] args) throws Throwable {
-        if (listeners.containsKey(listenId)) {
+
+        final int idx = listenId % Spy.START;
+        if (listeners[idx] != null) {
             final Before event = Before.builder()
                     .setId(listenId)
                     .setTriggerClass(className)
@@ -43,7 +50,7 @@ public class DefaultEventHandler implements EventHandler {
                     .setTriggerMethodSign(methodDesc)
                     .setArgs(args).build();
             try {
-                listeners.get(listenId).onEvent(event);
+                listeners[idx].onEvent(event);
             } finally {
                 event.destroy();
             }
@@ -52,13 +59,14 @@ public class DefaultEventHandler implements EventHandler {
 
     @Override
     public void onReturn(int listenId, Object returnObject) throws Throwable {
-        if (listeners.containsKey(listenId)) {
+        final int idx = listenId % Spy.START;
+        if (listeners[idx] != null) {
             final Return event = Return.builder()
                     .setId(listenId)
                     .setReturnObject(returnObject)
                     .build();
             try {
-                listeners.get(listenId).onEvent(event);
+                listeners[idx].onEvent(event);
             } finally {
                 event.destroy();
             }
@@ -67,13 +75,14 @@ public class DefaultEventHandler implements EventHandler {
 
     @Override
     public void onThrows(int listenId, Throwable throwable) throws Throwable {
-        if (listeners.containsKey(listenId)) {
+        final int idx = listenId % Spy.START;
+        if (listeners[idx] != null) {
             final Throws event = Throws.builder()
                     .setId(listenId)
                     .setThrowable(throwable)
                     .build();
             try {
-                listeners.get(listenId).onEvent(event);
+                listeners[idx].onEvent(event);
             } finally {
                 event.destroy();
             }
@@ -82,7 +91,9 @@ public class DefaultEventHandler implements EventHandler {
 
     @Override
     public void onCallBefore(int listenId, String className, String methodName, String desc, int lineNumber) throws Throwable {
-        if (listeners.containsKey(listenId)) {
+        final int idx = listenId % Spy.START;
+        final EventListener listener = listeners[idx];
+        if (null != listener) {
             final CallBefore event = CallBefore.builder()
                     .setId(listenId)
                     .setTriggerClass(className)
@@ -91,7 +102,7 @@ public class DefaultEventHandler implements EventHandler {
                     .setLineNumber(lineNumber)
                     .build();
             try {
-                listeners.get(listenId).onEvent(event);
+                listener.onEvent(event);
             } finally {
                 event.destroy();
             }
@@ -100,13 +111,14 @@ public class DefaultEventHandler implements EventHandler {
 
     @Override
     public void onCallReturn(int listenId, int lineNumber) throws Throwable {
-        if (listeners.containsKey(listenId)) {
+        final int idx = listenId % Spy.START;
+        if (listeners[idx] != null) {
             final CallReturn event = CallReturn.builder()
                     .setId(listenId)
                     .setLineNumber(lineNumber)
                     .build();
             try {
-                listeners.get(listenId).onEvent(event);
+                listeners[idx].onEvent(event);
             } finally {
                 event.destroy();
             }
@@ -115,13 +127,14 @@ public class DefaultEventHandler implements EventHandler {
 
     @Override
     public void onCallThrows(int listenId, int lineNumber, Throwable throwMsg) throws Throwable {
-        if (listeners.containsKey(listenId)) {
+        final int idx = listenId % Spy.START;
+        if (listeners[idx] != null) {
             final CallThrows event = CallThrows.builder()
                     .setId(listenId)
                     .setThrowable(throwMsg)
                     .build();
             try {
-                listeners.get(listenId).onEvent(event);
+                listeners[idx].onEvent(event);
             } finally {
                 event.destroy();
             }
@@ -130,13 +143,14 @@ public class DefaultEventHandler implements EventHandler {
 
     @Override
     public void onLine(int listenId, int lineNumber) throws Throwable {
-        if (listeners.containsKey(listenId)) {
+        final int idx = listenId % Spy.START;
+        if (listeners[idx] != null) {
             final Line event = Line.builder()
                     .setId(listenId)
                     .setLineNumber(lineNumber)
                     .build();
             try {
-                listeners.get(listenId).onEvent(event);
+                listeners[idx].onEvent(event);
             } finally {
                 event.destroy();
             }
@@ -145,8 +159,9 @@ public class DefaultEventHandler implements EventHandler {
 
     @Override
     public void onEntry(int listenId) throws Throwable {
-        if (listeners.containsKey(listenId)) {
-            listeners.get(listenId).onEvent(Event.Entry);
+        final int idx = listenId % Spy.START;
+        if (listeners[idx] != null) {
+            listeners[idx].onEvent(Event.Entry);
         }
     }
 }
