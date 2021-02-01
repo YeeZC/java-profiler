@@ -210,7 +210,7 @@ public class ProfilerAdviceAdapter extends AdviceAdapter {
 
     @Override
     public void visitMethodInsn(int opcodeAndSource, String owner, String name, String descriptor, boolean isInterface) {
-        if (isSuperOrSiblingConstructorCall(opcodeAndSource, owner, name) || !methodEnter || codeLockForTracing.isLock()) {
+        if (isSuperOrSiblingConstructorCall(opcodeAndSource, owner, name)/* || !methodEnter*/ || codeLockForTracing.isLock()) {
             super.visitMethodInsn(opcodeAndSource, owner, name, descriptor, isInterface);
             return;
         }

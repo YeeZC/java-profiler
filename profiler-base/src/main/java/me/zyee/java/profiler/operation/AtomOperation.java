@@ -14,4 +14,6 @@ public interface AtomOperation extends Operation {
     long getExpect();
 
     Supplier<Long> getActual();
+
+    String getSummery();
 }

@@ -57,6 +57,7 @@ public class CopyAtomGroups {
                 operations.put(value, DefaultAtomOperation.builder()
                     .setName(String.format("${name} (%d)", value))
                     .setPattern("${pattern}")
+                    .setSummery(String.format("随机拷贝 %d-%d 个元素的数组", value / 10, value))
                     .setCost(cost)
                     .build());
             });

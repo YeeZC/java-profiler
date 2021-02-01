@@ -58,7 +58,7 @@ public class CallCounterModule implements Module {
                             }
                         }
                         return false;
-                    }, Event.Type.ENTRY, Event.Type.CALL_BEFORE);
+                    }, Event.Type.CALL_BEFORE);
             watchIds.add(watch);
         }
 

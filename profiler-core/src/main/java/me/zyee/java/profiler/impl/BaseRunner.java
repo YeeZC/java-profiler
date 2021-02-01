@@ -37,7 +37,7 @@ public abstract class BaseRunner implements Runner, Task {
         try {
             if (!CoreModule.isWarmup() && targetClass.isAnnotationPresent(Profile.class)) {
                 final Profile profile = targetClass.getAnnotation(Profile.class);
-                final String[] strings = profile.strictCount();
+                final String[] strings = profile.counters();
                 final List<ActualCostCountModule> collect = Stream.of(strings).distinct().map(ActualCostCountModule::new)
                         .peek(Module::enable)
                         .collect(Collectors.toList());

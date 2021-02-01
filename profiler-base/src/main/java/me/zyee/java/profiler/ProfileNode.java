@@ -16,6 +16,7 @@ public class ProfileNode {
     private Double atom;
     private List<ProfileNode> children;
     private String strictPattern;
+    private String summery;
 
     public String getPattern() {
         return pattern;
@@ -69,6 +70,14 @@ public class ProfileNode {
 
     public void setStrictPattern(String strictPattern) {
         this.strictPattern = strictPattern;
+    }
+
+    public String getSummery() {
+        return summery;
+    }
+
+    public void setSummery(String summery) {
+        this.summery = summery;
     }
 
     @Override

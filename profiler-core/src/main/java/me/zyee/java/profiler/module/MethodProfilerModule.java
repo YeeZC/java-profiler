@@ -18,9 +18,11 @@ import me.zyee.java.profiler.ProfileHandler;
 import me.zyee.java.profiler.ProfileHandlerRegistry;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Profiler;
+import me.zyee.java.profiler.annotation.PostProcessor;
 import me.zyee.java.profiler.annotation.Profile;
 import me.zyee.java.profiler.event.Before;
 import me.zyee.java.profiler.event.Event;
+import me.zyee.java.profiler.event.Return;
 import me.zyee.java.profiler.event.Throws;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.BehaviorFilter;
@@ -41,9 +43,9 @@ public class MethodProfilerModule implements Module {
     private int watchId;
     private long start;
     protected ProfileItem item;
-    private Context context;
     private Profiler profiler;
     private final List<ActualCostCountModule> modules = new ArrayList<>();
+    private final List<PostProcessor> processors = new ArrayList<>();
 
     @Override
     public void enable() {
@@ -52,6 +54,9 @@ public class MethodProfilerModule implements Module {
                 case BEFORE:
                     return onBefore((Before) event);
                 case RETURN:
+                    for (PostProcessor processor : this.processors) {
+                        processor.after(((Return) event).getReturnObject());
+                    }
                     return onReturn();
                 case THROWS:
                     return onThrows((Throws) event);
@@ -72,8 +77,8 @@ public class MethodProfilerModule implements Module {
     }
 
     protected boolean onBefore(Before before) {
-        context = ContextHelper.getContext().resolve(transferProfileName(before));
-        item = new ProfileItem(before.getTriggerMethod());
+        Context context = ContextHelper.getContext().resolve(transferProfileName(before));
+        item = new ProfileItem(transferProfileName(before));
         Optional.ofNullable(context.getProfileItems()).ifPresent(queue -> queue.offer(item));
         profiler = context.getProfiler();
         if (null != profiler) {
@@ -83,11 +88,22 @@ public class MethodProfilerModule implements Module {
                 final Method method = MethodUtils.getMatchingMethod(clazz, before.getTriggerMethod(), methodType.parameterArray());
                 final Profile profile = method.getAnnotation(Profile.class);
                 if (null != profile) {
-                    final String[] patterns = profile.strictCount();
+                    final String[] patterns = profile.counters();
                     if (patterns.length > 0) {
                         Stream.of(patterns).distinct().map(ActualCostCountModule::new)
                                 .peek(Module::enable)
                                 .forEach(modules::add);
+                    }
+                    final Class<? extends PostProcessor>[] processors = profile.processors();
+                    for (Class<? extends PostProcessor> processor : processors) {
+
+                        try {
+                            final PostProcessor p = processor.newInstance();
+                            p.before(before.getArgs());
+                            this.processors.add(p);
+                        } catch (InstantiationException | IllegalAccessException e) {
+                            e.printStackTrace();
+                        }
                     }
                 }
                 getActualCountPatterns().stream().map(ActualCostCountModule::new)

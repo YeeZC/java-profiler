@@ -29,7 +29,7 @@ public class TestClass {
 
     @Test
     @Profile(
-            strictCount = {"me.zyee.java.profiler.agent.TestClass#print",
+            counters = {"me.zyee.java.profiler.agent.TestClass#print",
                     "org.apache.commons.lang3.StringUtils#center"
             }
     )

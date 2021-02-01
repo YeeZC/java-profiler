@@ -189,6 +189,7 @@ public class Core implements ProfilerCore {
                         child.setName(op.getName());
                         child.setPattern(op.getPattern());
                         child.setAtom((double) op.getCost());
+                        child.setSummery(op.getSummery());
                         profileNode.addChild(child);
                     });
                     return Sets.newHashSet(n.getPattern());
@@ -206,6 +207,7 @@ public class Core implements ProfilerCore {
             }).forEach(patterns::addAll);
         } else if (node instanceof AtomOperation) {
             profileNode.setAtom((double)node.getCost());
+            profileNode.setSummery(((AtomOperation) node).getSummery());
         }
         return patterns;
     }

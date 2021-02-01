@@ -3,6 +3,7 @@ package me.zyee.java.profiler.report.plugin;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import me.zyee.java.profiler.ProfileNode;
 import me.zyee.java.profiler.report.markdown.Table;
 import me.zyee.java.profiler.report.markdown.Title;
@@ -37,7 +38,7 @@ public class AtomPlugin implements Plugin {
             data.add(Lists.newArrayList(
                     node.getName(),
                     StringUtils.isEmpty(pattern) ? "" : String.format("`%s`", pattern),
-                    FormatUtil.formatMilliseconds((node.getAtom()).longValue()), ""
+                    FormatUtil.formatMilliseconds((node.getAtom()).longValue()), Optional.ofNullable(node.getSummery()).orElse("")
             ));
         } else if (null != node.getChildren()) {
             for (ProfileNode child : node.getChildren()) {
