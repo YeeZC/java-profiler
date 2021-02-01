@@ -129,7 +129,7 @@ public class Core implements ProfilerCore {
                                         .setTheoreticalCost(theoreticalCost)
                                         .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent)).build(), new ConclusionPlugin(warnings, errors))
                         .build().output(Optional.ofNullable(reportPath).orElse(
-                        Paths.get(System.getProperty("user.dir"))).resolve(item.getProfileName() + ".md"));
+                        Paths.get(System.getProperty("user.dir"))).resolve(runner.name() + item.getProfileName() + ".md"));
             }
         }
     }
