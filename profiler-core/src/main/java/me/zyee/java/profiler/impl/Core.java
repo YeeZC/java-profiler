@@ -28,8 +28,6 @@ import me.zyee.java.profiler.module.CoreModule;
 import me.zyee.java.profiler.operation.AtomGroup;
 import me.zyee.java.profiler.operation.AtomOperation;
 import me.zyee.java.profiler.operation.NormalOperation;
-import me.zyee.java.profiler.operation.impl.DefaultAtomOperation;
-import me.zyee.java.profiler.operation.impl.DefaultOperation;
 import me.zyee.java.profiler.report.Report;
 import me.zyee.java.profiler.report.markdown.Title;
 import me.zyee.java.profiler.report.plugin.AtomPlugin;
@@ -77,14 +75,17 @@ public class Core implements ProfilerCore {
             throw new UnsupportedOperationException();
         }
 
-        if (CoreModule.entryWarmup()) {
+        CoreModule.entryWarmup();
+        try {
             for (int i = 0; i < warmups; i++) {
                 runner.apply(context);
             }
+        } finally {
             CoreModule.exitWarmup();
         }
 
         final Result apply = runner.apply(context);
+        CoreModule.entryWarmup();
         if (apply.isOk()) {
             final Queue<ProfileItem> items = context.getProfileItems();
             Map<String, Long> theoreticalCost = new HashMap<>();

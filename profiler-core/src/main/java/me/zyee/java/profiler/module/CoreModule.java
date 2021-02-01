@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import javax.annotation.Resource;
+import me.zyee.java.profiler.WarmupSwitcher;
 import me.zyee.java.profiler.bean.Cpu;
 import me.zyee.java.profiler.bean.IOSpeed;
 import me.zyee.java.profiler.bean.Net;
@@ -30,8 +31,8 @@ public class CoreModule {
     private Instrumentation inst;
     @Resource
     private EventWatcher watcher;
-
-    private final AtomicBoolean warmup = new AtomicBoolean(false);
+    @Resource
+    private WarmupSwitcher switcher;
 
     private final List<Integer> watches = new ArrayList<>();
 
@@ -69,15 +70,15 @@ public class CoreModule {
         ForkJoiner.shutdown();
     }
 
-    public static boolean entryWarmup() {
-        return getInstance().warmup.compareAndSet(false, true);
+    public static void entryWarmup() {
+        getInstance().switcher.change(true);
     }
 
-    public static boolean exitWarmup() {
-        return getInstance().warmup.compareAndSet(true, false);
+    public static void exitWarmup() {
+        getInstance().switcher.change(false);
     }
 
     public static boolean isWarmup() {
-        return getInstance().warmup.get();
+        return getInstance().switcher.isWarmup();
     }
 }

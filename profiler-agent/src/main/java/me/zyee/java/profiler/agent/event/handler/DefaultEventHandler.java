@@ -1,8 +1,5 @@
 package me.zyee.java.profiler.agent.event.handler;
 
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import me.zyee.java.profiler.agent.event.listener.EventListenerWrapper;
 import me.zyee.java.profiler.event.Before;
 import me.zyee.java.profiler.event.CallBefore;
 import me.zyee.java.profiler.event.CallReturn;
@@ -23,10 +20,10 @@ public class DefaultEventHandler implements EventHandler {
     private final EventListener[] listeners = new EventListener[Spy.START];
 
     @Override
-    public void register(int id, EventListener listener, Event.Type[] types) {
+    public void register(int id, EventListener listener, Event.Type[] types, boolean checkWarmup) {
         final int idx = id % Spy.START;
         if (listeners[idx] == null) {
-            listeners[idx] = new EventListenerWrapper(listener);
+            listeners[idx] = listener;
         }
 //        listeners.putIfAbsent(id, new EventListenerWrapper(listener));
     }

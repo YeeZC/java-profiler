@@ -28,7 +28,7 @@ import org.apache.commons.lang3.ClassUtils;
  * @version 1.0
  * created by yee on 2021/1/6
  */
-public class DefaultEventWatcher implements EventWatcher {
+public class DefaultEventWatcher implements AgentEventWatcher {
     private final Instrumentation inst;
     private final EventHandler handler;
     private final List<ProfilerTransformer> transformers = new ArrayList<>();
@@ -39,22 +39,22 @@ public class DefaultEventWatcher implements EventWatcher {
     }
 
     @Override
-    public int watch(BehaviorFilter filter, EventListener listener, Event.Type... types) {
-        return watch(filter, CallBeforeFilter.TRUE, listener, types);
+    public int watch(BehaviorFilter filter, EventListener listener, boolean ifWarmup, Event.Type... types) {
+        return watch(filter, CallBeforeFilter.TRUE, listener, ifWarmup, types);
     }
 
     @Override
-    public int watch(BehaviorFilter pattern, EventListener listener) {
-        return watch(pattern, listener, Event.Type.values());
+    public int watch(BehaviorFilter pattern, EventListener listener, boolean ifWarmup) {
+        return watch(pattern, listener, ifWarmup, Event.Type.values());
     }
 
     @Override
-    public int watch(BehaviorFilter filter, CallBeforeFilter callBefore, EventListener listener) {
-        return watch(filter, callBefore, listener, Event.Type.values());
+    public int watch(BehaviorFilter filter, CallBeforeFilter callBefore, EventListener listener, boolean ifWarmup) {
+        return watch(filter, callBefore, listener, ifWarmup, Event.Type.values());
     }
 
     @Override
-    public int watch(BehaviorFilter filter, CallBeforeFilter callBefore, EventListener listener, Event.Type... types) {
+    public int watch(BehaviorFilter filter, CallBeforeFilter callBefore, EventListener listener, boolean ifWarmup, Event.Type... types) {
         final ProfilerTransformer transformer = new ProfilerTransformer(filter, callBefore, listener, types);
         transformers.add(transformer);
         Set<Class<?>> classes = ForkJoiner.invoke(new SearchTask(filter(inst.getAllLoadedClasses()),
@@ -69,7 +69,7 @@ public class DefaultEventWatcher implements EventWatcher {
                 }).collect(Collectors.toSet());
         final int id = transformer.getId();
         inst.addTransformer(transformer, true);
-        handler.register(id, listener, types);
+        handler.register(id, listener, types, ifWarmup);
         try {
             if (!classes.isEmpty()) {
                 inst.retransformClasses(classes.toArray(new Class[0]));

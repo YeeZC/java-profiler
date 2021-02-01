@@ -10,7 +10,7 @@ import me.zyee.java.profiler.spy.SpyHandler;
  * Create by yee on 2021/1/6
  */
 public interface EventHandler extends SpyHandler {
-    void register(int id, EventListener listener, Event.Type[] types);
+    void register(int id, EventListener listener, Event.Type[] types, boolean checkWarmup);
 
     void unRegister(int id);
 }

@@ -3,13 +3,13 @@ package me.zyee.java.profiler.agent;
 import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import javax.annotation.Resource;
+import me.zyee.java.profiler.WarmupSwitcher;
 import me.zyee.java.profiler.agent.event.handler.DefaultEventHandler;
+import me.zyee.java.profiler.agent.event.watcher.AgentEventWatcher;
 import me.zyee.java.profiler.agent.event.watcher.DefaultEventWatcher;
 import me.zyee.java.profiler.agent.listener.ModuleListener;
 import me.zyee.java.profiler.agent.listener.ReportListener;
@@ -28,23 +28,15 @@ import org.apache.commons.lang3.reflect.MethodUtils;
  */
 public class Injector {
     private static final String CLASS_CORE_MODULE = "me.zyee.java.profiler.module.CoreModule";
-    public static Supplier<Boolean> isWarmup;
 
     public static void init(Instrumentation inst) throws ClassNotFoundException, NoSuchMethodException, IllegalAccessException, InvocationTargetException {
         Class<?> core = ClassUtils.getClass(CLASS_CORE_MODULE);
         if (null != core) {
             final Object instance = MethodUtils.invokeStaticMethod(core, "getInstance");
-            final AtomicBoolean warmup = (AtomicBoolean) FieldUtils.readField(instance, "warmup", true);
-            Injector.isWarmup = () -> {
-                try {
-                    return warmup.get();
-                } catch (Throwable e) {
-                    return false;
-                }
-            };
             final List<Field> fields = FieldUtils.getFieldsListWithAnnotation(core, Resource.class);
             final DefaultEventHandler handler = new DefaultEventHandler();
-            EventWatcher watcher = new DefaultEventWatcher(inst, handler);
+            DefaultWarmupSwitcher switcher = new DefaultWarmupSwitcher(handler);
+            AgentEventWatcher watcher = new DefaultEventWatcher(inst, handler);
             for (Field field : fields) {
                 final Class<?> type = field.getType();
                 if (ClassUtils.isAssignable(EventWatcher.class, type)
@@ -53,16 +45,20 @@ public class Injector {
                 } else if (ClassUtils.isAssignable(Instrumentation.class, type)
                         || ClassUtils.isAssignable(type, Instrumentation.class)) {
                     FieldUtils.writeField(field, instance, inst, true);
+                } else if (type.isAssignableFrom(WarmupSwitcher.class)) {
+                    FieldUtils.writeField(field, instance, switcher, true);
                 }
             }
-            Spy.init(handler);
-            final int report = watcher.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.report.Report#output"),
-                    new ReportListener(), Event.Type.BEFORE);
-            final int module = watcher.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.module.Module#enable"),
-                    new ModuleListener(watcher), Event.Type.BEFORE);
+
+            final DefaultEventWatcher system = new DefaultEventWatcher(inst, switcher.getSystem());
+
+            final int report = system.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.report.Report#output"),
+                    new ReportListener(), false,  Event.Type.BEFORE);
+            final int module = system.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.module.Module#enable"),
+                    new ModuleListener(watcher), false, Event.Type.BEFORE);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-                watcher.delete(report);
-                watcher.delete(module);
+                system.delete(report);
+                system.delete(module);
             }));
         }
     }
