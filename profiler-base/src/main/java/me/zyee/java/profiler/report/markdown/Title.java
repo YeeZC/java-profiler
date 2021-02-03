@@ -1,5 +1,7 @@
 package me.zyee.java.profiler.report.markdown;
 
+import me.zyee.java.profiler.utils.LazyGet;
+
 /**
  * @author yee
  * @version 1.0
@@ -11,7 +13,7 @@ public class Title implements Node {
 
     private Title(Builder builder) {
         this.title = builder.title;
-        this.level = builder.level <= 0 || builder.level > 6 ? 1 : builder.level;
+        this.level = Math.min(Math.max(1, builder.level), 6);
     }
 
     public static Builder builder() {
@@ -50,7 +52,7 @@ public class Title implements Node {
         }
 
         public Builder setLevel(int level) {
-            this.level = level;
+            this.level = Math.min(Math.max(1, level), 6);
             return this;
         }
 

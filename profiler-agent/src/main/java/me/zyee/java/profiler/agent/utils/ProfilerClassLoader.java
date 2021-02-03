@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 class ProfilerClassLoader extends URLClassLoader {
 
     ProfilerClassLoader(URL[] urls) {
-        super(urls, null);
+        super(urls, ProfilerClassLoader.class.getClassLoader());
     }
 
     static ProfilerClassLoader newInstance(String path) throws IOException {
@@ -34,5 +34,23 @@ class ProfilerClassLoader extends URLClassLoader {
         final Path agent = lib.getParent().resolve("profiler-agent.jar");
         urls.add(agent.toUri().toURL());
         return new ProfilerClassLoader(urls.toArray(new URL[0]));
+    }
+
+    @Override
+    protected Class<?> loadClass(String name, boolean resolve) throws ClassNotFoundException {
+        synchronized (getClassLoadingLock(name)) {
+            // First, check if the class has already been loaded
+            try {
+                Class<?> c = findClass(name);
+                if (c == null) {
+                    c = super.loadClass(name, resolve);
+                } else if (resolve) {
+                    resolveClass(c);
+                }
+                return c;
+            } catch (Throwable t) {
+                return super.loadClass(name, resolve);
+            }
+        }
     }
 }
