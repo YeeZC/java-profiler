@@ -13,6 +13,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import me.zyee.java.profiler.utils.FileUtils;
 import me.zyee.java.profiler.utils.LazyGet;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.objectweb.asm.AnnotationVisitor;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -445,7 +446,7 @@ public class ClassStructureImplByAsm extends FamilyClassStructure {
             return new PrimitiveClassStructure(primitive);
         }
 
-        final Pair pair = new Pair(loader, javaClassName);
+        final Pair<ClassLoader, String> pair = Pair.of(loader, javaClassName);
         final ClassStructure existClassStructure = classStructureCache.getIfPresent(pair);
         if (null != existClassStructure) {
             return existClassStructure;
