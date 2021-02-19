@@ -52,7 +52,7 @@ public class AsyncProfiler implements AsyncProfilerMXBean {
     /**
      * Start profiling
      *
-     * @param event Profiling event, see {@link Events}
+     * @param event    Profiling event, see {@link Events}
      * @param interval Sampling interval, e.g. nanoseconds for Events.CPU
      * @throws IllegalStateException If profiler is already running
      */
@@ -65,7 +65,7 @@ public class AsyncProfiler implements AsyncProfilerMXBean {
      * Start or resume profiling without resetting collected data.
      * Note that event and interval may change since the previous profiling session.
      *
-     * @param event Profiling event, see {@link Events}
+     * @param event    Profiling event, see {@link Events}
      * @param interval Sampling interval, e.g. nanoseconds for Events.CPU
      * @throws IllegalStateException If profiler is already running
      */
@@ -113,7 +113,7 @@ public class AsyncProfiler implements AsyncProfilerMXBean {
      * @param command Profiling command
      * @return The command result
      * @throws IllegalArgumentException If failed to parse the command
-     * @throws IOException If failed to create output file
+     * @throws IOException              If failed to create output file
      */
     @Override
     public String execute(String command) throws IllegalArgumentException, IOException {
@@ -200,7 +200,10 @@ public class AsyncProfiler implements AsyncProfilerMXBean {
     }
 
     private native void start0(String event, long interval, boolean reset) throws IllegalStateException;
+
     private native void stop0() throws IllegalStateException;
+
     private native String execute0(String command) throws IllegalArgumentException, IOException;
+
     private native void filterThread0(Thread thread, boolean enable);
 }

@@ -14,5 +14,6 @@ import java.lang.annotation.Target;
 @Retention(RetentionPolicy.RUNTIME)
 public @interface Profile {
     String[] counters() default {};
+
     Class<? extends PostProcessor>[] processors() default {};
 }

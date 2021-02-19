@@ -4,7 +4,9 @@ import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * 位操作工具类
- * Created by luanjia on 2017/2/25.
+ *
+ * @author luanjia
+ * @date 2017/2/25
  */
 public class BitUtils {
 

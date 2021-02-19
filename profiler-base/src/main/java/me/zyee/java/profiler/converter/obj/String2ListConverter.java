@@ -17,6 +17,7 @@ import me.zyee.java.profiler.utils.StringHelper;
  */
 public class String2ListConverter<T> implements String2ObjectConverter<List<T>> {
     private final Class<T> component;
+
     private String2ListConverter(Class<T> component) {
         this.component = component;
     }
@@ -39,7 +40,7 @@ public class String2ListConverter<T> implements String2ObjectConverter<List<T>> 
     public static <T> String2ObjectConverter<T> getIfEligible(Class<T> clazz, Type genericType) {
         if (clazz.isArray()) {
             return input -> (T) new String2ListConverter<>(clazz.getComponentType())
-                    .convert(input).toArray((Object[])Array.newInstance(clazz.getComponentType(), 0));
+                    .convert(input).toArray((Object[]) Array.newInstance(clazz.getComponentType(), 0));
         }
         if (genericType instanceof ParameterizedType) {
             final Type type = ((ParameterizedType) genericType).getActualTypeArguments()[0];

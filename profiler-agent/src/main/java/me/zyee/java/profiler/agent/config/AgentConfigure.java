@@ -18,7 +18,7 @@ public class AgentConfigure {
     }
 
     public boolean isDumpClassFile() {
-        return true;
+        return dumpClassFile;
     }
 
     public void setDumpClassFile(boolean dumpClassFile) {

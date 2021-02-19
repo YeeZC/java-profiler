@@ -1,8 +1,7 @@
 package me.zyee.java.profiler.filter;
 
-import me.zyee.java.profiler.annotation.Profile;
-
 import java.util.stream.Stream;
+import me.zyee.java.profiler.annotation.Profile;
 
 /**
  * @author yee

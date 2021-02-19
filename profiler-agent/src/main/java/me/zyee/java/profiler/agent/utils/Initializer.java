@@ -101,7 +101,8 @@ public class Initializer {
                             break;
                         default:
                     }
-                } catch (Throwable ignore) {}
+                } catch (Throwable ignore) {
+                }
             }
         }
     }

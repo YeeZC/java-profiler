@@ -1,8 +1,7 @@
 package me.zyee.java.profiler.win;
 
-import me.zyee.java.profiler.Profiler;
-
 import java.nio.file.Path;
+import me.zyee.java.profiler.Profiler;
 
 /**
  * TODO WindowsProfiler实现

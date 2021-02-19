@@ -6,7 +6,10 @@ import me.zyee.java.profiler.event.Event;
 
 /**
  * 代码增强
- * Created by luanjia@taobao.com on 16/7/18.
+ *
+ * @author yee
+ * @version 1.0
+ * Create by yee on 2021/1/20
  */
 public interface Enhancer {
 

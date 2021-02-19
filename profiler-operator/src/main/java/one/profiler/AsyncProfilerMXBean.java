@@ -31,15 +31,20 @@ package one.profiler;
  */
 public interface AsyncProfilerMXBean {
     void start(String event, long interval) throws IllegalStateException;
+
     void resume(String event, long interval) throws IllegalStateException;
+
     void stop() throws IllegalStateException;
 
     long getSamples();
+
     String getVersion();
 
     String execute(String command) throws IllegalArgumentException, java.io.IOException;
 
     String dumpCollapsed(Counter counter);
+
     String dumpTraces(int maxTraces);
+
     String dumpFlat(int maxMethods);
 }

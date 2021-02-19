@@ -1,7 +1,5 @@
 package me.zyee.java.profiler.event;
 
-import me.zyee.java.profiler.event.annotation.AutoClear;
-
 /**
  * @author yee
  * @version 1.0

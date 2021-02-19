@@ -5,7 +5,9 @@ import org.objectweb.asm.commons.AdviceAdapter;
 
 /**
  * ASM代码锁<br/>
- * Created by vlinux on 15/5/28.
+ *
+ * @author vlinux
+ * @date 15/5/28
  */
 public class AsmCodeLock implements CodeLock, Opcodes {
 

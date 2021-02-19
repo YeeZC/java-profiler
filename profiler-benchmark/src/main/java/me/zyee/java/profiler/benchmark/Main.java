@@ -2,7 +2,6 @@ package me.zyee.java.profiler.benchmark;
 
 import java.util.Collection;
 import java.util.stream.Collectors;
-import me.zyee.java.profiler.benchmark.operation.CopyAtomGroups;
 import me.zyee.java.profiler.utils.StringHelper;
 import org.openjdk.jmh.infra.BenchmarkParams;
 import org.openjdk.jmh.results.Result;
@@ -10,7 +9,6 @@ import org.openjdk.jmh.results.RunResult;
 import org.openjdk.jmh.runner.Runner;
 import org.openjdk.jmh.runner.RunnerException;
 import org.openjdk.jmh.runner.format.OutputFormatFactory;
-import org.openjdk.jmh.runner.options.Options;
 import org.openjdk.jmh.runner.options.OptionsBuilder;
 import org.openjdk.jmh.runner.options.VerboseMode;
 

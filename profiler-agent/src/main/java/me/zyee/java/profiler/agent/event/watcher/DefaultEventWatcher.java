@@ -16,7 +16,6 @@ import me.zyee.java.profiler.agent.utils.ClassStructure;
 import me.zyee.java.profiler.agent.utils.ClassStructureFactory;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
-import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.BehaviorFilter;
 import me.zyee.java.profiler.filter.CallBeforeFilter;
 import me.zyee.java.profiler.fork.ForkJoiner;

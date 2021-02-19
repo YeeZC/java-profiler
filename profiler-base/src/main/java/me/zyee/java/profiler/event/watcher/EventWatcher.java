@@ -12,6 +12,7 @@ import me.zyee.java.profiler.filter.CallBeforeFilter;
  */
 public interface EventWatcher {
     int watch(BehaviorFilter filter, EventListener listener, Event.Type... types);
+
     /**
      * 开始观察，监听所有事件
      *

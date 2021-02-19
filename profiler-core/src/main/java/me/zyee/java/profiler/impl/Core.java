@@ -207,7 +207,7 @@ public class Core implements ProfilerCore {
                 }
             }).forEach(patterns::addAll);
         } else if (node instanceof AtomOperation) {
-            profileNode.setAtom((double)node.getCost());
+            profileNode.setAtom((double) node.getCost());
             profileNode.setSummery(((AtomOperation) node).getSummery());
         }
         return patterns;

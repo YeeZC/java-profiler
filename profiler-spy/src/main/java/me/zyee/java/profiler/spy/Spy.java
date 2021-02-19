@@ -9,10 +9,10 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Spy {
     public static final int START = 1000;
-    private static final AtomicInteger sequenceRef = new AtomicInteger(START);
+    private static final AtomicInteger SEQUENCE_REF = new AtomicInteger(START);
 
     public static int nextSequence() {
-        return sequenceRef.getAndIncrement();
+        return SEQUENCE_REF.getAndIncrement();
     }
 
     private static SpyHandler handler = null;
@@ -61,13 +61,6 @@ public class Spy {
             handler.onCallBefore(listenId, className, methodName, methodDesc, lineNumber);
         }
     }
-    public static void onCallBefore(Object[] args, int listenId, String className, String methodName, String methodDesc, int lineNumber) throws Throwable {
-        if (null != handler) {
-            handler.onCallBefore(listenId, className, methodName, methodDesc, lineNumber);
-        }
-    }
-
-
 
     public static void onCallReturn(int listenId, int lineNumber) throws Throwable {
         if (null != handler) {

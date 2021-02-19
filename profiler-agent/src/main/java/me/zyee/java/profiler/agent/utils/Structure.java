@@ -4,7 +4,6 @@ import java.util.Set;
 import java.util.function.BiPredicate;
 import java.util.stream.Stream;
 import me.zyee.java.profiler.filter.BehaviorFilter;
-import me.zyee.java.profiler.utils.Matcher;
 
 /**
  * @author yee

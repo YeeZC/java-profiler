@@ -7,8 +7,8 @@ import me.zyee.java.profiler.agent.utils.Initializer;
 import me.zyee.java.profiler.bean.Cpu;
 import me.zyee.java.profiler.bean.Memory;
 import me.zyee.java.profiler.bean.Net;
-import me.zyee.java.profiler.utils.StringHelper;
 import me.zyee.java.profiler.utils.LazyGet;
+import me.zyee.java.profiler.utils.StringHelper;
 
 /**
  * @author yee

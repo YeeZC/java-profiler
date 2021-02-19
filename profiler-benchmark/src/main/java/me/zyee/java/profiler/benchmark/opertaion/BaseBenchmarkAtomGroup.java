@@ -17,10 +17,8 @@ import me.zyee.java.profiler.benchmark.BenchmarkInfo;
 import me.zyee.java.profiler.operation.AtomOperation;
 import me.zyee.java.profiler.operation.impl.BaseAtomGroup;
 import me.zyee.java.profiler.utils.ExecutingCommand;
-import me.zyee.java.profiler.utils.StringHelper;
 import me.zyee.java.profiler.utils.ProcessUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import me.zyee.java.profiler.utils.StringHelper;
 
 /**
  * @author yee
@@ -54,7 +52,7 @@ public abstract class BaseBenchmarkAtomGroup extends BaseAtomGroup {
                             return null;
                         }
                     }).filter(Objects::nonNull)
-                    .collect(Collectors.joining(File.pathSeparator));
+                            .collect(Collectors.joining(File.pathSeparator));
                     args.add(collect);
                 }
                 args.add("me.zyee.java.profiler.benchmark.Main");

@@ -4,8 +4,6 @@ import java.lang.instrument.Instrumentation;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.Supplier;
 import javax.annotation.Resource;
 import me.zyee.java.profiler.WarmupSwitcher;
 import me.zyee.java.profiler.agent.event.handler.DefaultEventHandler;
@@ -16,7 +14,6 @@ import me.zyee.java.profiler.agent.listener.ReportListener;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.DefaultBehaviorFilter;
-import me.zyee.java.profiler.spy.Spy;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
@@ -53,7 +50,7 @@ public class Injector {
             final DefaultEventWatcher system = new DefaultEventWatcher(inst, switcher.getSystem());
 
             final int report = system.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.report.Report#output"),
-                    new ReportListener(), false,  Event.Type.BEFORE);
+                    new ReportListener(), false, Event.Type.BEFORE);
             final int module = system.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.module.Module#enable"),
                     new ModuleListener(watcher), false, Event.Type.BEFORE);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {

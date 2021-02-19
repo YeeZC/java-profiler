@@ -7,6 +7,9 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import me.zyee.java.profiler.utils.LazyGet;
 
+/**
+ * @author yee
+ */
 public abstract class FamilyClassStructure implements ClassStructure {
 
     private final LazyGet<Set<ClassStructure>> familyAnnotationTypeClassStructuresLazyGet
