@@ -1,7 +1,5 @@
 package me.zyee.java.profiler.report.markdown;
 
-import me.zyee.java.profiler.utils.LazyGet;
-
 /**
  * @author yee
  * @version 1.0
