@@ -1,20 +1,6 @@
 package me.zyee.java.profiler.impl;
 
 import com.google.common.collect.Sets;
-import java.io.IOException;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.Operation;
 import me.zyee.java.profiler.ProfileItem;
@@ -33,10 +19,26 @@ import me.zyee.java.profiler.report.markdown.Title;
 import me.zyee.java.profiler.report.plugin.AtomPlugin;
 import me.zyee.java.profiler.report.plugin.ConclusionPlugin;
 import me.zyee.java.profiler.report.plugin.StepPlugin;
+import me.zyee.java.profiler.report.plugin.SummaryPlugin;
 import me.zyee.java.profiler.utils.GroupMatcher;
 import me.zyee.java.profiler.utils.Matcher;
 import one.profiler.Events;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author yee
@@ -126,6 +128,7 @@ public class Core implements ProfilerCore {
                 Set<String> errors = new HashSet<>();
                 Report.builder().setTitle(Title.builder().setTitle(item.getProfileName()).build())
                         .addContents(new AtomPlugin(root),
+                                SummaryPlugin.builder().setRoot(root).build(),
                                 StepPlugin.builder(root, warnings, errors).setCost(item.getCost())
                                         .setTheoreticalCost(theoreticalCost)
                                         .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent)).build(), new ConclusionPlugin(warnings, errors))
