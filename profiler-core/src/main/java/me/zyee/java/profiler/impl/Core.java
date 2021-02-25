@@ -1,6 +1,8 @@
 package me.zyee.java.profiler.impl;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
+import java.util.LinkedHashSet;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.Operation;
 import me.zyee.java.profiler.ProfileItem;
@@ -16,9 +18,12 @@ import me.zyee.java.profiler.operation.AtomOperation;
 import me.zyee.java.profiler.operation.NormalOperation;
 import me.zyee.java.profiler.report.Report;
 import me.zyee.java.profiler.report.markdown.Title;
+import me.zyee.java.profiler.report.plugin.AtomHtmlPlugin;
 import me.zyee.java.profiler.report.plugin.AtomPlugin;
 import me.zyee.java.profiler.report.plugin.ConclusionPlugin;
+import me.zyee.java.profiler.report.plugin.StepHtmlPlugin;
 import me.zyee.java.profiler.report.plugin.StepPlugin;
+import me.zyee.java.profiler.report.plugin.StringSetHtmlPlugin;
 import me.zyee.java.profiler.report.plugin.SummaryPlugin;
 import me.zyee.java.profiler.utils.GroupMatcher;
 import me.zyee.java.profiler.utils.Matcher;
@@ -51,6 +56,8 @@ public class Core implements ProfilerCore {
     private final boolean dumpClassFile;
     private final int warmups;
     private final double collectMinPercent;
+
+    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private Core(Builder builder) {
         this.reportPath = builder.reportPath;
@@ -124,16 +131,25 @@ public class Core implements ProfilerCore {
                             return Matcher.classNameMatcher(pattern);
                         }));
                 root.merge();
-                Set<String> warnings = new HashSet<>();
-                Set<String> errors = new HashSet<>();
-                Report.builder().setTitle(Title.builder().setTitle(item.getProfileName()).build())
-                        .addContents(new AtomPlugin(root),
-                                SummaryPlugin.builder().setRoot(root).build(),
-                                StepPlugin.builder(root, warnings, errors).setCost(item.getCost())
-                                        .setTheoreticalCost(theoreticalCost)
-                                        .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent)).build(), new ConclusionPlugin(warnings, errors))
-                        .build().output(Optional.ofNullable(reportPath).orElse(
-                        Paths.get(System.getProperty("user.dir"))).resolve(runner.name() + item.getProfileName() + ".md"));
+                Set<String> warnings = new LinkedHashSet<>();
+                Set<String> errors = new LinkedHashSet<>();
+                System.err.println(MAPPER.writeValueAsString(new AtomHtmlPlugin(root)));
+                System.err.println(MAPPER.writeValueAsString(StepHtmlPlugin.builder(root, warnings, errors).setCost(item.getCost())
+                        .setTheoreticalCost(theoreticalCost)
+                        .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent))
+                        .build()));
+                System.err.println(MAPPER.writeValueAsString(new AtomHtmlPlugin(root)));
+                System.err.println(MAPPER.writeValueAsString(StringSetHtmlPlugin.builder().setTitle("警告").setData(new ArrayList<>(warnings)).build()));
+                System.err.println(MAPPER.writeValueAsString(StringSetHtmlPlugin.builder().setTitle("异常").setData(new ArrayList<>(errors)).build()));
+
+//                Report.builder().setTitle(Title.builder().setTitle(item.getProfileName()).build())
+//                        .addContents(new AtomPlugin(root),
+//                                SummaryPlugin.builder().setRoot(root).build(),
+//                                StepPlugin.builder(root, warnings, errors).setCost(item.getCost())
+//                                        .setTheoreticalCost(theoreticalCost)
+//                                        .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent)).build(), new ConclusionPlugin(warnings, errors))
+//                        .build().output(Optional.ofNullable(reportPath).orElse(
+//                        Paths.get(System.getProperty("user.dir"))).resolve(runner.name() + item.getProfileName() + ".md"));
             }
         }
     }

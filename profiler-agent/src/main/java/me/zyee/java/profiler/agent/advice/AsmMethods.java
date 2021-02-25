@@ -60,14 +60,6 @@ public class AsmMethods {
             String.class,
             int.class);
 
-    public static final Method ON_CALL_BEFORE1 = getAsmMethod(Spy.class, "onCallBefore",
-            Object[].class,
-            int.class,
-            String.class,
-            String.class,
-            String.class,
-            int.class);
-
     /**
      * @see Spy#onCallReturn(int, int)
      */
