@@ -71,44 +71,48 @@ public class StepHtmlPlugin implements HtmlPlugin {
             caseCost = (long) (actualCost * (100 - profilerPercent) / 100);
         }
         caseCost = actualCost;
-        final List<Map<String, Object>> children = (List<Map<String, Object>>) makeRows(root).get(0).get("children");
-        final List<Object> result = children
+        final List<Map<String, Object>> expandData = (List<Map<String, Object>>) makeRows(root).get(0).get("expandData");
+
+        return expandData
                 .stream().filter(map -> map.containsKey("percent"))
                 .peek(this::fill)
-                .peek(data -> {
-                    Optional.ofNullable(data.get("theoretical")).ifPresent(t -> {
-                        long theoretical = ((Number) t).longValue();
-                        data.put("theoretical", FormatUtil.formatMilliseconds(theoretical));
-                    });
-                    Optional.ofNullable(data.get("cost")).ifPresent(t -> {
-                        long cost = ((Number) t).longValue();
-                        data.put("cost", FormatUtil.formatMilliseconds(cost));
-                    });
-                    Optional.ofNullable(data.get("totalCost")).ifPresent(t -> {
-                        long totalCost = ((Number) t).longValue();
-                        data.put("totalCost", FormatUtil.formatMilliseconds(totalCost));
-                    });
-                    Optional.ofNullable(data.get("percent")).ifPresent(t -> {
-                        double percent = ((Number) t).longValue();
-                        data.put("percent", String.format("%.2f%%", percent));
-                    });
-                })
+                .peek(this::format)
                 .collect(Collectors.toList());
-        return result;
     }
 
-    private void fill(Map<String, Object> children) {
-        final List<Map<String, Object>> data = (List<Map<String, Object>>) children.get("children");
+    private void format(Map<String, Object> data) {
+        Optional.ofNullable(data.get("theoretical")).ifPresent(t -> {
+            long theoretical = ((Number) t).longValue();
+            data.put("theoretical", FormatUtil.formatMilliseconds(theoretical));
+        });
+        Optional.ofNullable(data.get("cost")).ifPresent(t -> {
+            long cost = ((Number) t).longValue();
+            data.put("cost", FormatUtil.formatMilliseconds(cost));
+        });
+        Optional.ofNullable(data.get("totalCost")).ifPresent(t -> {
+            long totalCost = ((Number) t).longValue();
+            data.put("totalCost", FormatUtil.formatMilliseconds(totalCost));
+        });
+        Optional.ofNullable(data.get("percent")).ifPresent(t -> {
+            double percent = ((Number) t).longValue();
+            data.put("percent", String.format("%.2f%%", percent));
+        });
+        final List<Map<String, Object>> expandData = (List<Map<String, Object>>) data.get("expandData");
+        expandData.forEach(this::format);
+    }
+
+    private void fill(Map<String, Object> expandData) {
+        final List<Map<String, Object>> data = (List<Map<String, Object>>) expandData.get("expandData");
         if (!data.isEmpty()) {
             data.forEach(this::fill);
-            if (!children.containsKey("theoretical")) {
+            if (!expandData.containsKey("theoretical") || (long) expandData.get("theoretical") == 0L) {
                 data.stream().map(map -> map.get("theoretical"))
                         .filter(Objects::nonNull).map(Long.class::cast).reduce(Long::sum)
-                        .ifPresent(sum -> children.put("theoretical", sum));
+                        .ifPresent(sum -> expandData.put("theoretical", sum));
             }
         }
-        handleWarning(children);
-        children.put("totalCost", caseCost);
+        handleWarning(expandData);
+        expandData.put("totalCost", caseCost);
     }
 
     private void handleWarning(Map<String, Object> data) {
@@ -167,12 +171,12 @@ public class StepHtmlPlugin implements HtmlPlugin {
         List<Map<String, Object>> data = new ArrayList<>();
         String stepName = node.getName();
         final Map<String, Object> row = new HashMap<>();
-        row.put("children", new ArrayList<>());
+        row.put("expandData", new ArrayList<>());
         row.put("warning", new HashSet<>());
-        row.put("no", sequence.getAndDecrement());
+        row.put("id", sequence.getAndIncrement());
         data.add(row);
-        final List<ProfileNode> children = node.getChildren();
-        if (null == children || children.isEmpty()) {
+        final List<ProfileNode> expandData = node.getChildren();
+        if (null == expandData || expandData.isEmpty()) {
 
             final String pattern = node.getPattern();
             if (StringUtils.isNotEmpty(pattern)) {
@@ -191,8 +195,8 @@ public class StepHtmlPlugin implements HtmlPlugin {
             row.put("pattern", pattern);
 
         } else {
-            for (ProfileNode child : children) {
-                ((List<Object>) row.get("children")).addAll(makeRows(child));
+            for (ProfileNode child : expandData) {
+                ((List<Object>) row.get("expandData")).addAll(makeRows(child));
             }
             double percent = 0D;
             final String pattern = node.getPattern();
