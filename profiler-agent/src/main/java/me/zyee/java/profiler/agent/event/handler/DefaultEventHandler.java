@@ -161,4 +161,13 @@ public class DefaultEventHandler implements EventHandler {
             listeners[idx].onEvent(Event.Entry);
         }
     }
+
+    public void copyListener(DefaultEventHandler handler) {
+        for (int i = 0; i < listeners.length; i++) {
+            if (null == listeners[i]) {
+                break;
+            }
+            handler.listeners[i] = listeners[i];
+        }
+    }
 }

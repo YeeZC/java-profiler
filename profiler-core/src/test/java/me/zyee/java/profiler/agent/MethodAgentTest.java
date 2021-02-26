@@ -16,6 +16,7 @@ public class MethodAgentTest {
     public void test() throws IOException {
         System.out.println(TestClass.class);
         final Core core = Core.builder()
+                .setWarmups(1)
                 .setReportPath(Paths.get(System.getProperty("user.dir")))
                 .build();
         core.profile(new ProfileJUnitRunner(TestClass.class));

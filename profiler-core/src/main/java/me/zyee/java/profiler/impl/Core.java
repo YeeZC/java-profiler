@@ -79,20 +79,21 @@ public class Core implements ProfilerCore {
 
     @Override
     public void profile(Runner runner) throws IOException {
-        final Context context = ContextHelper.newContext(runner.name(), Events.CPU, excludes);
-        if (null == context) {
-            throw new UnsupportedOperationException();
-        }
-
         CoreModule.entryWarmup();
         try {
             for (int i = 0; i < warmups; i++) {
-                runner.apply(context);
+                try {
+                    runner.run();
+                } catch (Exception ignore) {
+                }
             }
         } finally {
             CoreModule.exitWarmup();
         }
-
+        final Context context = ContextHelper.newContext(runner.name(), Events.CPU, excludes);
+        if (null == context) {
+            throw new UnsupportedOperationException();
+        }
         final Result apply = runner.apply(context);
         CoreModule.entryWarmup();
         if (apply.isOk()) {
@@ -138,7 +139,6 @@ public class Core implements ProfilerCore {
                         .setTheoreticalCost(theoreticalCost)
                         .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent))
                         .build()));
-                System.err.println(MAPPER.writeValueAsString(new AtomHtmlPlugin(root)));
                 System.err.println(MAPPER.writeValueAsString(StringSetHtmlPlugin.builder().setTitle("警告").setData(new ArrayList<>(warnings)).build()));
                 System.err.println(MAPPER.writeValueAsString(StringSetHtmlPlugin.builder().setTitle("异常").setData(new ArrayList<>(errors)).build()));
 

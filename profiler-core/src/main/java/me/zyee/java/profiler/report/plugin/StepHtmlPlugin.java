@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 import me.zyee.java.profiler.ProfileNode;
 import me.zyee.java.profiler.flame.FlameParser;
 import me.zyee.java.profiler.flame.Frame;
+import me.zyee.java.profiler.utils.FormatUtil;
 import me.zyee.java.profiler.utils.LazyGet;
 import org.apache.commons.lang3.StringUtils;
 
@@ -35,6 +36,7 @@ public class StepHtmlPlugin implements HtmlPlugin {
     private long caseCost;
     private double profilerPercent;
 
+
     private StepHtmlPlugin(Builder builder) {
         this.root = Objects.requireNonNull(builder.root, "root");
         this.warnings = Objects.requireNonNull(builder.warnings, "warnings");
@@ -48,7 +50,7 @@ public class StepHtmlPlugin implements HtmlPlugin {
     public static Builder builder(ProfileNode node, Set<String> warnings, Set<String> errors) {
         return new Builder(node, warnings, errors);
     }
-    
+
     @Override
     @JsonProperty
     public String getTitle() {
@@ -66,9 +68,44 @@ public class StepHtmlPlugin implements HtmlPlugin {
             caseCost = (long) (actualCost * (100 - profilerPercent) / 100);
         }
         caseCost = actualCost;
-        return makeRows(root).stream().filter(map -> map.containsKey("percent"))
-                .peek(this::handleWarning)
+        final List<Map<String, Object>> children = (List<Map<String, Object>>) makeRows(root).get(0).get("children");
+        final List<Object> result = children
+                .stream().filter(map -> map.containsKey("percent"))
+                .peek(this::fill)
+                .peek(data -> {
+                    Optional.ofNullable(data.get("theoretical")).ifPresent(t -> {
+                        long theoretical = ((Number) t).longValue();
+                        data.put("theoretical", FormatUtil.formatMilliseconds(theoretical));
+                    });
+                    Optional.ofNullable(data.get("cost")).ifPresent(t -> {
+                        long cost = ((Number) t).longValue();
+                        data.put("cost", FormatUtil.formatMilliseconds(cost));
+                    });
+                    Optional.ofNullable(data.get("totalCost")).ifPresent(t -> {
+                        long totalCost = ((Number) t).longValue();
+                        data.put("totalCost", FormatUtil.formatMilliseconds(totalCost));
+                    });
+                    Optional.ofNullable(data.get("percent")).ifPresent(t -> {
+                        double percent = ((Number) t).longValue();
+                        data.put("percent", String.format("%.2f%%", percent));
+                    });
+                })
                 .collect(Collectors.toList());
+        return result;
+    }
+
+    private void fill(Map<String, Object> children) {
+        final List<Map<String, Object>> data = (List<Map<String, Object>>) children.get("children");
+        if (!data.isEmpty()) {
+            data.forEach(this::fill);
+            if (!children.containsKey("theoretical")) {
+                data.stream().map(map -> map.get("theoretical"))
+                        .filter(Objects::nonNull).map(Long.class::cast).reduce(Long::sum)
+                        .ifPresent(sum -> children.put("theoretical", sum));
+            }
+        }
+        handleWarning(children);
+        children.put("totalCost", caseCost);
     }
 
     private void handleWarning(Map<String, Object> data) {
@@ -171,7 +208,6 @@ public class StepHtmlPlugin implements HtmlPlugin {
                                         .map(Long.class::cast).orElse(0L)).sum());
                 row.put("percent", percent);
                 row.put("cost", caseCost * percent / 100);
-                data.add(row);
             }
         }
         return data;

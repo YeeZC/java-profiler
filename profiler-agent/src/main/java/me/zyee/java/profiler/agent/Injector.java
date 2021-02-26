@@ -53,6 +53,7 @@ public class Injector {
                     new ReportListener(), false, Event.Type.BEFORE);
             final int module = system.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.module.Module#enable"),
                     new ModuleListener(watcher), false, Event.Type.BEFORE);
+            switcher.getSystem().copyListener(handler);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 system.delete(report);
                 system.delete(module);
