@@ -54,6 +54,7 @@ public class HtmlTableColumn {
 
         public Builder setDataIndex(String dataIndex) {
             this.dataIndex = dataIndex;
+            this.key = dataIndex;
             return this;
         }
 

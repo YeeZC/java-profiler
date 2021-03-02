@@ -16,6 +16,7 @@ import me.zyee.java.profiler.module.CoreModule;
 import me.zyee.java.profiler.operation.AtomGroup;
 import me.zyee.java.profiler.operation.AtomOperation;
 import me.zyee.java.profiler.operation.NormalOperation;
+import me.zyee.java.profiler.report.HtmlReport;
 import me.zyee.java.profiler.report.plugin.AtomHtmlPlugin;
 import me.zyee.java.profiler.report.plugin.StepHtmlPlugin;
 import me.zyee.java.profiler.report.plugin.StringSetHtmlPlugin;
@@ -130,18 +131,20 @@ public class Core implements ProfilerCore {
                 root.merge();
                 Set<String> warnings = new LinkedHashSet<>();
                 Set<String> errors = new LinkedHashSet<>();
-                Map<String, Object> result = new HashMap<>();
-                result.put("name", "Filter");
-                result.put("plugins", Lists.newArrayList(new AtomHtmlPlugin(root),
-                        StepHtmlPlugin.builder(root, warnings, errors).setCost(item.getCost())
-                                .setTheoreticalCost(theoreticalCost)
-                                .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent))
-                                .build(),
-                        StringSetHtmlPlugin.builder().setTitle("警告").setData(new ArrayList<>(warnings)).build(),
-                        StringSetHtmlPlugin.builder().setTitle("异常").setData(new ArrayList<>(errors)).build()));
-                result.put("flame", new String(Files.readAllBytes(flamePath)).replace("\n", ""));
-                final byte[] bytes = MAPPER.writeValueAsBytes(result);
-                Files.write(Paths.get("/Users/yee/test.json"), bytes);
+
+                final HtmlReport report = HtmlReport.builder().setFlame(new String(Files.readAllBytes(flamePath)))
+                        .setPlugins(Lists.newArrayList(new AtomHtmlPlugin(root),
+                                StepHtmlPlugin.builder(root, warnings, errors).setCost(item.getCost())
+                                        .setTheoreticalCost(theoreticalCost)
+                                        .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent))
+                                        .build(),
+                                StringSetHtmlPlugin.builder().setTitle("警告").setData(new ArrayList<>(warnings)).build(),
+                                StringSetHtmlPlugin.builder().setTitle("异常").setData(new ArrayList<>(errors)).build()))
+                        .setName(item.getProfileName()).build();
+                report.output(Optional.ofNullable(reportPath).orElse(
+                        Paths.get(System.getProperty("user.dir"))));
+
+//                Files.write(Paths.get("/Users/yee/test.json"), bytes);
 
 //                Report.builder().setTitle(Title.builder().setTitle(item.getProfileName()).build())
 //                        .addContents(new AtomPlugin(root),

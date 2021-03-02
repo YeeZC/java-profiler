@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.ServiceLoader;
 import javax.annotation.Resource;
 import me.zyee.java.profiler.agent.plugin.PluginInjector;
+import me.zyee.java.profiler.agent.plugin.SystemHtmlPlugin;
 import me.zyee.java.profiler.agent.plugin.SystemPlugin;
 import me.zyee.java.profiler.event.Before;
 import me.zyee.java.profiler.event.Event;
@@ -20,7 +21,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
  * Create by yee on 2021/1/22
  */
 public class ReportListener implements EventListener {
-    private final List<Plugin> system = new ArrayList<>();
+    private final List<SystemHtmlPlugin> system = new ArrayList<>();
 
     @Override
     public boolean onEvent(Event event) throws Throwable {

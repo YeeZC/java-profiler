@@ -8,5 +8,6 @@ import me.zyee.java.profiler.report.plugin.Plugin;
  * @version 1.0
  * Create by yee on 2021/1/22
  */
-public interface SystemPlugin extends Plugin, Function<PluginInjector, SystemPlugin> {
+public interface SystemPlugin extends Plugin {
+    <T extends SystemPlugin> T apply(PluginInjector injector);
 }

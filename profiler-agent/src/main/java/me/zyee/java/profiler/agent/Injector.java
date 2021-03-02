@@ -49,7 +49,7 @@ public class Injector {
 
             final DefaultEventWatcher system = new DefaultEventWatcher(inst, switcher.getSystem());
 
-            final int report = system.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.report.Report#output"),
+            final int report = system.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.report.*Report#output"),
                     new ReportListener(), false, Event.Type.BEFORE);
             final int module = system.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.module.Module#enable"),
                     new ModuleListener(watcher), false, Event.Type.BEFORE);
