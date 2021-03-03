@@ -1,6 +1,5 @@
 package me.zyee.java.profiler.impl;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import me.zyee.java.profiler.Context;
@@ -53,8 +52,6 @@ public class Core implements ProfilerCore {
     private final boolean dumpClassFile;
     private final int warmups;
     private final double collectMinPercent;
-
-    private static final ObjectMapper MAPPER = new ObjectMapper();
 
     private Core(Builder builder) {
         this.reportPath = builder.reportPath;
@@ -143,17 +140,6 @@ public class Core implements ProfilerCore {
                         .setName(item.getProfileName()).build();
                 report.output(Optional.ofNullable(reportPath).orElse(
                         Paths.get(System.getProperty("user.dir"))));
-
-//                Files.write(Paths.get("/Users/yee/test.json"), bytes);
-
-//                Report.builder().setTitle(Title.builder().setTitle(item.getProfileName()).build())
-//                        .addContents(new AtomPlugin(root),
-//                                SummaryPlugin.builder().setRoot(root).build(),
-//                                StepPlugin.builder(root, warnings, errors).setCost(item.getCost())
-//                                        .setTheoreticalCost(theoreticalCost)
-//                                        .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent)).build(), new ConclusionPlugin(warnings, errors))
-//                        .build().output(Optional.ofNullable(reportPath).orElse(
-//                        Paths.get(System.getProperty("user.dir"))).resolve(runner.name() + item.getProfileName() + ".md"));
             }
         }
     }
