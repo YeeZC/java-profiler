@@ -2,13 +2,14 @@ package me.zyee.java.profiler.report;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import me.zyee.java.profiler.report.plugin.HtmlPlugin;
+
+import javax.annotation.Resource;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
-import javax.annotation.Resource;
-import me.zyee.java.profiler.report.plugin.HtmlPlugin;
+import java.util.zip.CRC32;
 
 /**
  * @author yee
@@ -19,9 +20,10 @@ public class HtmlReport {
     private final String name;
     @Resource(name = "system")
     private transient List<HtmlPlugin> system;
-    private List<HtmlPlugin> plugins;
+    private final List<HtmlPlugin> plugins;
     private final String flame;
     private transient static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
+    private final transient ThreadLocal<CRC32> crc32Local = ThreadLocal.withInitial(CRC32::new);
 
     private HtmlReport(Builder builder) {
         this.name = builder.name;
@@ -35,10 +37,14 @@ public class HtmlReport {
         }
         try {
             final byte[] bytes = OBJECT_MAPPER.writeValueAsBytes(this);
-            final String hash = Base64.getEncoder().encodeToString(bytes).substring(0, 7);
-            Files.write(path.resolve("data." + hash + ".js"), Lists.newArrayList("window.profileData=" + new String(bytes)));
+            final CRC32 crc32 = crc32Local.get();
+            crc32.update(bytes);
+            final long value = crc32.getValue();
+            Files.write(path.resolve("data." + value + ".js"), Lists.newArrayList("window.profileData=" + new String(bytes)));
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            crc32Local.remove();
         }
     }
 
