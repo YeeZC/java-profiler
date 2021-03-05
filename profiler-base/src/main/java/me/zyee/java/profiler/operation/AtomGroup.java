@@ -15,4 +15,9 @@ public interface AtomGroup extends Operation {
     default long getCost() {
         return 0L;
     }
+
+    @Override
+    default String getSummery() {
+        return null;
+    }
 }

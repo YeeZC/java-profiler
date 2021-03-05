@@ -1,8 +1,12 @@
 package me.zyee.java.profiler.report.plugin;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author yee
@@ -11,7 +15,7 @@ import java.util.List;
  */
 public class StringSetHtmlPlugin implements HtmlPlugin {
     private final String title;
-    private final List<String> data;
+    private final Supplier<List<String>> data;
 
     private StringSetHtmlPlugin(Builder builder) {
         this.title = builder.title;
@@ -32,7 +36,10 @@ public class StringSetHtmlPlugin implements HtmlPlugin {
     @Override
     @JsonProperty
     public List<Object> getData() {
-        return new ArrayList<>(data);
+        final List<String> list = data.get();
+        return list.stream().map(item -> ImmutableMap.builder()
+                .put("text", item).build())
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -54,7 +61,7 @@ public class StringSetHtmlPlugin implements HtmlPlugin {
 
     public static class Builder {
         private String title;
-        private List<String> data;
+        private Supplier<List<String>> data;
 
         private Builder() {
         }
@@ -64,7 +71,7 @@ public class StringSetHtmlPlugin implements HtmlPlugin {
             return this;
         }
 
-        public Builder setData(List<String> data) {
+        public Builder setData(Supplier<List<String>> data) {
             this.data = data;
             return this;
         }

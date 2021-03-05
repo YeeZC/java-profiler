@@ -19,6 +19,7 @@ import me.zyee.java.profiler.report.HtmlReport;
 import me.zyee.java.profiler.report.plugin.AtomHtmlPlugin;
 import me.zyee.java.profiler.report.plugin.StepHtmlPlugin;
 import me.zyee.java.profiler.report.plugin.StringSetHtmlPlugin;
+import me.zyee.java.profiler.report.plugin.SummaryHtmlPlugin;
 import me.zyee.java.profiler.utils.GroupMatcher;
 import me.zyee.java.profiler.utils.Matcher;
 import one.profiler.Events;
@@ -131,12 +132,13 @@ public class Core implements ProfilerCore {
 
                 final HtmlReport report = HtmlReport.builder().setFlame(new String(Files.readAllBytes(flamePath)))
                         .setPlugins(Lists.newArrayList(new AtomHtmlPlugin(root),
+                                new SummaryHtmlPlugin(root),
                                 StepHtmlPlugin.builder(root, warnings, errors).setCost(item.getCost())
                                         .setTheoreticalCost(theoreticalCost)
                                         .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent))
                                         .build(),
-                                StringSetHtmlPlugin.builder().setTitle("警告").setData(new ArrayList<>(warnings)).build(),
-                                StringSetHtmlPlugin.builder().setTitle("异常").setData(new ArrayList<>(errors)).build()))
+                                StringSetHtmlPlugin.builder().setTitle("警告").setData(() -> new ArrayList<>(warnings)).build(),
+                                StringSetHtmlPlugin.builder().setTitle("异常").setData(() -> new ArrayList<>(errors)).build()))
                         .setName(item.getProfileName()).build();
                 report.output(Optional.ofNullable(reportPath).orElse(
                         Paths.get(System.getProperty("user.dir"))));
@@ -191,6 +193,7 @@ public class Core implements ProfilerCore {
         if (StringUtils.isNotEmpty(pattern)) {
             patterns.add(pattern);
         }
+        profileNode.setSummery(node.getSummery());
         if (node instanceof NormalOperation) {
             ((NormalOperation) node).getChildren().stream().map(n -> {
                 if (n instanceof AtomGroup) {

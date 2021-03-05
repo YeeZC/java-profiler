@@ -3,6 +3,7 @@ package me.zyee.java.profiler.report.plugin;
 import com.google.common.collect.Lists;
 import java.util.Set;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 import me.zyee.java.profiler.report.markdown.List;
 import me.zyee.java.profiler.report.markdown.Title;
 
@@ -25,8 +26,8 @@ public class ConclusionPlugin implements Plugin {
         StringJoiner joiner = new StringJoiner("\n");
         return joiner.add(Title.builder().setTitle("结论").setLevel(2).build().render())
                 .add(List.builder().setTitle(Title.builder().setTitle("警告").setLevel(3).build())
-                        .setItems(Lists.newArrayList(warnings)).build().render())
+                        .setItems(warnings.stream().map(List.Item::newItem).collect(Collectors.toList())).build().render())
                 .add(List.builder().setTitle(Title.builder().setTitle("错误").setLevel(3).build())
-                        .setItems(Lists.newArrayList(errors)).build().render()).toString();
+                        .setItems(errors.stream().map(List.Item::newItem).collect(Collectors.toList())).build().render()).toString();
     }
 }

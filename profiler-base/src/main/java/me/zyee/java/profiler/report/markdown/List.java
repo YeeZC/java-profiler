@@ -1,5 +1,6 @@
 package me.zyee.java.profiler.report.markdown;
 
+import java.util.ArrayList;
 import java.util.StringJoiner;
 
 /**
@@ -8,7 +9,7 @@ import java.util.StringJoiner;
  * Create by yee on 2021/1/22
  */
 public class List extends BaseNode {
-    private final java.util.List<String> items;
+    private final java.util.List<Item> items;
     private final boolean sort;
 
     private List(Builder builder) {
@@ -28,11 +29,25 @@ public class List extends BaseNode {
             joiner.add(getTitle().render());
         }
         String start = sort ? "1. " : "- ";
-        items.stream().map(item -> start + item).forEach(joiner::add);
+        items.stream().map(item -> renderItem(start, 0, item)).forEach(joiner::add);
         return joiner.toString();
     }
 
-    public java.util.List<String> getItems() {
+    private String renderItem(String prefix, int dept, Item item) {
+        StringJoiner joiner = new StringJoiner("\n");
+        StringBuilder builder = new StringBuilder();
+        for (int i = 0; i < dept; i++) {
+            builder.append("\t");
+        }
+        builder.append(prefix).append(item.text);
+        joiner.add(builder);
+        for (Item child : item.children) {
+            joiner.add(renderItem(prefix, dept + 1, child));
+        }
+        return joiner.toString();
+    }
+
+    public java.util.List<Item> getItems() {
         return items;
     }
 
@@ -41,13 +56,13 @@ public class List extends BaseNode {
     }
 
     public static class Builder extends BaseNode.Builder<Builder> {
-        private java.util.List<String> items;
+        private java.util.List<Item> items;
         private boolean sort;
 
         private Builder() {
         }
 
-        public Builder setItems(java.util.List<String> items) {
+        public Builder setItems(java.util.List<Item> items) {
             this.items = items;
             return this;
         }
@@ -65,6 +80,22 @@ public class List extends BaseNode {
 
         public List build() {
             return new List(this);
+        }
+    }
+
+    public static class Item {
+        public String text;
+        public final java.util.List<Item> children = new ArrayList<>();
+
+        public static Item newItem(String text) {
+            final Item item = new Item();
+            item.text = text;
+            return item;
+        }
+
+        public Item addChild(Item child) {
+            children.add(child);
+            return this;
         }
     }
 }

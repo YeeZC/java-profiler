@@ -51,7 +51,7 @@ public class CopyBenchmarks {
             }
         </#if>
 
-        @Setup(Level.Invocation)
+        @Setup
         public void init() {
             Random random = new Random();
             data = new ${typeName}[random.nextInt(length) + 1];
@@ -76,7 +76,7 @@ public class CopyBenchmarks {
             return result;
         }
 
-        @TearDown(Level.Invocation)
+        @TearDown
         public void destroy() {
             data = null;
         }
