@@ -45,7 +45,7 @@ public class HtmlReport {
             final CRC32 crc32 = crc32Local.get();
             crc32.update(bytes);
             final long value = crc32.getValue();
-            Files.write(path.resolve("data." + value + ".js"), Lists.newArrayList("window.profileData=" + new String(bytes)));
+            Files.write(path.resolve("data." + Long.toHexString(value) + ".js"), Lists.newArrayList("window.profileData=" + new String(bytes)));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
