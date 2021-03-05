@@ -1,6 +1,5 @@
 package me.zyee.java.profiler.agent.plugin;
 
-import java.util.function.Function;
 import me.zyee.java.profiler.report.plugin.Plugin;
 
 /**

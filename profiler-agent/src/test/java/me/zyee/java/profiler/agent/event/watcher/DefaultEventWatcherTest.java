@@ -3,7 +3,6 @@ package me.zyee.java.profiler.agent.event.watcher;
 import java.lang.instrument.Instrumentation;
 import java.util.concurrent.atomic.AtomicInteger;
 import me.zyee.java.profiler.agent.event.handler.DefaultEventHandler;
-import me.zyee.java.profiler.event.Before;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import me.zyee.java.profiler.event.watcher.EventWatcher;

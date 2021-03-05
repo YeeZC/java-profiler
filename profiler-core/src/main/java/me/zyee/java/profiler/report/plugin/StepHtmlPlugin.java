@@ -3,13 +3,6 @@ package me.zyee.java.profiler.report.plugin;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
-import me.zyee.java.profiler.ProfileNode;
-import me.zyee.java.profiler.flame.FlameParser;
-import me.zyee.java.profiler.flame.Frame;
-import me.zyee.java.profiler.utils.FormatUtil;
-import me.zyee.java.profiler.utils.LazyGet;
-import org.apache.commons.lang3.StringUtils;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -21,6 +14,12 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
+import me.zyee.java.profiler.ProfileNode;
+import me.zyee.java.profiler.flame.FlameParser;
+import me.zyee.java.profiler.flame.Frame;
+import me.zyee.java.profiler.utils.FormatUtil;
+import me.zyee.java.profiler.utils.LazyGet;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author yee

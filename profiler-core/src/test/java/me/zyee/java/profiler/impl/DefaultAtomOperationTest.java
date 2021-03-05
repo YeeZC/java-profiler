@@ -1,8 +1,7 @@
 package me.zyee.java.profiler.impl;
 
-import org.junit.Test;
-
 import java.util.Random;
+import org.junit.Test;
 
 /**
  * @author yee

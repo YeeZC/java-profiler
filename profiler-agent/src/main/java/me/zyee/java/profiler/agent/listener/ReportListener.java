@@ -12,7 +12,6 @@ import me.zyee.java.profiler.agent.plugin.SystemPlugin;
 import me.zyee.java.profiler.event.Before;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
-import me.zyee.java.profiler.report.plugin.Plugin;
 import org.apache.commons.lang3.reflect.FieldUtils;
 
 /**

@@ -2,19 +2,13 @@ package me.zyee.java.profiler.report;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
-import java.util.concurrent.RecursiveTask;
-import me.zyee.java.profiler.fork.ForkJoiner;
-import me.zyee.java.profiler.report.plugin.HtmlPlugin;
-
-import javax.annotation.Resource;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.CRC32;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
+import javax.annotation.Resource;
+import me.zyee.java.profiler.report.plugin.HtmlPlugin;
 
 /**
  * @author yee

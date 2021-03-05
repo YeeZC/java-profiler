@@ -1,6 +1,5 @@
 package me.zyee.java.profiler.report.plugin;
 
-import com.google.common.collect.Lists;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;

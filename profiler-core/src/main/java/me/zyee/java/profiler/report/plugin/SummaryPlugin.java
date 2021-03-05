@@ -1,10 +1,9 @@
 package me.zyee.java.profiler.report.plugin;
 
+import java.util.StringJoiner;
 import me.zyee.java.profiler.ProfileNode;
 import me.zyee.java.profiler.report.markdown.Title;
 import org.apache.commons.lang3.StringUtils;
-
-import java.util.StringJoiner;
 
 /**
  * @author yee
