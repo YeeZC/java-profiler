@@ -8,7 +8,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.CRC32;
@@ -58,9 +57,10 @@ public class HtmlReport {
                     file.extractAll(path.toString());
                 }
             }
-            final String js = "data." + Long.toHexString(value) + ".js";
+            final String hex = Long.toHexString(value);
+            final String js = "data." + hex + ".js";
             Files.write(dist.resolve(js), Lists.newArrayList("window.profileData=" + new String(bytes)));
-            final Path html = dist.resolve(name + "." + Long.toHexString(value) + ".html");
+            final Path html = dist.resolve(name + "." + hex + ".html");
             Files.copy(dist.resolve("index.html"), html);
             final byte[] htmlData = Files.readAllBytes(html);
             Files.write(html, new String(htmlData).replace("data.js", js).getBytes(StandardCharsets.UTF_8));
