@@ -2,13 +2,20 @@ package me.zyee.java.profiler.report;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.zip.CRC32;
 import javax.annotation.Resource;
 import me.zyee.java.profiler.report.plugin.HtmlPlugin;
+import me.zyee.java.profiler.utils.FileUtils;
+import net.lingala.zip4j.ZipFile;
 
 /**
  * @author yee
@@ -39,7 +46,24 @@ public class HtmlReport {
             final CRC32 crc32 = crc32Local.get();
             crc32.update(bytes);
             final long value = crc32.getValue();
-            Files.write(path.resolve("data." + Long.toHexString(value) + ".js"), Lists.newArrayList("window.profileData=" + new String(bytes)));
+            final Path dist = path.resolve("dist");
+            if (!Files.exists(dist)) {
+                final File zip = File.createTempFile("dist", ".zip");
+                try (InputStream is = HtmlReport.class.getResourceAsStream("/dist");
+                     FileOutputStream fos = new FileOutputStream(zip)
+                ) {
+                    FileUtils.transfer(is, fos);
+                    fos.close();
+                    ZipFile file = new ZipFile(zip);
+                    file.extractAll(path.toString());
+                }
+            }
+            final String js = "data." + Long.toHexString(value) + ".js";
+            Files.write(dist.resolve(js), Lists.newArrayList("window.profileData=" + new String(bytes)));
+            final Path html = dist.resolve(name + "." + Long.toHexString(value) + ".html");
+            Files.copy(dist.resolve("index.html"), html);
+            final byte[] htmlData = Files.readAllBytes(html);
+            Files.write(html, new String(htmlData).replace("data.js", js).getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             e.printStackTrace();
         } finally {
