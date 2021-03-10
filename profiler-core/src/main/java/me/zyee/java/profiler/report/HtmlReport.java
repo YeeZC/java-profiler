@@ -10,11 +10,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.RecursiveTask;
 import java.util.zip.CRC32;
 import javax.annotation.Resource;
+import me.zyee.java.profiler.fork.ForkJoiner;
 import me.zyee.java.profiler.report.plugin.HtmlPlugin;
 import me.zyee.java.profiler.utils.FileUtils;
 import net.lingala.zip4j.ZipFile;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.slf4j.event.Level;
 
 /**
  * @author yee
@@ -26,7 +33,7 @@ public class HtmlReport {
     @Resource(name = "system")
     private transient List<HtmlPlugin> system;
     private final List<HtmlPlugin> plugins;
-    private final String flame;
+    private transient final String flame;
     private transient static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final transient ThreadLocal<CRC32> crc32Local = ThreadLocal.withInitial(CRC32::new);
 
@@ -79,8 +86,9 @@ public class HtmlReport {
         return plugins;
     }
 
-    public String getFlame() {
-        return flame;
+    public List<FlameNode> getFlame() {
+        return ForkJoiner.invoke(new FlameNodeTask(Jsoup.parse(flame)
+                .select("ul.tree>li"), new FlameNode())).children;
     }
 
     public static Builder builder() {
@@ -107,20 +115,98 @@ public class HtmlReport {
 
         public Builder setFlame(String flame) {
             this.flame = flame.replace("</", "<#")
-                                .replace("/", ".")
-                                .replace("<#", "</");
+                    .replace("/", ".")
+                    .replace("<#", "</");
+
+            final FlameNode invoke = ForkJoiner.invoke(new RecursiveTask<FlameNode>() {
+                @Override
+                protected FlameNode compute() {
+                    return null;
+                }
+            });
             return this;
         }
 
-        public Builder of(HtmlReport htmlReport) {
-            this.name = htmlReport.name;
-            this.plugins = htmlReport.plugins;
-            this.flame = htmlReport.flame;
-            return this;
-        }
 
         public HtmlReport build() {
             return new HtmlReport(this);
+        }
+    }
+
+    public static class FlameNode {
+        private String title;
+        private String search;
+        private Level level;
+        private List<FlameNode> children = new ArrayList<>();
+
+        public String getTitle() {
+            return title;
+        }
+
+        public void setTitle(String title) {
+            this.title = title;
+        }
+
+        public String getSearch() {
+            return search;
+        }
+
+        public void setSearch(String search) {
+            this.search = search;
+        }
+
+        public Level getLevel() {
+            return level;
+        }
+
+        public void setLevel(Level level) {
+            this.level = level;
+        }
+
+        public List<FlameNode> getChildren() {
+            return children;
+        }
+
+        public void setChildren(List<FlameNode> children) {
+            this.children = children;
+        }
+    }
+
+    /**
+     * @author yee
+     * @version 1.0
+     * Create by yee on 2021/3/10
+     */
+    public static class FlameNodeTask extends RecursiveTask<FlameNode> {
+        private final Elements elements;
+        private final FlameNode root;
+
+        public FlameNodeTask(Elements elements, FlameNode root) {
+            this.elements = elements;
+            this.root = root;
+        }
+
+        @Override
+        protected FlameNode compute() {
+            for (Element element : elements) {
+                Optional.ofNullable(element.selectFirst("span")).ifPresent(el -> {
+                    final String span = el.text().replace("/", ".");
+                    final String div = element.selectFirst("div").text();
+                    final FlameNode node = new FlameNode();
+                    node.setTitle(div);
+                    node.setSearch(span);
+                    node.setChildren(new ArrayList<>());
+                    node.setLevel("red".equals(el.attr("class")) ? Level.ERROR : Level.INFO);
+                    final Element ul = element.selectFirst("ul");
+                    if (null != ul) {
+                        root.getChildren().add(new FlameNodeTask(ul.children(), node).fork().join());
+                    } else {
+                        root.getChildren().add(node);
+                    }
+
+                });
+            }
+            return root;
         }
     }
 }
