@@ -36,7 +36,6 @@ public class HtmlReport {
     private final List<HtmlPlugin> plugins;
     private transient final String flameSrc;
     private transient static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
-    private final transient ThreadLocal<CRC32> crc32Local = ThreadLocal.withInitial(CRC32::new);
 
     private HtmlReport(Builder builder) {
         this.name = builder.name;
@@ -50,7 +49,7 @@ public class HtmlReport {
         }
         try {
             final byte[] bytes = OBJECT_MAPPER.writeValueAsBytes(this);
-            final CRC32 crc32 = crc32Local.get();
+            final CRC32 crc32 = new CRC32();
             crc32.update(bytes);
             final long value = crc32.getValue();
             final Path dist = path.resolve("dist");
@@ -74,8 +73,6 @@ public class HtmlReport {
             Files.write(html, new String(htmlData).replace("data.js", js).getBytes(StandardCharsets.UTF_8));
         } catch (Exception e) {
             e.printStackTrace();
-        } finally {
-            crc32Local.remove();
         }
     }
 
