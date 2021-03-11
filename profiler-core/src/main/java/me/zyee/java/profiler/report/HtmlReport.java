@@ -2,6 +2,16 @@ package me.zyee.java.profiler.report;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Lists;
+import me.zyee.java.profiler.fork.ForkJoiner;
+import me.zyee.java.profiler.report.plugin.HtmlPlugin;
+import me.zyee.java.profiler.utils.FileUtils;
+import net.lingala.zip4j.ZipFile;
+import org.jsoup.Jsoup;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+import org.slf4j.event.Level;
+
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
@@ -13,15 +23,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.RecursiveTask;
 import java.util.zip.CRC32;
-import javax.annotation.Resource;
-import me.zyee.java.profiler.fork.ForkJoiner;
-import me.zyee.java.profiler.report.plugin.HtmlPlugin;
-import me.zyee.java.profiler.utils.FileUtils;
-import net.lingala.zip4j.ZipFile;
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
-import org.slf4j.event.Level;
 
 /**
  * @author yee
@@ -33,14 +34,14 @@ public class HtmlReport {
     @Resource(name = "system")
     private transient List<HtmlPlugin> system;
     private final List<HtmlPlugin> plugins;
-    private transient final String flame;
+    private transient final String flameSrc;
     private transient static final ObjectMapper OBJECT_MAPPER = new ObjectMapper();
     private final transient ThreadLocal<CRC32> crc32Local = ThreadLocal.withInitial(CRC32::new);
 
     private HtmlReport(Builder builder) {
         this.name = builder.name;
         this.plugins = builder.plugins;
-        this.flame = builder.flame;
+        this.flameSrc = builder.flame;
     }
 
     public void output(Path path) {
@@ -87,7 +88,7 @@ public class HtmlReport {
     }
 
     public List<FlameNode> getFlame() {
-        return ForkJoiner.invoke(new FlameNodeTask(Jsoup.parse(flame)
+        return ForkJoiner.invoke(new FlameNodeTask(Jsoup.parse(flameSrc)
                 .select("ul.tree>li"), new FlameNode())).children;
     }
 
@@ -114,16 +115,7 @@ public class HtmlReport {
         }
 
         public Builder setFlame(String flame) {
-            this.flame = flame.replace("</", "<#")
-                    .replace("/", ".")
-                    .replace("<#", "</");
-
-            final FlameNode invoke = ForkJoiner.invoke(new RecursiveTask<FlameNode>() {
-                @Override
-                protected FlameNode compute() {
-                    return null;
-                }
-            });
+            this.flame = flame;
             return this;
         }
 
