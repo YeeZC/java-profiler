@@ -1,13 +1,14 @@
 package me.zyee.java.profiler.flame;
 
+import org.apache.commons.lang3.StringUtils;
+import org.jsoup.nodes.Element;
+import org.jsoup.select.Elements;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.RecursiveTask;
 import java.util.function.Predicate;
-import org.apache.commons.lang3.StringUtils;
-import org.jsoup.nodes.Element;
-import org.jsoup.select.Elements;
 
 /**
  * @author yee
@@ -20,17 +21,8 @@ class FlameNodeTask extends RecursiveTask<FlameNode> {
     private final FlameNode root;
     private final Predicate<String> predicate;
 
-
-    FlameNodeTask(double min, Elements elements) {
-        this(min, elements, (FlameNode) null);
-    }
-
     FlameNodeTask(double min, Elements elements, Predicate<String> predicate) {
         this(min, elements, null, predicate);
-    }
-
-    FlameNodeTask(double min, Elements elements, FlameNode root) {
-        this(min, elements, root, any -> true);
     }
 
     FlameNodeTask(double min, Elements elements, FlameNode root, Predicate<String> predicate) {
