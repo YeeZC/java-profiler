@@ -166,7 +166,7 @@ public class HtmlReport {
      * @version 1.0
      * Create by yee on 2021/3/10
      */
-    public static class FlameNodeTask extends RecursiveTask<FlameNode> {
+    static class FlameNodeTask extends RecursiveTask<FlameNode> {
         private final Elements elements;
         private final FlameNode root;
 
@@ -178,24 +178,38 @@ public class HtmlReport {
         @Override
         protected FlameNode compute() {
             for (Element element : elements) {
-                Optional.ofNullable(element.selectFirst("span")).ifPresent(el -> {
-                    final String span = el.text().replace("/", ".");
-                    final String div = element.selectFirst("div").text();
-                    final FlameNode node = new FlameNode();
-                    node.setTitle(div);
-                    node.setSearch(span);
-                    node.setChildren(new ArrayList<>());
-                    node.setLevel("red".equals(el.attr("class")) ? Level.ERROR : Level.INFO);
-                    final Element ul = element.selectFirst("ul");
-                    if (null != ul) {
-                        root.getChildren().add(new FlameNodeTask(ul.children(), node).fork().join());
-                    } else {
-                        root.getChildren().add(node);
-                    }
-
-                });
+                final FlameNode join = new ElementTask(element).fork().join();
+                if (null != join) {
+                    root.getChildren().add(join);
+                }
             }
             return root;
+        }
+    }
+
+    static class ElementTask extends RecursiveTask<FlameNode> {
+        private final Element element;
+
+        public ElementTask(Element element) {
+            this.element = element;
+        }
+
+        @Override
+        protected FlameNode compute() {
+            return Optional.ofNullable(element.selectFirst("span")).map(el -> {
+                final String span = el.text().replace("/", ".");
+                final String div = element.selectFirst("div").text();
+                final FlameNode node = new FlameNode();
+                node.setTitle(div);
+                node.setSearch(span);
+                node.setChildren(new ArrayList<>());
+                node.setLevel("red".equals(el.attr("class")) ? Level.ERROR : Level.INFO);
+                final Element ul = element.selectFirst("ul");
+                if (null != ul) {
+                    return new FlameNodeTask(ul.children(), node).fork().join();
+                }
+                return node;
+            }).orElse(null);
         }
     }
 }
