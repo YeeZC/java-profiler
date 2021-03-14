@@ -1,6 +1,7 @@
 package me.zyee.java.profiler.operation.impl;
 
 import me.zyee.java.profiler.Operation;
+import me.zyee.java.profiler.operation.Summary;
 
 /**
  * @author yee
@@ -11,13 +12,16 @@ public class BaseOperation implements Operation {
     private final String name;
     private final long cost;
     private final String pattern;
-    private final String summery;
+    private final Summary summery;
 
     protected BaseOperation(BaseBuilder<?> builder) {
         this.name = builder.name;
         this.cost = builder.cost;
         this.pattern = builder.pattern;
         this.summery = builder.summery;
+        if (this.summery instanceof LinkedSummary) {
+            ((LinkedSummary) this.summery).setOperation(this);
+        }
     }
 
     @Override
@@ -37,14 +41,14 @@ public class BaseOperation implements Operation {
 
     @Override
     public String getSummery() {
-        return summery;
+        return summery.render();
     }
 
     protected static class BaseBuilder<T extends BaseBuilder<?>> {
         private String name;
         private long cost;
         private String pattern;
-        private String summery;
+        private Summary summery;
 
         public T setName(String name) {
             this.name = name;
@@ -61,8 +65,18 @@ public class BaseOperation implements Operation {
             return (T) this;
         }
 
-        public T setSummery(String summery) {
+        public T setSummery(Summary summery) {
             this.summery = summery;
+            return (T) this;
+        }
+
+        public T setSummery(String summery) {
+            this.summery = new SimpleSummary(summery);
+            return (T) this;
+        }
+
+        public T setSummery(String summery, boolean linked) {
+            this.summery = linked ? new LinkedSummary(summery) : new SimpleSummary(summery);
             return (T) this;
         }
     }
