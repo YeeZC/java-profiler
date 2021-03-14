@@ -8,4 +8,5 @@ import me.zyee.java.profiler.report.markdown.Node;
  * created by yee on 2021/3/14
  */
 public interface Summary extends Node {
+    Summary valueOf(String valueOf);
 }

@@ -8,14 +8,26 @@ import me.zyee.java.profiler.operation.Summary;
  * created by yee on 2021/3/14
  */
 public class SimpleSummary implements Summary {
-    private final String summary;
+    private String summary;
 
     public SimpleSummary(String summary) {
         this.summary = summary;
     }
 
+    public SimpleSummary() {
+    }
+
+    public void setSummary(String summary) {
+        this.summary = summary;
+    }
+
     @Override
     public String render() {
-        return null;
+        return summary;
+    }
+
+    @Override
+    public Summary valueOf(String valueOf) {
+        return new SimpleSummary(valueOf);
     }
 }
