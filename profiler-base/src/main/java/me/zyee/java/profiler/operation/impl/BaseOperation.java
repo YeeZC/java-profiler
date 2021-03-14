@@ -2,6 +2,9 @@ package me.zyee.java.profiler.operation.impl;
 
 import me.zyee.java.profiler.Operation;
 import me.zyee.java.profiler.operation.Summary;
+import me.zyee.java.profiler.report.markdown.Node;
+
+import java.util.Optional;
 
 /**
  * @author yee
@@ -41,7 +44,7 @@ public class BaseOperation implements Operation {
 
     @Override
     public String getSummery() {
-        return summery.render();
+        return Optional.ofNullable(summery).map(Node::render).orElse(null);
     }
 
     protected static class BaseBuilder<T extends BaseBuilder<?>> {
