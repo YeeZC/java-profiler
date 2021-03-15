@@ -35,7 +35,6 @@ import me.zyee.java.profiler.report.HtmlReport;
 import me.zyee.java.profiler.report.plugin.AtomHtmlPlugin;
 import me.zyee.java.profiler.report.plugin.StepHtmlPlugin;
 import me.zyee.java.profiler.report.plugin.StringSetHtmlPlugin;
-import me.zyee.java.profiler.report.plugin.SummaryHtmlPlugin;
 import me.zyee.java.profiler.utils.GroupMatcher;
 import me.zyee.java.profiler.utils.Matcher;
 import one.profiler.Events;
@@ -131,7 +130,6 @@ public class Core implements ProfilerCore {
 
                 final HtmlReport report = HtmlReport.builder().setFlame(new String(Files.readAllBytes(flamePath)))
                         .setPlugins(Lists.newArrayList(new AtomHtmlPlugin(root),
-                                new SummaryHtmlPlugin(root),
                                 StepHtmlPlugin.builder(root, warnings, errors).setCost(item.getCost())
                                         .setTheoreticalCost(theoreticalCost)
                                         .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent))
@@ -219,7 +217,7 @@ public class Core implements ProfilerCore {
             }).forEach(patterns::addAll);
         } else if (node instanceof AtomOperation) {
             profileNode.setAtom((double) node.getCost());
-            profileNode.setSummery(((AtomOperation) node).getSummery());
+            profileNode.setSummery(node.getSummery());
         }
         return patterns;
     }

@@ -174,6 +174,9 @@ public class StepHtmlPlugin implements HtmlPlugin {
         row.put("warning", new HashSet<>());
         row.put("id", sequence.getAndIncrement());
         data.add(row);
+        if (StringUtils.isNotEmpty(node.getSummery())) {
+            row.put("summary", node.getSummery());
+        }
         final List<ProfileNode> expandData = node.getChildren();
         if (null == expandData || expandData.isEmpty()) {
 
@@ -230,6 +233,12 @@ public class StepHtmlPlugin implements HtmlPlugin {
     @Override
     @JsonProperty
     public boolean isExpandable() {
+        return true;
+    }
+
+    @Override
+    @JsonProperty
+    public boolean isHint() {
         return true;
     }
 

@@ -10,10 +10,16 @@ import java.util.List;
 public interface HtmlPlugin {
 
     String getTitle();
+
     List<Object> getData();
+
     List<HtmlTableColumn> getColumns();
 
     boolean isExpandable();
+
+    default boolean isHint() {
+        return false;
+    }
 
     default PluginType getType() {
         return PluginType.table;

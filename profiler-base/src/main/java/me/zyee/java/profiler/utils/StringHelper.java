@@ -39,7 +39,8 @@ public class StringHelper {
                     }
                     final String2ObjectConverter<?> converter = String2Objects.create(field.getType(), field);
                     FieldUtils.writeField(field, configure, converter.convert(value), true);
-                } catch (IllegalAccessException ignore) {
+
+                } catch (Exception ignore) {
                 }
             }
         }

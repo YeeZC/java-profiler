@@ -1,10 +1,6 @@
 package me.zyee.java.profiler.operation.impl;
 
 import me.zyee.java.profiler.Operation;
-import me.zyee.java.profiler.operation.Summary;
-import me.zyee.java.profiler.report.markdown.Node;
-
-import java.util.Optional;
 
 /**
  * @author yee
@@ -15,16 +11,13 @@ public class BaseOperation implements Operation {
     private final String name;
     private final long cost;
     private final String pattern;
-    private final Summary summery;
+    private final String summery;
 
     protected BaseOperation(BaseBuilder<?> builder) {
         this.name = builder.name;
         this.cost = builder.cost;
         this.pattern = builder.pattern;
         this.summery = builder.summery;
-        if (this.summery instanceof LinkedSummary) {
-            ((LinkedSummary) this.summery).setOperation(this);
-        }
     }
 
     @Override
@@ -44,14 +37,14 @@ public class BaseOperation implements Operation {
 
     @Override
     public String getSummery() {
-        return Optional.ofNullable(summery).map(Node::render).orElse(null);
+        return summery;
     }
 
     protected static class BaseBuilder<T extends BaseBuilder<?>> {
         private String name;
         private long cost;
         private String pattern;
-        private Summary summery;
+        private String summery;
 
         public T setName(String name) {
             this.name = name;
@@ -68,20 +61,11 @@ public class BaseOperation implements Operation {
             return (T) this;
         }
 
-        public T setSummery(Summary summery) {
+        public T setSummery(String summery) {
             this.summery = summery;
             return (T) this;
         }
 
-        public T setSummery(String summery) {
-            this.summery = new SimpleSummary(summery);
-            return (T) this;
-        }
-
-        public T setSummery(String summery, boolean linked) {
-            this.summery = linked ? new LinkedSummary(summery) : new SimpleSummary(summery);
-            return (T) this;
-        }
     }
 
     @Override
