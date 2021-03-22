@@ -90,56 +90,60 @@ public class Core implements ProfilerCore {
         final Result apply = runner.apply(context);
         CoreModule.entryWarmup();
         if (apply.isOk()) {
-            final Queue<ProfileItem> items = context.getProfileItems();
-            Map<String, Long> theoreticalCost = new HashMap<>();
-            while (items.peek() != null) {
-                final ProfileItem item = items.poll();
-                if (item.getThrowable() != null) {
-                    continue;
-                }
-                final Path flamePath = item.getFlamePath();
-                final Queue<Operation> nodes = item.getNodes();
-                ProfileNode root = new ProfileNode();
-                final Set<String> patterns = new HashSet<>();
-                while (null != nodes.peek()) {
-                    final Operation node = nodes.poll();
-                    makeProfileNode(patterns, node).forEach(root::addChild);
-                    calculateTheoreticalCost(item, theoreticalCost, node);
-                }
+            outputProfileReports(context);
+        }
+    }
 
-                final Map<String, Matcher<String>> patternMap = patterns.stream()
-                        .collect(Collectors.toMap(pattern -> pattern, pattern -> {
-                            String[] split = pattern.split("#");
-                            final Set<Class<?>> classes = CoreModule.find(split[0]);
-                            String methodPattern = "*";
-                            if (split.length >= 2) {
-                                methodPattern = split[1];
-                            }
-
-                            String target = methodPattern;
-                            if (!classes.isEmpty()) {
-                                final List<Matcher<String>> matchers = classes.stream().map(clazz -> clazz.getName() + "." + target)
-                                        .map((Function<String, Matcher<String>>) Matcher::classNameMatcher).collect(Collectors.toList());
-                                return new GroupMatcher.Or<>(matchers);
-                            }
-                            return Matcher.classNameMatcher(pattern);
-                        }));
-                root.merge();
-                Set<String> warnings = new LinkedHashSet<>();
-                Set<String> errors = new LinkedHashSet<>();
-
-                final HtmlReport report = HtmlReport.builder().setFlame(new String(Files.readAllBytes(flamePath)))
-                        .setPlugins(Lists.newArrayList(new AtomHtmlPlugin(root),
-                                StepHtmlPlugin.builder(root, warnings, errors).setCost(item.getCost())
-                                        .setTheoreticalCost(theoreticalCost)
-                                        .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent))
-                                        .build(),
-                                StringSetHtmlPlugin.builder().setTitle("警告").setData(() -> new ArrayList<>(warnings)).build(),
-                                StringSetHtmlPlugin.builder().setTitle("异常").setData(() -> new ArrayList<>(errors)).build()))
-                        .setName(item.getProfileName()).build();
-                report.output(Optional.ofNullable(reportPath).orElse(
-                        Paths.get(System.getProperty("user.dir"))));
+    private void outputProfileReports(Context context) throws IOException {
+        final Queue<ProfileItem> items = context.getProfileItems();
+        Map<String, Long> theoreticalCost = new HashMap<>();
+        while (items.peek() != null) {
+            final ProfileItem item = items.poll();
+            if (item.getThrowable() != null) {
+                continue;
             }
+            final Path flamePath = item.getFlamePath();
+            final Queue<Operation> nodes = item.getNodes();
+            ProfileNode root = new ProfileNode();
+            final Set<String> patterns = new HashSet<>();
+            while (null != nodes.peek()) {
+                final Operation node = nodes.poll();
+                makeProfileNode(patterns, node).forEach(root::addChild);
+                calculateTheoreticalCost(item, theoreticalCost, node);
+            }
+
+            final Map<String, Matcher<String>> patternMap = patterns.stream()
+                    .collect(Collectors.toMap(pattern -> pattern, pattern -> {
+                        String[] split = pattern.split("#");
+                        final Set<Class<?>> classes = CoreModule.find(split[0]);
+                        String methodPattern = "*";
+                        if (split.length >= 2) {
+                            methodPattern = split[1];
+                        }
+
+                        String target = methodPattern;
+                        if (!classes.isEmpty()) {
+                            final List<Matcher<String>> matchers = classes.stream().map(clazz -> clazz.getName() + "." + target)
+                                    .map((Function<String, Matcher<String>>) Matcher::classNameMatcher).collect(Collectors.toList());
+                            return new GroupMatcher.Or<>(matchers);
+                        }
+                        return Matcher.classNameMatcher(pattern);
+                    }));
+            root.merge();
+            Set<String> warnings = new LinkedHashSet<>();
+            Set<String> errors = new LinkedHashSet<>();
+
+            final HtmlReport report = HtmlReport.builder().setFlame(new String(Files.readAllBytes(flamePath)))
+                    .setPlugins(Lists.newArrayList(new AtomHtmlPlugin(root),
+                            StepHtmlPlugin.builder(root, warnings, errors).setCost(item.getCost())
+                                    .setTheoreticalCost(theoreticalCost)
+                                    .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent))
+                                    .build(),
+                            StringSetHtmlPlugin.builder().setTitle("警告").setData(() -> new ArrayList<>(warnings)).build(),
+                            StringSetHtmlPlugin.builder().setTitle("异常").setData(() -> new ArrayList<>(errors)).build()))
+                    .setName(item.getProfileName()).build();
+            report.output(Optional.ofNullable(reportPath).orElse(
+                    Paths.get(System.getProperty("user.dir"))));
         }
     }
 
