@@ -3,9 +3,8 @@ package me.zyee.java.profiler.report.plugin;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import me.zyee.java.profiler.ProfileNode;
 import me.zyee.java.profiler.utils.FormatUtil;
@@ -32,7 +31,9 @@ public class AtomHtmlPlugin implements HtmlPlugin {
     @Override
     @JsonProperty
     public List<Object> getData() {
-        return new ArrayList<>(findAtom(root));
+        List<AtomBean> data = new ArrayList<>();
+        findAtom(root, data);
+        return new ArrayList<>(data);
     }
 
     @Override
@@ -52,21 +53,57 @@ public class AtomHtmlPlugin implements HtmlPlugin {
         return false;
     }
 
-    private List<Map<String, String>> findAtom(ProfileNode node) {
-        List<Map<String, String>> data = new ArrayList<>();
+    private void findAtom(ProfileNode node, List<AtomBean> data) {
         if (null != node.getAtom()) {
             final String pattern = node.getPattern();
-            Map<String, String> item = new HashMap<>(4);
-            item.put("name", node.getName());
-            item.put("pattern", StringUtils.isEmpty(pattern) ? "" : pattern);
-            item.put("cost", FormatUtil.formatMilliseconds((node.getAtom()).longValue()));
-            item.put("summary", Optional.ofNullable(node.getSummery()).orElse(""));
-            data.add(item);
+            AtomBean item = new AtomBean();
+            item.name = node.getName();
+            item.pattern = StringUtils.isEmpty(pattern) ? "" : pattern;
+            item.cost = FormatUtil.formatMilliseconds((node.getAtom()).longValue());
+            item.summary = Optional.ofNullable(node.getSummery()).orElse("");
+            if (!data.contains(item)) {
+                data.add(item);
+            }
         } else if (null != node.getChildren()) {
             for (ProfileNode child : node.getChildren()) {
-                data.addAll(findAtom(child));
+                findAtom(child, data);
             }
         }
-        return data;
+    }
+
+    private static class AtomBean {
+        private String name;
+        private String pattern;
+        private String cost;
+        private String summary;
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+            AtomBean atomBean = (AtomBean) o;
+            return Objects.equals(name, atomBean.name) && Objects.equals(pattern, atomBean.pattern);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(name, pattern);
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public String getPattern() {
+            return pattern;
+        }
+
+        public String getCost() {
+            return cost;
+        }
+
+        public String getSummary() {
+            return summary;
+        }
     }
 }
