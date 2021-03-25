@@ -23,4 +23,16 @@ public interface Result {
             }
         };
     }
+
+    Result SUCCESS = new Result() {
+        @Override
+        public boolean isOk() {
+            return true;
+        }
+
+        @Override
+        public Throwable getThrowable() {
+            return null;
+        }
+    };
 }
