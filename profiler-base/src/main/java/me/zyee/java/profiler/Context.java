@@ -13,4 +13,6 @@ public interface Context {
     Queue<ProfileItem> getProfileItems();
 
     Context resolve(String name);
+
+    String name();
 }

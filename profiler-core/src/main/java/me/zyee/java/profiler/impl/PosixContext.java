@@ -60,17 +60,18 @@ class PosixContext extends BaseContext {
     @Override
     public Context resolve(String name) {
         Context ctx = this;
-        Profiler profiler = null;
+        Profiler profiler;
+        String targetName;
         if (StringUtils.isNotEmpty(this.name)) {
-            profiler = init(this.name + File.separator + name, Events.CPU);
+            targetName = this.name + File.separator + name;
         } else {
-            profiler = init(name, Events.CPU);
+            targetName = name;
         }
-        Profiler cpu = profiler;
+        profiler = init(targetName, Events.CPU);
         return new Context() {
             @Override
             public Profiler getProfiler() {
-                return cpu;
+                return profiler;
             }
 
             @Override
@@ -81,6 +82,11 @@ class PosixContext extends BaseContext {
             @Override
             public Context resolve(String name) {
                 return this;
+            }
+
+            @Override
+            public String name() {
+                return targetName;
             }
         };
     }

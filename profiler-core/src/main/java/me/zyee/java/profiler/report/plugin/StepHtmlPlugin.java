@@ -93,7 +93,7 @@ public class StepHtmlPlugin implements HtmlPlugin {
             data.put("totalCost", FormatUtil.formatMilliseconds(totalCost));
         });
         Optional.ofNullable(data.get("percent")).ifPresent(t -> {
-            double percent = ((Number) t).longValue();
+            double percent = ((Number) t).doubleValue();
             data.put("percent", String.format("%.2f%%", percent));
         });
         final List<Map<String, Object>> expandData = (List<Map<String, Object>>) data.get("expandData");
@@ -103,7 +103,9 @@ public class StepHtmlPlugin implements HtmlPlugin {
     private void fill(Map<String, Object> expandData) {
         final List<Map<String, Object>> data = (List<Map<String, Object>>) expandData.get("expandData");
         if (!data.isEmpty()) {
-            data.forEach(this::fill);
+            final List<Map<String, Object>> newExpandData = data.stream()
+                    .filter(datum -> datum.containsKey("percent")).peek(this::fill).collect(Collectors.toList());
+            expandData.put("expandData", newExpandData);
             if (!expandData.containsKey("theoretical") || (long) expandData.get("theoretical") == 0L) {
                 data.stream().map(map -> map.get("theoretical"))
                         .filter(Objects::nonNull).map(Long.class::cast).reduce(Long::sum)

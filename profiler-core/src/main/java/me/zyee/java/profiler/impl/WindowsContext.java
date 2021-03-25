@@ -45,6 +45,11 @@ class WindowsContext extends BaseContext {
             public Context resolve(String name) {
                 return this;
             }
+
+            @Override
+            public String name() {
+                return null;
+            }
         };
     }
 }

@@ -24,6 +24,8 @@
 package me.zyee.java.profiler.utils;
 
 import java.math.BigInteger;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -277,5 +279,11 @@ public final class FormatUtil {
         }
         builder.append(milli).append("ms");
         return builder.toString();
+    }
+
+    private static final DateTimeFormatter DTFM = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+
+    public static String formatNow() {
+        return LocalDateTime.now().format(DTFM);
     }
 }

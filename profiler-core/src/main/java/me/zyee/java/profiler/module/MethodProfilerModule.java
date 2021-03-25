@@ -28,6 +28,8 @@ import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.BehaviorFilter;
 import me.zyee.java.profiler.filter.ProfileBehaviorFilter;
 import me.zyee.java.profiler.impl.ContextHelper;
+import me.zyee.java.profiler.utils.FormatUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
 
 /**
@@ -77,8 +79,10 @@ public class MethodProfilerModule implements Module {
     }
 
     protected boolean onBefore(Before before) {
-        Context context = ContextHelper.getContext().resolve(transferProfileName(before));
-        item = new ProfileItem(transferProfileName(before));
+        final Context parent = ContextHelper.getContext();
+        final String name = transferProfileName(parent.name(), before);
+        Context context = parent.resolve(name);
+        item = new ProfileItem(name);
         Optional.ofNullable(context.getProfileItems()).ifPresent(queue -> queue.offer(item));
         profiler = context.getProfiler();
         if (null != profiler) {
@@ -151,9 +155,9 @@ public class MethodProfilerModule implements Module {
         return onReturn();
     }
 
-    protected String transferProfileName(Before before) {
-        return before.getTriggerClass() + "#" + before.getTriggerMethod()
-                + System.currentTimeMillis();
+    protected String transferProfileName(String name, Before before) {
+        return (StringUtils.isEmpty(name) ? before.getTriggerClass() : name).replace("/", ".") + "#" + before.getTriggerMethod()
+                + FormatUtil.formatNow();
     }
 
     protected BehaviorFilter getFilter() {

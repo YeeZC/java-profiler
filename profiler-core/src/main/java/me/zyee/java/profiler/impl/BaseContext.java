@@ -28,4 +28,9 @@ abstract class BaseContext implements Context {
     public Context resolve(String name) {
         return this;
     }
+
+    @Override
+    public String name() {
+        return name;
+    }
 }
