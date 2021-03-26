@@ -3,6 +3,13 @@ package me.zyee.java.profiler.report.plugin;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.google.common.collect.Lists;
+import me.zyee.java.profiler.ProfileNode;
+import me.zyee.java.profiler.flame.FlameParser;
+import me.zyee.java.profiler.flame.Frame;
+import me.zyee.java.profiler.utils.FormatUtil;
+import me.zyee.java.profiler.utils.LazyGet;
+import org.apache.commons.lang3.StringUtils;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -14,12 +21,6 @@ import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
-import me.zyee.java.profiler.ProfileNode;
-import me.zyee.java.profiler.flame.FlameParser;
-import me.zyee.java.profiler.flame.Frame;
-import me.zyee.java.profiler.utils.FormatUtil;
-import me.zyee.java.profiler.utils.LazyGet;
-import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author yee
@@ -32,7 +33,7 @@ public class StepHtmlPlugin implements HtmlPlugin {
     private final Set<String> warnings;
     private final Set<String> errors;
     private final LazyGet<Map<String, Frame>> frames;
-    private final Map<String, Long> theoreticalCost;
+    private final Map<String, TheoreticalHelper> theoreticalCost;
     private final long actualCost;
     private long caseCost;
     private double profilerPercent;
@@ -160,6 +161,7 @@ public class StepHtmlPlugin implements HtmlPlugin {
                 HtmlTableColumn.builder().setTitle("操作名称").setKey("name").build(),
                 HtmlTableColumn.builder().setTitle("表达式").setKey("pattern").build(),
                 HtmlTableColumn.builder().setTitle("理论耗时").setKey("theoretical").build(),
+                HtmlTableColumn.builder().setTitle("执行次数").setKey("execCount").build(),
                 HtmlTableColumn.builder().setTitle("耗时").setKey("cost").build(),
                 HtmlTableColumn.builder().setTitle("百分比").setKey("percent").build(),
                 HtmlTableColumn.builder().setTitle("总耗时").setKey("totalCost").build(),
@@ -190,9 +192,10 @@ public class StepHtmlPlugin implements HtmlPlugin {
                     row.put("percent", percent);
                     row.put("cost", caseCost * percent / 100);
                 }
-                final Long theoretical = theoreticalCost.get(pattern);
+                final TheoreticalHelper theoretical = theoreticalCost.get(pattern);
                 if (null != theoretical) {
-                    row.put("theoretical", theoretical);
+                    row.put("theoretical", theoretical.getCost());
+                    row.put("execCount", theoretical.getExecCount());
                 }
             }
             row.put("name", stepName);
@@ -250,7 +253,7 @@ public class StepHtmlPlugin implements HtmlPlugin {
         private final Set<String> errors;
 
         private Supplier<Map<String, Frame>> frames;
-        private Map<String, Long> theoreticalCost;
+        private Map<String, TheoreticalHelper> theoreticalCost;
         private Long cost;
 
         private Builder(ProfileNode root, Set<String> warnings, Set<String> errors) {
@@ -264,7 +267,7 @@ public class StepHtmlPlugin implements HtmlPlugin {
             return this;
         }
 
-        public Builder setTheoreticalCost(Map<String, Long> theoreticalCost) {
+        public Builder setTheoreticalCost(Map<String, TheoreticalHelper> theoreticalCost) {
             this.theoreticalCost = theoreticalCost;
             return this;
         }

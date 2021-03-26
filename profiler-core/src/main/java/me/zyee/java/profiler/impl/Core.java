@@ -2,22 +2,6 @@ package me.zyee.java.profiler.impl;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
-import java.util.function.Function;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.Operation;
 import me.zyee.java.profiler.ProfileItem;
@@ -35,10 +19,28 @@ import me.zyee.java.profiler.report.HtmlReport;
 import me.zyee.java.profiler.report.plugin.AtomHtmlPlugin;
 import me.zyee.java.profiler.report.plugin.StepHtmlPlugin;
 import me.zyee.java.profiler.report.plugin.StringSetHtmlPlugin;
+import me.zyee.java.profiler.report.plugin.TheoreticalHelper;
 import me.zyee.java.profiler.utils.GroupMatcher;
 import me.zyee.java.profiler.utils.Matcher;
 import one.profiler.Events;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 /**
  * @author yee
@@ -96,7 +98,7 @@ public class Core implements ProfilerCore {
 
     private void outputProfileReports(Context context) throws IOException {
         final Queue<ProfileItem> items = context.getProfileItems();
-        Map<String, Long> theoreticalCost = new HashMap<>();
+        Map<String, TheoreticalHelper> theoreticalCost = new HashMap<>();
         while (items.peek() != null) {
             final ProfileItem item = items.poll();
             if (item.getThrowable() != null) {
@@ -162,7 +164,7 @@ public class Core implements ProfilerCore {
         return result;
     }
 
-    private void calculateTheoreticalCost(ProfileItem item, Map<String, Long> theoreticalCost, Operation node) {
+    private void calculateTheoreticalCost(ProfileItem item, Map<String, TheoreticalHelper> theoreticalCost, Operation node) {
         if (node instanceof AtomOperation) {
             final long cost = node.getCost();
             final long expect = ((AtomOperation) node).getExpect();
@@ -172,10 +174,19 @@ public class Core implements ProfilerCore {
 
             theoreticalCost.compute(node.getPattern(), (key, before) -> {
                 final long eval = expect * actual.get() * cost / when / 10000000;
-                if (null != before) {
-                    return before + eval;
-                }
-                return eval;
+                long c = null != before ? before.getCost() + eval : eval;
+                long count = null != before ? before.getExecCount() + actual.get() : actual.get();
+                return new TheoreticalHelper() {
+                    @Override
+                    public Long getExecCount() {
+                        return count;
+                    }
+
+                    @Override
+                    public Long getCost() {
+                        return c;
+                    }
+                };
             });
         } else if (node instanceof AtomGroup) {
             ((AtomGroup) node).getAllOperations().forEach(op -> calculateTheoreticalCost(item, theoreticalCost, op));
