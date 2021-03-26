@@ -1,13 +1,5 @@
 package me.zyee.java.profiler.impl;
 
-import java.io.File;
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Queue;
-import java.util.Set;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileItem;
 import me.zyee.java.profiler.Profiler;
@@ -16,6 +8,15 @@ import me.zyee.java.profiler.posix.PosixProfiler;
 import one.profiler.Counter;
 import one.profiler.Events;
 import org.apache.commons.lang3.StringUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Queue;
+import java.util.Set;
 
 /**
  * @author yee
@@ -60,14 +61,9 @@ class PosixContext extends BaseContext {
     @Override
     public Context resolve(String name) {
         Context ctx = this;
-        Profiler profiler;
-        String targetName;
-        if (StringUtils.isNotEmpty(this.name)) {
-            targetName = this.name + File.separator + name;
-        } else {
-            targetName = name;
-        }
-        profiler = init(targetName, Events.CPU);
+        String targetName = StringUtils.isNotEmpty(this.name) ? this.name + File.separator + name
+                : name;
+        Profiler profiler = init(targetName, Events.CPU);
         return new Context() {
             @Override
             public Profiler getProfiler() {
