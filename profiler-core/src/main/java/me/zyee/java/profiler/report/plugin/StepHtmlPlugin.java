@@ -34,6 +34,7 @@ public class StepHtmlPlugin implements HtmlPlugin {
     private final Set<String> errors;
     private final LazyGet<Map<String, Frame>> frames;
     private final Map<String, TheoreticalHelper> theoreticalCost;
+    private final Map<String, Supplier<Long>> counter;
     private final long actualCost;
     private long caseCost;
     private double profilerPercent;
@@ -48,6 +49,7 @@ public class StepHtmlPlugin implements HtmlPlugin {
         this.frames = new LazyGet.SupplierLazyGet<>(frames);
         this.theoreticalCost = Objects.requireNonNull(builder.theoreticalCost, "theoreticalCost");
         this.actualCost = Objects.requireNonNull(builder.cost, "cost");
+        this.counter = Optional.ofNullable(builder.counter).orElseGet(HashMap::new);
     }
 
     public static Builder builder(ProfileNode node, Set<String> warnings, Set<String> errors) {
@@ -196,6 +198,8 @@ public class StepHtmlPlugin implements HtmlPlugin {
                 if (null != theoretical) {
                     row.put("theoretical", theoretical.getCost());
                     row.put("execCount", theoretical.getExecCount());
+                } else if (counter.containsKey(pattern)) {
+                    row.put("execCount", counter.get(pattern).get());
                 }
             }
             row.put("name", stepName);
@@ -211,6 +215,9 @@ public class StepHtmlPlugin implements HtmlPlugin {
                 final Frame frame = frames.get().get(pattern);
                 if (null != frame) {
                     percent = calculatePercent(frame.getPercent());
+                }
+                if (counter.containsKey(pattern)) {
+                    row.put("execCount", counter.get(pattern).get());
                 }
             }
 
@@ -255,6 +262,7 @@ public class StepHtmlPlugin implements HtmlPlugin {
         private Supplier<Map<String, Frame>> frames;
         private Map<String, TheoreticalHelper> theoreticalCost;
         private Long cost;
+        private Map<String, Supplier<Long>> counter;
 
         private Builder(ProfileNode root, Set<String> warnings, Set<String> errors) {
             this.root = root;
@@ -274,6 +282,11 @@ public class StepHtmlPlugin implements HtmlPlugin {
 
         public Builder setCost(long cost) {
             this.cost = cost;
+            return this;
+        }
+
+        public Builder setCounter(Map<String, Supplier<Long>> counter) {
+            this.counter = counter;
             return this;
         }
 

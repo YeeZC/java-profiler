@@ -139,6 +139,7 @@ public class Core implements ProfilerCore {
                     .setPlugins(Lists.newArrayList(new AtomHtmlPlugin(root),
                             StepHtmlPlugin.builder(root, warnings, errors).setCost(item.getCost())
                                     .setTheoreticalCost(theoreticalCost)
+                                    .setCounter(item.getActualCost())
                                     .setFrames(() -> FlameParser.parse(flamePath, root, patternMap, collectMinPercent))
                                     .build(),
                             StringSetHtmlPlugin.builder().setTitle("警告").setData(() -> new ArrayList<>(warnings)).build(),

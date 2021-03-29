@@ -1,18 +1,5 @@
 package me.zyee.java.profiler.module;
 
-import java.lang.invoke.MethodType;
-import java.lang.reflect.Method;
-import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
-import java.util.function.Supplier;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
-import javax.annotation.Resource;
 import me.zyee.java.profiler.Context;
 import me.zyee.java.profiler.ProfileHandler;
 import me.zyee.java.profiler.ProfileHandlerRegistry;
@@ -31,6 +18,20 @@ import me.zyee.java.profiler.impl.ContextHelper;
 import me.zyee.java.profiler.utils.FormatUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
+
+import javax.annotation.Resource;
+import java.lang.invoke.MethodType;
+import java.lang.reflect.Method;
+import java.nio.file.Path;
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Supplier;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * @author yee
@@ -139,7 +140,7 @@ public class MethodProfilerModule implements Module {
                                 ActualCostCountModule::getReference));
                 final Map<String, Supplier<Long>> collect =
                         ContextHelper.COUNTER.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
-                                entry -> () -> (long) entry.getValue().get()));
+                                entry -> entry.getValue()::get));
                 ContextHelper.COUNTER.clear();
                 collect.forEach((key, value) -> {
                     costs.merge(key, value, (s, s1) -> () -> s.get() + s1.get());

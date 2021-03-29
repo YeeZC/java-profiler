@@ -1,13 +1,14 @@
 package me.zyee.java.profiler.impl;
 
+import me.zyee.java.profiler.Context;
+import me.zyee.java.profiler.module.Counter;
+import me.zyee.java.profiler.utils.OS;
+import one.profiler.Events;
+
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
-import me.zyee.java.profiler.Context;
-import me.zyee.java.profiler.utils.OS;
-import one.profiler.Events;
 
 /**
  * @author yee
@@ -16,7 +17,7 @@ import one.profiler.Events;
  */
 public class ContextHelper {
     private static final AtomicReference<Context> CONTEXT_ATOMIC_REFERENCE = new AtomicReference<>();
-    public static final Map<String, AtomicInteger> COUNTER = new ConcurrentHashMap<>();
+    public static final Map<String, Counter> COUNTER = new ConcurrentHashMap<>();
 
 
     public static Context getContext() {

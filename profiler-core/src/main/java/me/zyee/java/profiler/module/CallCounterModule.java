@@ -1,17 +1,18 @@
 package me.zyee.java.profiler.module;
 
-import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.function.Function;
-import javax.annotation.Resource;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.DefaultBehaviorFilter;
 import me.zyee.java.profiler.impl.ContextHelper;
 import me.zyee.java.profiler.utils.Matcher;
 import org.apache.commons.lang3.StringUtils;
+
+import javax.annotation.Resource;
+import java.lang.reflect.Method;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.function.Function;
 
 /**
  * @author yee
@@ -46,7 +47,17 @@ public class CallCounterModule implements Module {
                 continue;
             }
             final AtomicInteger c = new AtomicInteger();
-            final AtomicInteger value = ContextHelper.COUNTER.putIfAbsent(apply, c);
+            final Counter value = ContextHelper.COUNTER.putIfAbsent(apply, new Counter() {
+                @Override
+                public void increment() {
+                    c.incrementAndGet();
+                }
+
+                @Override
+                public long get() {
+                    return c.get();
+                }
+            });
             final int watch = watcher.watch(new DefaultBehaviorFilter(clazz.getName() + "#" + method.getName()),
                     (s, s1, s2) -> callClass.matching(s) && callMethod.matching(s1),
                     event -> {
@@ -54,7 +65,7 @@ public class CallCounterModule implements Module {
                             if (value == null) {
                                 c.incrementAndGet();
                             } else {
-                                value.incrementAndGet();
+                                value.increment();
                             }
                         }
                         return false;

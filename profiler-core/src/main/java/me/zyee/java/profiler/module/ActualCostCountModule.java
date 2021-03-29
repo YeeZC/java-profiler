@@ -1,11 +1,14 @@
 package me.zyee.java.profiler.module;
 
-import java.util.concurrent.atomic.LongAdder;
-import java.util.function.Supplier;
-import javax.annotation.Resource;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.watcher.EventWatcher;
 import me.zyee.java.profiler.filter.DefaultBehaviorFilter;
+import me.zyee.java.profiler.impl.ContextHelper;
+
+import javax.annotation.Resource;
+import java.util.Optional;
+import java.util.concurrent.atomic.LongAdder;
+import java.util.function.Supplier;
 
 /**
  * @author yee
@@ -21,11 +24,24 @@ public class ActualCostCountModule implements Module {
 
     private final String pattern;
 
-    private final LongAdder reference;
+    private final Counter reference;
 
     public ActualCostCountModule(String pattern) {
         this.pattern = pattern;
-        this.reference = new LongAdder();
+        LongAdder adder = new LongAdder();
+        final Counter ref = new Counter() {
+            @Override
+            public void increment() {
+                adder.increment();
+            }
+
+            @Override
+            public long get() {
+                return adder.longValue();
+            }
+        };
+        final Counter counter = ContextHelper.COUNTER.putIfAbsent(pattern, ref);
+        this.reference = Optional.ofNullable(counter).orElse(ref);
     }
 
     @Override
@@ -51,6 +67,6 @@ public class ActualCostCountModule implements Module {
     }
 
     public Supplier<Long> getReference() {
-        return reference::longValue;
+        return reference::get;
     }
 }
