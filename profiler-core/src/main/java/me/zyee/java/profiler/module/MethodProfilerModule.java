@@ -142,6 +142,8 @@ public class MethodProfilerModule implements Module {
                 item.setActualCost(collect);
             }
         }
+        modules.forEach(Module::disable);
+        modules.clear();
         return false;
     }
 
