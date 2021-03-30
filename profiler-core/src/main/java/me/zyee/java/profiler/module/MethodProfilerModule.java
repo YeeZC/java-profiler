@@ -135,17 +135,11 @@ public class MethodProfilerModule implements Module {
             } catch (NullPointerException e) {
                 item.setThrowable(e);
             } finally {
-                final Map<String, Supplier<Long>> costs = modules.stream().peek(Module::disable)
-                        .collect(Collectors.toMap(ActualCostCountModule::getPattern,
-                                ActualCostCountModule::getReference));
                 final Map<String, Supplier<Long>> collect =
                         ContextHelper.COUNTER.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey,
                                 entry -> entry.getValue()::get));
                 ContextHelper.COUNTER.clear();
-                collect.forEach((key, value) -> {
-                    costs.merge(key, value, (s, s1) -> () -> s.get() + s1.get());
-                });
-                item.setActualCost(costs);
+                item.setActualCost(collect);
             }
         }
         return false;
