@@ -1,18 +1,18 @@
 package me.zyee.java.profiler.agent.listener;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.ServiceLoader;
-import javax.annotation.Resource;
 import me.zyee.java.profiler.agent.plugin.PluginInjector;
-import me.zyee.java.profiler.agent.plugin.SystemHtmlPlugin;
 import me.zyee.java.profiler.agent.plugin.SystemPlugin;
 import me.zyee.java.profiler.event.Before;
 import me.zyee.java.profiler.event.Event;
 import me.zyee.java.profiler.event.listener.EventListener;
 import org.apache.commons.lang3.reflect.FieldUtils;
+
+import javax.annotation.Resource;
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.ServiceLoader;
 
 /**
  * @author yee
@@ -20,7 +20,7 @@ import org.apache.commons.lang3.reflect.FieldUtils;
  * Create by yee on 2021/1/22
  */
 public class ReportListener implements EventListener {
-    private final List<SystemHtmlPlugin> system = new ArrayList<>();
+    private final List<SystemPlugin> system = new ArrayList<>();
 
     @Override
     public boolean onEvent(Event event) throws Throwable {

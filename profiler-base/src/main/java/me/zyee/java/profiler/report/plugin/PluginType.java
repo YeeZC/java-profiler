@@ -6,5 +6,5 @@ package me.zyee.java.profiler.report.plugin;
  * Create by yee on 2021/2/24
  */
 public enum PluginType {
-    table, ul, ol, md;
+    table, ul, ol;
 }

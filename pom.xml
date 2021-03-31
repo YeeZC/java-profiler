@@ -9,7 +9,7 @@
     <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
     <modules>
-        <module>profiler-nlogn</module>
+<!--        <module>profiler-nlogn</module>-->
         <module>profiler-operator</module>
         <module>profiler-core</module>
         <module>profiler-base</module>
