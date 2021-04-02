@@ -1,14 +1,10 @@
 package me.zyee.java.profiler.agent;
 
-import java.lang.instrument.Instrumentation;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.util.List;
-import javax.annotation.Resource;
 import me.zyee.java.profiler.WarmupSwitcher;
 import me.zyee.java.profiler.agent.event.handler.DefaultEventHandler;
 import me.zyee.java.profiler.agent.event.watcher.AgentEventWatcher;
 import me.zyee.java.profiler.agent.event.watcher.DefaultEventWatcher;
+import me.zyee.java.profiler.agent.listener.BenchmarkListener;
 import me.zyee.java.profiler.agent.listener.ModuleListener;
 import me.zyee.java.profiler.agent.listener.ReportListener;
 import me.zyee.java.profiler.event.Event;
@@ -17,6 +13,12 @@ import me.zyee.java.profiler.filter.DefaultBehaviorFilter;
 import org.apache.commons.lang3.ClassUtils;
 import org.apache.commons.lang3.reflect.FieldUtils;
 import org.apache.commons.lang3.reflect.MethodUtils;
+
+import javax.annotation.Resource;
+import java.lang.instrument.Instrumentation;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.util.List;
 
 /**
  * @author yee
@@ -53,10 +55,14 @@ public class Injector {
                     new ReportListener(), false, Event.Type.BEFORE);
             final int module = system.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.module.Module#enable"),
                     new ModuleListener(watcher), false, Event.Type.BEFORE);
+            final int oper = system.watch(new DefaultBehaviorFilter("me.zyee.java.profiler.operation.BenchmarkAtomOperation#init"),
+                    new BenchmarkListener(), false, Event.Type.BEFORE, Event.Type.RETURN
+            );
             switcher.getSystem().copyListener(handler);
             Runtime.getRuntime().addShutdownHook(new Thread(() -> {
                 system.delete(report);
                 system.delete(module);
+                system.delete(oper);
             }));
         }
     }

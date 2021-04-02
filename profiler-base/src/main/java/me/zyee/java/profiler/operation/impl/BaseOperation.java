@@ -9,7 +9,7 @@ import me.zyee.java.profiler.Operation;
  */
 public class BaseOperation implements Operation {
     private final String name;
-    private final long cost;
+    protected long cost;
     private final String pattern;
     private final String summery;
 
