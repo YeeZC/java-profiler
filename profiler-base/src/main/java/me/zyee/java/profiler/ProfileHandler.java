@@ -3,7 +3,7 @@ package me.zyee.java.profiler;
 import java.util.Queue;
 
 /**
- * 用于计算耗时的参照，如实际数据量
+ * 用于计算耗时的参照，产生实际Profile的步骤
  *
  * @author yee
  * @version 1.0

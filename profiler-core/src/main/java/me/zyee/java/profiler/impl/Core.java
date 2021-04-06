@@ -254,10 +254,26 @@ public class Core implements ProfilerCore {
     }
 
     public static class Builder {
+        /**
+         * 报告导出的位置
+         */
         private Path reportPath;
+        /**
+         * 火焰图不统计的表达式
+         */
         private Set<String> excludes;
+        /**
+         * 是否生成增强后的class
+         */
         private Boolean dumpClassFile;
+        /**
+         * 预热次数
+         */
         private Integer warmups;
+        /**
+         * 计算profile忽略的最小百分比
+         * 小于collectMinPercent不计入Profile结果百分比的计算
+         */
         private Double collectMinPercent = .5D;
 
         private Builder() {
