@@ -14,6 +14,7 @@ import me.zyee.java.profiler.flame.FlameParser;
 import me.zyee.java.profiler.module.CoreModule;
 import me.zyee.java.profiler.operation.AtomGroup;
 import me.zyee.java.profiler.operation.AtomOperation;
+import me.zyee.java.profiler.operation.BenchmarkAtomOperation;
 import me.zyee.java.profiler.operation.NormalOperation;
 import me.zyee.java.profiler.report.HtmlReport;
 import me.zyee.java.profiler.report.plugin.AtomHtmlPlugin;
@@ -110,8 +111,8 @@ public class Core implements ProfilerCore {
             final Set<String> patterns = new HashSet<>();
             while (null != nodes.peek()) {
                 final Operation node = nodes.poll();
-                makeProfileNode(patterns, node).forEach(root::addChild);
                 calculateTheoreticalCost(item, theoreticalCost, node);
+                makeProfileNode(patterns, node).forEach(root::addChild);
             }
 
             final Map<String, Matcher<String>> patternMap = patterns.stream()
@@ -167,12 +168,14 @@ public class Core implements ProfilerCore {
 
     private void calculateTheoreticalCost(ProfileItem item, Map<String, TheoreticalHelper> theoreticalCost, Operation node) {
         if (node instanceof AtomOperation) {
+            if (node instanceof BenchmarkAtomOperation) {
+                ((BenchmarkAtomOperation) node).init();
+            }
             final long cost = node.getCost();
             final long expect = ((AtomOperation) node).getExpect();
             final long when = ((AtomOperation) node).getWhen();
             final Supplier<Long> actual = Optional.ofNullable(item.getActualCost().get(node.getPattern()))
                     .orElse(((AtomOperation) node).getActual());
-
             theoreticalCost.compute(node.getPattern(), (key, before) -> {
                 final long eval = expect * actual.get() * cost / when / 10000000;
                 long c = null != before ? before.getCost() + eval : eval;

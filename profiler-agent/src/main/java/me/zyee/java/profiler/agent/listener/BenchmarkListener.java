@@ -35,7 +35,9 @@ public class BenchmarkListener implements EventListener {
                 this.operation = (BenchmarkAtomOperation) ((Before) event).getTrigger();
                 break;
             case RETURN:
-                if (((Boolean) ((Return) event).getReturnObject()) && null != operation) {
+                final Boolean returnObject = (Boolean) ((Return) event).getReturnObject();
+                if (returnObject && null != operation) {
+                    System.out.println("Run Benchmark " + this.operation.getBenchmarkClass().getSimpleName());
                     try {
                         final Optional<BenchmarkInfo> benchmarkInfo = run();
                         benchmarkInfo.ifPresent(info -> {
@@ -51,6 +53,7 @@ public class BenchmarkListener implements EventListener {
                                     cost = 0;
                                     break;
                             }
+                            System.out.printf("benchmark %s score %d ms/1kw \n", this.operation.getBenchmarkClass().getSimpleName(), cost);
                             operation.setCost(cost);
                         });
 
